@@ -1,33 +1,17 @@
-import enum
+from math import ceil
 
 
-class ProjectStatus(enum.Enum):
-    BACKLOG = "backlog"
-    PLANNED = "planned"
-    INPROGRESS = "inprogress"
-    PAUSED = "paused"
-    COMPLETED = "completed"
-    CANCELLED = "cancelled"
+def _response(status, message, data=None, error=None):
+    return {"status": status, "message": message, "data": data, "error": error}
 
 
-class IssueStatus(enum.Enum):
-    BACKLOG = "backlog"
-    TODO = "todo"
-    INPROGRESS = "inprogress"
-    DONE = "done"
-    DUPLICATE = "duplicate"
-    CANCELLED = "cancelled"
-
-
-class IssuePriority(enum.Enum):
-    HIGH = "high"
-    MEDIUM = "medium"
-    LOW = "low"
-    URGEN = "urgent"
-    NOPRIORITY = "nopriority"
-
-
-class WorkspaceRole(enum.Enum):
-    ADMIN = "admin"
-    MEMBER = "member"
-    MODERATOR = "moderator"
+def _pagination(current_page, total_item, items, limit):
+    return {
+        "items": items,
+        "pagination": {
+            "current_page": current_page,
+            "count": len(items),
+            "total_item": total_item,
+            "total_page": ceil(total_item / limit),
+        },
+    }

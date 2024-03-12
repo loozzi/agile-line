@@ -13,7 +13,7 @@ from sqlalchemy import (
 from sqlalchemy.orm import Mapped, mapped_column
 from sqlalchemy.sql import func
 from src import db
-from src.utils import ProjectStatus
+from src.enums import ProjectStatus
 
 
 class Project(db.Model):

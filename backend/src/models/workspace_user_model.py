@@ -4,7 +4,7 @@ from sqlalchemy import TIMESTAMP, Enum, ForeignKey, Integer, PrimaryKeyConstrain
 from sqlalchemy.orm import Mapped, mapped_column
 from sqlalchemy.sql import func
 from src import db
-from src.utils import WorkspaceRole
+from src.enums import WorkspaceRole
 
 
 class WorkspaceUser(db.Model):

@@ -4,7 +4,7 @@ from sqlalchemy import TIMESTAMP, Enum, ForeignKey, Integer, String, Text
 from sqlalchemy.orm import Mapped, mapped_column
 from sqlalchemy.sql import func
 from src import db
-from src.utils import IssuePriority, IssueStatus
+from src.enums import IssuePriority, IssueStatus
 
 
 class Issue(db.Model):
