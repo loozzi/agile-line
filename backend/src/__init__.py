@@ -5,7 +5,6 @@ from flask import Flask
 from flask_migrate import Migrate
 from flask_sqlalchemy import SQLAlchemy
 from src.config import Config
-from src.models import *
 from src.routes import api
 
 load_dotenv()
@@ -22,5 +21,6 @@ migrate = Migrate(app, db)
 
 app.env = config.ENV
 
+from src.models import *
 
 app.register_blueprint(api, url_prefix="/api")
