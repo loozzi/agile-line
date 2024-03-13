@@ -1,7 +1,7 @@
 <div align="center">
 	<h1>AgileLine</h1>
-	<p>
-		Công nghệ phần mềm - Nhóm 55
+	<p style = "color: palegreen;">
+		<b>AgileLine - A website project management </b>
 	</p>
 	<!-- Badges -->
 	<p>
@@ -32,16 +32,38 @@
 </div>
 
 ## 🌟 About the Project
+<p>
+		AgileLine is a website that supports teams in managing all projects across various fields by providing tools to track the progress of specific projects through issue management. It facilitates a more systematic development of projects, empowering team members with increased responsibility for their projects and enabling a comprehensive review of the entire project development process for the team
 
-## 🤝 Contact
+</p>
+
+## 🚀 Technology employed in the project
++ **Frontend:**
++ **Backend:**
+	- Programming Language: Python
+	- Web Framework: Flask
++ **Database**
+	- Database management system: MySQL
++ **Version Control and Source Code Management**
+	- Version Control : Github
+	- Source Code Management : Git Flow, Feature Branching
++ **Security and Authentication**
+	- JSON Web Tokens, OAuth
+## ⌛ Timeline
++ **Base Backend** : 04/3/2024
++ **Initalize Models**: 10/3/2024
++ **Design Database**: 11/3/2024
+## Visit our website:
+Click [here]() to go to the AgileLine website
+## 🤝 Contributors
 
 <center>
 	<table>
 		<th>
-			<td>Họ và tên</td>
-			<td>Mã sinh viên</td>
+			<td>FullName</td>
+			<td>StudentId</td>
 			<td>Email</td>
-			<td>Ngày sinh</td>
+			<td>DOB</td>
 		</th>
 		<tr>
 			<td>1</td>
