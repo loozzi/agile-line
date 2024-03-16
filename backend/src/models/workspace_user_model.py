@@ -12,7 +12,7 @@ class WorkspaceUser(db.Model):
     user_id: Mapped[int] = mapped_column(
         Integer,
         ForeignKey("user.id", ondelete="CASCADE"),
-        nullable=False,
+        nullable=False
     )
     workspace_id: Mapped[int] = mapped_column(
         Integer, ForeignKey("workspace.id", ondelete="CASCADE"), nullable=False
