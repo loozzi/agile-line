@@ -18,5 +18,16 @@ migrate = Migrate(app, db)
 app.env = config.ENV
 
 from src.models import *
+from src.utils import _response
 
 app.register_blueprint(api, url_prefix="/api")
+
+
+@app.errorhandler(500)
+def internal_server_error(e):
+    return _response(500, "Internal Server Error")
+
+
+@app.errorhandler(404)
+def page_not_found(e):
+    return _response(404, "Page Not Found")
