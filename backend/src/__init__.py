@@ -1,19 +1,15 @@
-import os
-
-from dotenv import load_dotenv
 from flask import Flask
 from flask_migrate import Migrate
 from flask_sqlalchemy import SQLAlchemy
-from src.config import Config
+from src.config import Config, EnvConfig
 from src.routes import api
-
-load_dotenv()
 
 app = Flask(__name__)
 
 config = Config().getDevConfig()
+env_config = EnvConfig()
 
-app.config["SQLALCHEMY_DATABASE_URI"] = os.environ.get("SQLALCHEMY_DATABASE_URI")
+app.config["SQLALCHEMY_DATABASE_URI"] = env_config.SQLALCHEMY_DATABASE_URI
 
 db = SQLAlchemy(app)
 
