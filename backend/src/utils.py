@@ -1,8 +1,7 @@
 from datetime import datetime, timedelta, timezone
 from math import ceil
 
-from jwt import JWT
-from jwt.utils import get_int_from_datetime
+import jwt
 from sqlalchemy.dialects.mysql import insert
 from src import db, env_config
 from src.models import RefreshToken
@@ -24,29 +23,29 @@ def _pagination(current_page, total_item, items, limit):
     }
 
 
-def jwt_generate(user):
-    instance = JWT()
+def to_dict(obj):
+    return {c.key: getattr(obj, c.key) for c in obj.__table__.columns}
 
-    access_token = instance.encode(
-        {
-            "user": user,
-            "iat": get_int_from_datetime(datetime.now(timezone.utc)),
-            "exp": get_int_from_datetime(
-                datetime.now(timezone.utc) + timedelta(days=1)
-            ),
-        },
+
+def jwt_generate(user):
+    data = to_dict(user)
+    del data["password"]
+    del data["created_at"]
+    del data["updated_at"]
+    data["iat"] = int(datetime.now(timezone.utc).timestamp())
+    data["exp"] = int((datetime.now(timezone.utc) + timedelta(days=1)).timestamp())
+    access_token = jwt.encode(
+        data,
         key=env_config.SECRET_KEY,
-        alg="HS256",
+        algorithm="HS256",
     )
 
-    refresh_token = access_token = instance.encode(
-        {
-            "user": user,
-            "iat": datetime.now(timezone.utc).timestamp(),
-            "exp": datetime.now(timezone.utc).timestamp() + timedelta(days=7),
-        },
+    data["exp"] = int((datetime.now(timezone.utc) + timedelta(days=7)).timestamp())
+    data["is_refresh_token"] = True
+    refresh_token = access_token = jwt.encode(
+        data,
         key=env_config.SECRET_KEY,
-        alg="HS256",
+        algorithm="HS256",
     )
 
     db.session.execute(
@@ -54,20 +53,18 @@ def jwt_generate(user):
         .values(
             user_id=user.id,
             token=refresh_token,
-            create_at=datetime.now(timezone.utc).timestamp(),
-            update_at=datetime.now(timezone.utc).timestamp(),
-            expiry_time=get_int_from_datetime(
-                datetime.now(timezone.utc) + timedelta(days=7)
-            ),
+            created_at=datetime.now(timezone.utc),
+            updated_at=datetime.now(timezone.utc),
+            expiry_time=datetime.now(timezone.utc) + timedelta(days=7),
         )
         .on_duplicate_key_update(
             [
                 ("token", refresh_token),
                 (
                     "expiry_time",
-                    datetime.now(timezone.utc).timestamp() + timedelta(days=7),
-                )("update_at"),
-                datetime.now(timezone.utc).timestamp(),
+                    datetime.now(timezone.utc) + timedelta(days=7),
+                ),
+                ("updated_at", datetime.now(timezone.utc)),
             ]
         )
     )

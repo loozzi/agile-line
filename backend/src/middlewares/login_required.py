@@ -19,7 +19,11 @@ def token_required(f):
             )
         try:
             data = jwt.decode(token, key=env_config.SECRET_KEY, algorithms=["HS256"])
-            cur_user = User().query.filter_by(id=data["user"].id).first()
+            if "is_refresh_token" in data.keys():
+                return _response(
+                    401, "Invalid Authentication Token!", None, "Unauthorized"
+                )
+            cur_user = User().query.get(data["id"])
             if cur_user is None:
                 return _response(
                     401, "Invalid Authentication Token!", None, "Unauthorized"

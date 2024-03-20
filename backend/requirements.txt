@@ -2,5 +2,6 @@ flask
 python-dotenv
 flask_migrate
 flask_sqlalchemy
-jwt
+flask_bcrypt
+pyjwt
 pymysql
