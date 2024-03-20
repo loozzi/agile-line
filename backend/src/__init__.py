@@ -3,6 +3,7 @@ from flask_bcrypt import Bcrypt
 from flask_migrate import Migrate
 from flask_sqlalchemy import SQLAlchemy
 from src.config import Config, EnvConfig
+from src.logging import logger
 
 app = Flask(__name__)
 
@@ -19,6 +20,8 @@ app.env = config.ENV
 app.secret_key = env_config.SECRET_KEY
 
 bcrypt = Bcrypt(app)
+
+logger.info("Application started")
 
 from src.models import *
 from src.routes import api
