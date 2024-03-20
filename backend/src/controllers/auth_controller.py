@@ -26,4 +26,10 @@ def register():
 
 @auth.route("/login", methods=["POST"])
 def login():
-    return _response(200, "Login successfully.")
+    username = request.form.get("username").strip()
+    password = request.form.get("password").strip()
+
+    if not username or not password:
+        return _response(400, "Vui lòng nhập đủ thông tin")
+
+    return auth_service.login(username, password)
