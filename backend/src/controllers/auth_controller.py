@@ -33,3 +33,11 @@ def login():
         return _response(400, "Vui lòng nhập đủ thông tin")
 
     return auth_service.login(username, password)
+
+
+@auth.route("/verify", methods=["POST"])
+def verify():
+    otp = request.form.get("otp").strip()
+    if not otp:
+        return _response(status=400, message="OTP không chính xác")
+    return auth_service.verify(otp)
