@@ -41,3 +41,11 @@ def verify():
     if not otp:
         return _response(status=400, message="OTP không chính xác")
     return auth_service.verify(otp)
+
+
+@auth.route("/send-otp", methods=["GET"])
+def send_otp():
+    try:
+        return auth_service.send_otp()
+    except Exception as e:
+        return _response(status=500, message="Something went wrong!", error=str(e))

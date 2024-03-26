@@ -98,3 +98,20 @@ def verify(otp):
         return _response(status=400, message="OTP không chính xác", error="Invalid OTP")
     except Exception as e:
         return _response(status=500, message="Something went wrong!", error=str(e))
+
+
+@token_required
+def send_otp():
+    current_user = request.user
+    send_to = current_user.email
+    otp_user = OtpVerification.query.filter_by(user_id=current_user.id).first()
+    if otp_user.verified:
+        return _response(status=200, message="Đã xác minh")
+    if otp_user.updated_at.timestamp() > datetime.now(timezone.utc).timestamp() - 60:
+        return _response(status=400, message="Vui lòng chờ 60s")
+    OTP_send = str(random.randint(100000, 999999))
+    try:
+        send_otp_email(send_to, OTP_send)
+        return _response(status=200, message="Đã gửi")
+    except Exception as e:
+        return _response(status=400, message="Không thể gửi OTP", error=str(e))
