@@ -42,7 +42,7 @@ def jwt_generate(user):
 
     data["exp"] = int((datetime.now(timezone.utc) + timedelta(days=7)).timestamp())
     data["is_refresh_token"] = True
-    refresh_token = access_token = jwt.encode(
+    refresh_token = jwt.encode(
         data,
         key=env_config.SECRET_KEY,
         algorithm="HS256",
