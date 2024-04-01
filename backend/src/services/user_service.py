@@ -8,7 +8,6 @@ from flask import request
 
 def make_data_to_respone(user):
     data = to_dict(user)
-    del data["id"]
     del data["password"]
     return data
 
@@ -54,24 +53,21 @@ def update_password(password, new_password):
     return _response(200, "Đổi mật khẩu thành công")
 
 
-def edit_info(
-    username, phone_number, first_name, last_name, avatar, description, password
-):
+def edit_info(update_info, password):
     current_user = request.user
     # Kiểm tra mật khẩu
     if not bcrypt.check_password_hash(current_user.password, password):
         return _response(401, "Sai mật khẩu")
     # Kiểm tra xem username đã tồn tại chưa
-    if username and User.query.filter(User.username == username).first():
+    if (
+        "username" in update_info
+        and User.query.filter(User.username == update_info["username"]).first()
+    ):
         return _response(400, "Username đã được sử dụng")
 
     # Cập nhật thông tin
-    current_user.username = username
-    current_user.phone_number = phone_number
-    current_user.first_name = first_name
-    current_user.last_name = last_name
-    current_user.avatar = avatar
-    current_user.description = description
+    for key, value in update_info.items():
+        setattr(current_user, key, value.strip()) if value else None
 
     # Đánh dấu thời gian cập nhật
     current_user.updated_at = (datetime.now(timezone.utc),)
