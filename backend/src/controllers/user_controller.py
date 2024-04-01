@@ -14,7 +14,7 @@ def update_email():
 
     if not email or not password:
         return _response(400, "Vui lòng nhập đủ thông tin")
-    
+
     return user_service.update_email(email, password)
 
 
@@ -24,13 +24,13 @@ def update_password():
     password = request.form.get("password", "").strip()
     new_password = request.form.get("new_password", "").strip()
 
-    if not password or not password:
+    if not password or not new_password:
         return _response(400, "Vui lòng nhập đủ thông tin")
 
     return user_service.update_password(password, new_password)
 
 
-@user.route('/', methods=["PUT"])
+@user.route("/", methods=["PUT"])
 @token_required
 def edit_info():
     username = request.form.get("username", "").strip()
@@ -50,22 +50,22 @@ def edit_info():
 
     # Kiểm tra từng trường và thêm vào dictionary nếu không rỗng
     if username is not None and username:
-        update_info['username'] = username
+        update_info["username"] = username
     if phone_number is not None and phone_number:
-        update_info['phone_number'] = phone_number
+        update_info["phone_number"] = phone_number
     if first_name is not None and first_name:
-        update_info['first_name'] = first_name
+        update_info["first_name"] = first_name
     if last_name is not None and last_name:
-        update_info['last_name'] = last_name
+        update_info["last_name"] = last_name
     if avatar is not None and avatar:
-        update_info['avatar'] = avatar
+        update_info["avatar"] = avatar
     if description is not None and description:
-        update_info['description'] = description
+        update_info["description"] = description
 
     return user_service.edit_info(update_info, password)
 
 
-@user.route('/', methods=["GET"])
+@user.route("/", methods=["GET"])
 @token_required
 def get_info():
     return user_service.make_data_to_respone(request.user)
