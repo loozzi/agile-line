@@ -49,3 +49,13 @@ def verify():
 @token_required
 def send_otp():
     return auth_service.send_otp()
+
+
+@auth.route("/refresh-token", methods=["POST"])
+@token_required
+def refresh_Token():
+    try:
+        Refresh_token = request.form.get("refresh_token")
+    except:
+        return _response(status=400, message="RefreshToken không tồn tại", error="RefreshToken does not exist")
+    return auth_service.refresh_token(Refresh_token)
