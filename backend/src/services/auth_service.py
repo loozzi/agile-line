@@ -3,13 +3,11 @@ from datetime import datetime, timezone, timedelta
 from sqlalchemy import or_
 from src import bcrypt, db
 from src.models import User, OtpVerification, RefreshToken
-from src.utils import _response, jwt_generate, to_dict
+from src.utils import _response, jwt_generate, to_dict, jwt_decode
 from src.email_service import send_otp_email
-from src import env_config
 
 from flask import request
 import random
-import jwt
 
 
 def make_data_to_respone(user_to_generate):
@@ -134,9 +132,7 @@ def send_otp():
 
 
 def refresh_token(refresh_token):
-    token_decode = jwt.decode(refresh_token,
-                              key=env_config.SECRET_KEY,
-                              algorithms=["HS256"])
+    token_decode = jwt_decode(refresh_token)
     if "is_refresh_token" not in token_decode.keys():
         return _response(status=400,
                          message="RefreshToken không hợp lệ",

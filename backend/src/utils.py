@@ -70,3 +70,10 @@ def jwt_generate(user):
     )
     db.session.commit()
     return {"access_token": access_token, "refresh_token": refresh_token}
+
+
+def jwt_decode(token):
+    data_decode = jwt.decode(token,
+                             key=env_config.SECRET_KEY,
+                             algorithms=["HS256"])
+    return data_decode
