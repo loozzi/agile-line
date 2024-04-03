@@ -2,8 +2,8 @@ from datetime import datetime, timezone, timedelta
 
 from sqlalchemy import or_
 from src import bcrypt, db
-from src.models import User, OtpVerification
-from src.utils import _response, jwt_generate, to_dict
+from src.models import User, OtpVerification, RefreshToken
+from src.utils import _response, jwt_generate, to_dict, jwt_decode
 from src.email_service import send_otp_email
 
 from flask import request
@@ -129,3 +129,21 @@ def send_otp():
         if send_otp_email(send_to, OTP_send):
             return _response(status=200, message="Đã gửi")
         return _response(status=400, message="Không thể gửi OTP")
+
+
+def refresh_token(refresh_token):
+    token_decode = jwt_decode(refresh_token)
+    if "is_refresh_token" not in token_decode.keys():
+        return _response(status=400,
+                         message="RefreshToken không hợp lệ",
+                         error="Invalid RefreshToken")
+    current_user = request.user
+    user_token = RefreshToken.query.filter_by(user_id=current_user.id).first()
+    if user_token.token != refresh_token:
+        return _response(status=400,
+                         message="RefreshToken không chính xác",
+                         error="Invalid RefreshToken")
+    data_respone = make_data_to_respone(current_user)
+    return _response(status=200,
+                     message="RefreshToken đã được tạo mới",
+                     data=data_respone)
