@@ -13,14 +13,18 @@
     "prettier:fix": "prettier --write \"src/**/(*.tsx|*.ts|*.css|*.scss)\""
   },
   "dependencies": {
+    "@redux-saga/core": "^1.3.0",
+    "@reduxjs/toolkit": "^2.2.3",
     "@remix-run/router": "^1.15.3",
     "axios": "^1.6.8",
     "evergreen-ui": "^7.1.9",
     "history": "^5.3.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
+    "react-redux": "^9.1.0",
     "react-router": "^6.22.3",
-    "react-router-dom": "^6.22.3"
+    "react-router-dom": "^6.22.3",
+    "redux-saga": "^1.3.0"
   },
   "devDependencies": {
     "@types/node": "^20.12.2",
