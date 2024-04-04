@@ -1,10 +1,9 @@
 from datetime import datetime, timezone
 
-from sqlalchemy import or_, func
-from src import bcrypt, db
-from src.models import Workspace, WorkspaceUser, User
-from src.utils import _response, _pagination, to_dict
-from sqlalchemy import select
+from src import db
+from src.models import Workspace, WorkspaceUser
+from src.utils import _response, _pagination, to_dict, gen_permalink
+from sqlalchemy import select, and_, insert
 from flask import request
 
 
@@ -27,13 +26,44 @@ def show_workspace(limit, page, keyword):
     return _response(200, workspace_list_pagination)
 
 
-def create_workspace(title, logo, description, is_private):
+def create_workspace(new_title, logo, description, is_private):
+    new_workspace = {
+        "title": new_title,
+        "logo": logo,
+        "description": description,
+        "permalink": gen_permalink(),
+        "is_private": is_private,
+        "created_at": int(datetime.now(timezone.utc).timestamp()),
+        "updated_at": int(datetime.now(timezone.utc).timestamp()),
+    }
+    db.session.execute(insert(Workspace), new_workspace)
+    pending_workspace = db.session.new
+    new_workspace["id"] = pending_workspace.id
+    db.session.commit()
+    return _response(200, to_dict(new_workspace))
 
-    return _response(200)
+
+def is_workspace_user(user, workspace):
+    if (
+        db.session.execute(
+            select(WorkspaceUser).where(
+                and_(
+                    WorkspaceUser.workspace_id
+                    == workspace.id & WorkspaceUser.user_id
+                    == user.id
+                )
+            )
+        )
+        is not None
+    ):
+        return True
+    return False
 
 
 def access_workspace(workspace):
-    if workspace.is_private is False:
-        return _response(200, to_dict(workspace))
+    user = request.user
+    if workspace.is_private is False and is_workspace_user(user, workspace) is True:
+        return_workspace = Workspace.query.filter_by(id=workspace.id).first()
+        return _response(200, to_dict(return_workspace))
     else:
         return _response(403, "Workspace private")

@@ -3,11 +3,13 @@ from src.models import Workspace
 from src.services import workspace_service
 from src.utils import _response
 from markupsafe import escape
+from src.middlewares import token_required
 
 workspace = Blueprint("workspace", __name__)
 
 
 @workspace.route("/", methods=["GET"])
+@token_required
 def show_workspace():
     limit = {escape(request.args.get(key="limit", default=10))}
     page = request.args.get(key="page", default=1)
@@ -34,6 +36,7 @@ def create_workspace():
 
 
 @workspace.route("/<string:permalink>", methods=["GET"])
+@token_required
 def access_workspace(permalink):
     if Workspace.query.filter_by(permalink=permalink).first():
         curr_workspace = Workspace.query.filter_by(permalink=permalink)
@@ -42,7 +45,8 @@ def access_workspace(permalink):
         return _response(404, "Không tìm thấy dữ liệu")
 
 
-@workspace.route("/<string:permalink", methods=["PUT"])
+@workspace.route("/<string:permalink>", methods=["PUT"])
+@token_required
 def edit_workspace(permalink):
     if Workspace.query.filter_by(permalink=permalink).first():
         curr_workspace = Workspace.query.filter_by(permalink=permalink)
