@@ -4,7 +4,7 @@ import envConfig from '~/configs/env.config'
 const client = axios.create({
   baseURL: envConfig.API_ENDPOINT,
   headers: {
-    'Content-Type': 'application/json'
+    'Content-Type': 'application/x-www-form-urlencoded'
   },
   withCredentials: true
 })
