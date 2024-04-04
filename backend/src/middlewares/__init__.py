@@ -1,1 +1,1 @@
-from src.middlewares.login_required import login_required
+from src.middlewares.login_required import token_required
