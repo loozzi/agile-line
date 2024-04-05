@@ -1,3 +1,9 @@
+import routeApi from '~/configs/route.api'
+import { IResponse } from '~/models/IResponse'
+import { Token } from '~/models/token'
+import { User } from '~/models/user'
+import client from './axios.service'
+
 interface AccessTokenLocalStorage {
   timestamp: number
   value: string
@@ -24,7 +30,7 @@ const getAccessToken = (): string | null => {
   return null
 }
 
-const removeAccessToken = () => {
+const removeAccessToken = (): void => {
   localStorage.removeItem('access_token')
 }
 
@@ -36,8 +42,30 @@ const getRefreshToken = (): string | null => {
   return localStorage.getItem('refresh_token')
 }
 
-const removeRefreshToken = () => {
+const removeRefreshToken = (): void => {
   localStorage.removeItem('refresh_token')
+}
+
+const setUser = (user: User | undefined): void => {
+  if (user) localStorage.setItem('user', JSON.stringify(user))
+}
+
+const getUser = (): User | undefined => {
+  const userRaw: string | null = localStorage.getItem('user')
+  if (userRaw) {
+    return JSON.parse(userRaw)
+  }
+  return undefined
+}
+
+const removeUser = (): void => {
+  localStorage.removeItem('user')
+}
+
+const generate = async (refresh_token: string): Promise<IResponse<Token>> => {
+  return await client.post(routeApi.auth.generateToken, {
+    refresh_token
+  })
 }
 
 export default {
@@ -46,5 +74,9 @@ export default {
   removeAccessToken,
   setRefreshToken,
   getRefreshToken,
-  removeRefreshToken
+  removeRefreshToken,
+  setUser,
+  getUser,
+  removeUser,
+  generate
 }

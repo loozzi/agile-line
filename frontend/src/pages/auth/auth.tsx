@@ -1,11 +1,18 @@
 import { ArrowLeftIcon, Button, LogInIcon, Pane, majorScale, toaster } from 'evergreen-ui'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Outlet } from 'react-router'
+import { useAppSelector } from '~/app/hook'
 import icons from '~/assets/icons'
 import imgs from '~/assets/imgs'
+import { history } from '~/configs/history'
+import routes from '~/configs/routes'
+import { selectIsAuthenticated } from '~/hooks/auth/auth.slice'
+import { User } from '~/models/user'
+import tokenService from '~/services/token.service'
 
 export const AuthTemplate = () => {
   const [showLoginForm, setShowLoginForm] = useState(false)
+  const isAuth = useAppSelector(selectIsAuthenticated)
 
   const toggleShowLoginForm = () => {
     setShowLoginForm(!showLoginForm)
@@ -15,7 +22,28 @@ export const AuthTemplate = () => {
     toaster.warning('Tính năng chưa có sẵn')
   }
 
-  // TODO: Handle when logged in, redirect to home page
+  useEffect(() => {
+    const accessToken: string | null = tokenService.getAccessToken()
+    const user: User | undefined = tokenService.getUser()
+    if (accessToken && user) {
+      history.push('/')
+    } else if (accessToken) {
+      history.push(routes.auth.verify)
+    }
+  }, [])
+
+  useEffect(() => {
+    const current_path = location.pathname.split('/').join('')
+    if (current_path == routes.auth.root.split('/').join('')) {
+      history.push(routes.auth.login)
+    }
+  }, [])
+
+  useEffect(() => {
+    if (isAuth) {
+      history.push('/')
+    }
+  }, [isAuth])
 
   return (
     <Pane
