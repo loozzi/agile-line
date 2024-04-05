@@ -10,15 +10,6 @@ from flask import request
 import random
 
 
-def respone_not_verify(token_check):
-    return _response(status=200,
-                     data={"access_token": token_check["access_token"],
-                           "refresh_token": token_check["refresh_token"]
-                           },
-                     message="Chưa xác minh OTP"
-                     )
-
-
 def check_verify(user):
     user_otp_verification = OtpVerification.query.filter_by(
         user_id=user.id).first()
@@ -28,7 +19,7 @@ def check_verify(user):
     return False
 
 
-def make_data_to_respone(user_to_generate):
+def make_data_to_respone(user_to_generate, verify_check):
     tokens = jwt_generate(user_to_generate)
     user_to_generate = to_dict(user_to_generate)
     del user_to_generate["description"]
@@ -38,6 +29,11 @@ def make_data_to_respone(user_to_generate):
     del user_to_generate["updated_at"]
     data_respone = {
             "user": user_to_generate,
+            "access_token": tokens["access_token"],
+            "refresh_token": tokens["refresh_token"],
+        }
+    if verify_check is False:
+        data_respone = {
             "access_token": tokens["access_token"],
             "refresh_token": tokens["refresh_token"],
         }
@@ -69,9 +65,10 @@ def login(username, password):
         or_(User.email == username, User.username == username)
     ).first()
     if check_verify(user) is False:
-        return respone_not_verify(jwt_generate(user))
+        data = make_data_to_respone(user, False)
+        return _response(200, "Chưa xác minh OTP", data)
     if user and bcrypt.check_password_hash(user.password, password):
-        data = make_data_to_respone(user)
+        data = make_data_to_respone(user, True)
 
         return _response(200, "Đăng nhập thành công", data)
 
@@ -85,7 +82,7 @@ def verify(otp):
     ).first()
     if otp_verify is not None:
         # make_data_respone
-        data_respone = make_data_to_respone(current_user)
+        data_respone = make_data_to_respone(current_user, True)
         #
         if otp_verify.verified:
             return _response(status=200,
@@ -158,13 +155,14 @@ def refresh_token(refresh_token):
                          error="Invalid RefreshToken")
     current_user = request.user
     if check_verify(current_user) is False:
-        return respone_not_verify(jwt_generate(current_user))
+        data = make_data_to_respone(current_user, False)
+        return _response(status=200, message="Chưa xác minh OTP", data=data)
     user_token = RefreshToken.query.filter_by(user_id=current_user.id).first()
     if user_token.token != refresh_token:
         return _response(status=400,
                          message="RefreshToken không chính xác",
                          error="Invalid RefreshToken")
-    data_respone = make_data_to_respone(current_user)
+    data_respone = make_data_to_respone(current_user, True)
     return _response(status=200,
                      message="RefreshToken đã được tạo mới",
                      data=data_respone)
