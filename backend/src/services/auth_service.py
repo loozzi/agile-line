@@ -138,6 +138,13 @@ def refresh_token(refresh_token):
                          message="RefreshToken không hợp lệ",
                          error="Invalid RefreshToken")
     current_user = request.user
+    user_otp_verification = OtpVerification.query.filter_by(
+        user_id=current_user.id).first()
+    if (user_otp_verification is not None and not
+       user_otp_verification.verified):
+        return _response(status=400,
+                         message="Tài khoản chưa xác minh OTP",
+                         error="OTP not verified")
     user_token = RefreshToken.query.filter_by(user_id=current_user.id).first()
     if user_token.token != refresh_token:
         return _response(status=400,
