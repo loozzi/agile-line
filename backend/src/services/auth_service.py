@@ -10,6 +10,24 @@ from flask import request
 import random
 
 
+def respone_not_verify(token_check):
+    return _response(status=200,
+                     data={"access_token": token_check["access_token"],
+                           "refresh_token": token_check["refresh_token"]
+                           },
+                     message="Chưa xác minh OTP"
+                     )
+
+
+def check_verify(user):
+    user_otp_verification = OtpVerification.query.filter_by(
+        user_id=user.id).first()
+    if (user_otp_verification is not None):
+        if (user_otp_verification.verified):
+            return True
+    return False
+
+
 def make_data_to_respone(user_to_generate):
     tokens = jwt_generate(user_to_generate)
     user_to_generate = to_dict(user_to_generate)
@@ -50,7 +68,8 @@ def login(username, password):
     user = User.query.filter(
         or_(User.email == username, User.username == username)
     ).first()
-
+    if check_verify(user) is False:
+        return respone_not_verify(jwt_generate(user))
     if user and bcrypt.check_password_hash(user.password, password):
         data = make_data_to_respone(user)
 
@@ -138,13 +157,8 @@ def refresh_token(refresh_token):
                          message="RefreshToken không hợp lệ",
                          error="Invalid RefreshToken")
     current_user = request.user
-    user_otp_verification = OtpVerification.query.filter_by(
-        user_id=current_user.id).first()
-    if (user_otp_verification is not None and not
-       user_otp_verification.verified):
-        return _response(status=400,
-                         message="Tài khoản chưa xác minh OTP",
-                         error="OTP not verified")
+    if check_verify(current_user) is False:
+        return respone_not_verify(jwt_generate(current_user))
     user_token = RefreshToken.query.filter_by(user_id=current_user.id).first()
     if user_token.token != refresh_token:
         return _response(status=400,
