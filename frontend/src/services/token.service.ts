@@ -1,11 +1,20 @@
+interface AccessTokenLocalStorage {
+  timestamp: number
+  value: string
+}
+
 const setAccessToken = (token: string): void => {
-  localStorage.setItem('access_token', token)
+  const data: AccessTokenLocalStorage = {
+    timestamp: Date.now(),
+    value: token
+  }
+  localStorage.setItem('access_token', JSON.stringify(data))
 }
 
 const getAccessToken = (): string | null => {
-  const dataRaw = localStorage.getItem('access_token')
+  const dataRaw: string | null = localStorage.getItem('access_token')
   if (dataRaw) {
-    const data: { timestamp: number; value: string } = JSON.parse(dataRaw)
+    const data: AccessTokenLocalStorage = JSON.parse(dataRaw)
     if (data.timestamp + 24 * 60 * 60 * 1000 > Date.now()) {
       return data.value
     } else {

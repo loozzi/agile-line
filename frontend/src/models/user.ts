@@ -19,8 +19,6 @@ export interface LoginPayload {
   password: string
 }
 
-export interface RegisterPayload {
+export interface RegisterPayload extends LoginPayload {
   email: string
-  username: string
-  password: string
 }

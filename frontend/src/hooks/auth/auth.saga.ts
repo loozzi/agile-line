@@ -1,14 +1,14 @@
-import { all, call, fork, put, take } from 'redux-saga/effects'
 import { toaster } from 'evergreen-ui'
+import { all, call, fork, put, take } from 'redux-saga/effects'
 
-import { authActions } from './auth.slice'
-import authService from '~/services/auth.service'
-import tokenService from '~/services/token.service'
-import { LoginPayload, RegisterPayload } from '~/models/user'
-import { IResponse } from '~/models/IResponse'
-import { Token } from '~/models/token'
 import { history } from '~/configs/history'
 import routes from '~/configs/routes'
+import { IResponse } from '~/models/IResponse'
+import { Token } from '~/models/token'
+import { LoginPayload, RegisterPayload } from '~/models/user'
+import authService from '~/services/auth.service'
+import tokenService from '~/services/token.service'
+import { authActions } from './auth.slice'
 
 function* handleLogin(payload: LoginPayload) {
   try {
@@ -43,6 +43,7 @@ function* handleLogout() {
 
 function* handleRegister(payload: RegisterPayload) {
   try {
+    console.log(payload)
     const resp: IResponse<Token> = yield call(authService.register, payload)
     if (resp.status === 200) {
       toaster.success(resp.message)
