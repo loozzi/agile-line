@@ -1,6 +1,6 @@
 <div align="center">
 	<h1>AgileLine</h1>
-	<p style = "color: palegreen;">
+	<p>
 		<b>AgileLine - A website project management </b>
 	</p>
 	<!-- Badges -->
@@ -31,67 +31,147 @@
 </h4>
 </div>
 
-## 🌟 About the Project
+## About the Project
+
 <p>
 		AgileLine is a website that supports teams in managing all projects across various fields by providing tools to track the progress of specific projects through issue management. It facilitates a more systematic development of projects, empowering team members with increased responsibility for their projects and enabling a comprehensive review of the entire project development process for the team
 
 </p>
 
-## 🚀 Technology employed in the project
-+ **Frontend:**
-+ **Backend:**
-	- Programming Language: Python
-	- Web Framework: Flask
-+ **Database**
-	- Database management system: MySQL
-+ **Version Control and Source Code Management**
-	- Version Control : Github
-	- Source Code Management : Git Flow, Feature Branching
-+ **Security and Authentication**
-	- JSON Web Tokens, OAuth
-## ⌛ Timeline
-+ **Base Backend** : 04/3/2024
-+ **Initalize Models**: 10/3/2024
-+ **Design Database**: 11/3/2024
-## Visit our website:
-Click [here]() to go to the AgileLine website
-## 🤝 Contributors
+## Technology
+
+- **Frontend:**
+  - ReactJs, TypeScript
+  - Evergreen UI
+  - Redux Toolkit + Saga
+- **Backend:**
+  - Python
+  - Flask, SqlAlchemy
+  - MySQL
+- **Security and Authentication**
+  - JSON Web Tokens, OAuth
+
+## Feature
+
+## Installation
+
+Clone repository
+
+```
+git clone https://github.com/loozzi/agile-line.git
+```
+
+Go to folder
+
+```
+cd agile-line
+```
+
+### Backend
+
+```
+cd backend
+```
+
+Install python and module
+
+```
+pip install -r requirements.txt
+```
+
+Config environment and run
+
+<details>
+<summary>Environment config (.env)</summary>
+
+```
+SQLALCHEMY_DATABASE_URI = 'mysql+pymysql://<username>:<password>@<host>/<database>?charset=utf8mb4'
+SECRET_KEY=<key>
+EMAIL_MAIL=<email>
+EMAIL_PASSWORD=<password>
+EMAIL_HOST=<host>
+EMAIL_PORT=465
+```
+
+</details>
+Create database
+
+```
+flask db upgrade
+```
+
+Run server
+
+```
+python app.py
+```
+
+### Frontend
+
+```
+cd frontend
+```
+
+Install nodejs and module
+
+```
+yarn
+```
+
+or
+
+```
+npm install
+```
+
+<details>
+<summary>Environment config (.env)</summary>
+
+```
+REACT_APP_API_ENDPOINT=<api>
+```
+
+</details>
+
+Run server
+
+```
+yarn dev
+```
+
+or
+
+```
+npm run dev
+```
+
+## Contributors
 
 <center>
 	<table>
 		<th>
-			<td>FullName</td>
-			<td>StudentId</td>
+			<td>Full Name</td>
 			<td>Email</td>
-			<td>DOB</td>
 		</th>
 		<tr>
 			<td>1</td>
 			<td>Vũ Thành Đạt</td>
-			<td>22022620</td>
 			<td><a href="mailto:22022620@vnu.edu.vn">22022620@vnu.edu.vn</a></td>
-			<td>14/12/2004</td>
 		</tr>
 		<tr>
 			<td>2</td>
 			<td>Nguyễn Trần Hải Ninh</td>
-			<td>22022526</td>
 			<td><a href="mailto:22022526@vnu.edu.vn">22022526@vnu.edu.vn</a></td>
-			<td>23/11/2004</td>
 		</tr>
 		<tr>
 			<td>3</td>
 			<td>Nguyễn Quang Thao</td>
-			<td>22022619</td>
 			<td><a href="mailto:22022619@vnu.edu.vn">22022619@vnu.edu.vn</a></td>
-			<td>19/07/2004</td>
 		</tr>
 		<tr>
 			<td>4</td>
 			<td>Nguyễn Quang Trung</td>
-			<td>22022665</td>
 			<td><a href="mailto:22022665@vnu.edu.vn">22022665@vnu.edu.vn</a></td>
-			<td>16/03/2004</td>
 		</tr>
 	</table>
 </center>

@@ -1,11 +1,13 @@
 from flask import Flask
 from flask_bcrypt import Bcrypt
+from flask_cors import CORS
 from flask_migrate import Migrate
 from flask_sqlalchemy import SQLAlchemy
 from src.config import Config, EnvConfig
 from src.logging import logger
 
 app = Flask(__name__)
+CORS(app, supports_credentials=True)
 
 config = Config().getDevConfig()
 env_config = EnvConfig()
