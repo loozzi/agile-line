@@ -15,6 +15,7 @@ def show_workspace():
 
 
 @workspace.route("/", methods=["POST"])
+@token_required
 def create_workspace():
     title = request.form.get("title", default="").strip()
     logo = request.form.get("logo", default="").strip()
@@ -44,12 +45,11 @@ def access_workspace(permalink):
 @workspace.route("/<string:permalink>", methods=["PUT"])
 @token_required
 def edit_workspace(permalink):
-    id = int(request.form.get("id"))
-    title = request.form.get("title").strip()
-    logo = request.form.get("logo").strip()
-    description = request.form.get("description").strip()
-    new_permalink = request.form.get("permalink").strip()
-    is_private = request.form.get("is_private").strip()
-    workspace_service.edit_workspace(
-        permalink, id, title, logo, description, new_permalink, is_private
+    title = request.form.get("title", "").strip()
+    logo = request.form.get("logo", "").strip()
+    description = request.form.get("description", "").strip()
+    new_permalink = request.form.get("permalink", "").strip()
+    is_private = request.form.get("is_private", "").strip()
+    return workspace_service.edit_workspace(
+        permalink, title, logo, description, new_permalink, is_private
     )

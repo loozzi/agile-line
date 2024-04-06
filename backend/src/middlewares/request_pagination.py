@@ -8,7 +8,7 @@ def request_pagination(f):
         page = 1
         limit = 10
         try:
-            page = request.args.get("page").strip()
+            page = request.args.get("page", default="").strip()
             if page.isnumeric():
                 page = int(page)
             else:
@@ -16,14 +16,14 @@ def request_pagination(f):
         except TypeError:
             page = 1
         try:
-            limit = request.args.get("limit").strip()
+            limit = request.args.get("limit", default="").strip()
             if limit.isnumeric():
                 limit = int(limit)
             else:
                 limit = 10
         except TypeError:
             limit = 10
-        pagination = {"page": max(page, 1), "limit": max(min(limit, 10, 1))}
+        pagination = {"page": max(page, 1), "limit": max(min(limit, 10), 1)}
         request.pagination = pagination
         return f(*args, **kwargs)
 
