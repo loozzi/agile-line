@@ -5,6 +5,11 @@ import jwt
 from sqlalchemy.dialects.mysql import insert
 from src import db, env_config
 from src.models import RefreshToken
+import uuid
+
+
+def gen_permalink():
+    return str(uuid.uuid4())
 
 
 def _response(status, message, data=None, error=None):
