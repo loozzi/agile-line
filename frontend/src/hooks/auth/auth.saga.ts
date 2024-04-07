@@ -24,8 +24,9 @@ function* handleLogin(payload: LoginPayload) {
       toaster.success(resp.message)
       yield call(saveToLocalStorage, resp.data!)
       yield put(authActions.loginSuccess(resp.data?.user))
-      setTimeout(() => {
-        history.push('/')
+      yield setTimeout(() => {
+        if (resp.data?.user) history.push('/')
+        else history.push(routes.auth.verify)
       }, 1500)
     } else {
       resp.status === 500 ? toaster.danger(resp.message) : toaster.warning(resp.message)
@@ -71,7 +72,7 @@ function* watchAuthFlow() {
     if (access_token) {
       isLogin = true
       const user: User | undefined = yield tokenService.getUser()
-      if (user) {
+      if (user || history.location.pathname === routes.auth.logout) {
         yield put(authActions.loginSuccess(user))
       } else {
         history.push(routes.auth.verify)
