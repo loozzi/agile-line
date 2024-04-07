@@ -4,7 +4,7 @@ from src import db
 from src.models import Workspace, WorkspaceUser
 from src.utils import _response, _pagination, to_dict, gen_permalink
 from src.enums import WorkspaceRole
-from sqlalchemy import select, and_, insert, update
+from sqlalchemy import select, and_, update
 from flask import request
 
 
@@ -28,7 +28,7 @@ def show_workspace(keyword):
         items=current_page_item,
         limit=limit,
     )
-    return _response(200, data=workspace_list_pagination)
+    return _response(200, message="Tìm kiếm thành công", data=workspace_list_pagination)
 
 
 def create_workspace(new_title, logo, description, is_private):
@@ -54,7 +54,7 @@ def create_workspace(new_title, logo, description, is_private):
     )
     db.session.add(new_workspace_user)
     db.session.commit()
-    return _response(200, data=return_workspace)
+    return _response(200, "Tạo thành công", data=return_workspace)
 
 
 def is_workspace_user(user, workspace):
@@ -83,7 +83,7 @@ def access_workspace(permalink):
         and is_workspace_user(user, curr_workspace) is True
     ) or curr_workspace.is_private is False:
         return_workspace = Workspace.query.filter_by(id=curr_workspace.id).first()
-        return _response(200, data=to_dict(return_workspace))
+        return _response(200, "Truy cập thành công", data=to_dict(return_workspace))
     else:
         return _response(403, "Workspace private")
 
