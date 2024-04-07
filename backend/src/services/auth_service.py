@@ -64,12 +64,11 @@ def login(username, password):
     user = User.query.filter(
         or_(User.email == username, User.username == username)
     ).first()
-    if check_verify(user) is False:
-        data = make_data_to_respone(user, False)
-        return _response(200, "Chưa xác minh OTP", data)
     if user and bcrypt.check_password_hash(user.password, password):
+        if check_verify(user) is False:
+            data = make_data_to_respone(user, False)
+            return _response(200, "Chưa xác minh OTP", data)
         data = make_data_to_respone(user, True)
-
         return _response(200, "Đăng nhập thành công", data)
 
     return _response(401, "Sai tài khoản hoặc mật khẩu")
