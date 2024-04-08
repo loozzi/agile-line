@@ -1,6 +1,6 @@
 import { PayloadAction, createSlice } from '@reduxjs/toolkit'
-import { LoginPayload, RegisterPayload, User } from '~/models/user'
-
+import { User } from '~/models/user'
+import { LoginPayload, RegisterPayload } from '~/models/auth'
 interface AuthState {
   isAuthenticated: boolean
   logging: boolean
@@ -12,7 +12,7 @@ const initialState: AuthState = {
   logging: false,
   users: undefined
 }
-
+// TODO: add verify reducers
 const authSlice = createSlice({
   name: 'auth',
   initialState: initialState,

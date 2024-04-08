@@ -5,7 +5,8 @@ import { history } from '~/configs/history'
 import routes from '~/configs/routes'
 import { IResponse } from '~/models/IResponse'
 import { Token } from '~/models/token'
-import { LoginPayload, RegisterPayload, User } from '~/models/user'
+import { LoginPayload, RegisterPayload } from '~/models/auth'
+import { User } from '~/models/user'
 import authService from '~/services/auth.service'
 import tokenService from '~/services/token.service'
 import { authActions } from './auth.slice'
@@ -24,10 +25,9 @@ function* handleLogin(payload: LoginPayload) {
       toaster.success(resp.message)
       yield call(saveToLocalStorage, resp.data!)
       yield put(authActions.loginSuccess(resp.data?.user))
-      yield setTimeout(() => {
-        if (resp.data?.user) history.push('/')
-        else history.push(routes.auth.verify)
-      }, 1500)
+      console.log(resp.data?.user)
+      if (resp.data?.user !== undefined) history.push('/')
+      else history.push(routes.auth.verify)
     } else {
       resp.status === 500 ? toaster.danger(resp.message) : toaster.warning(resp.message)
       yield put(authActions.loginFailed())
@@ -63,6 +63,8 @@ function* handleRegister(payload: RegisterPayload) {
     yield put(authActions.loginFailed())
   }
 }
+
+// TODO: Handle verify
 
 function* watchAuthFlow() {
   while (true) {

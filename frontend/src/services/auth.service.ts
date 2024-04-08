@@ -1,7 +1,7 @@
 import { IResponse } from '~/models/IResponse'
 import client from './axios.service'
 
-import { LoginPayload, RegisterPayload } from '~/models/user'
+import { LoginPayload, RegisterPayload, VerifyPayload } from '~/models/auth'
 import { Token } from '~/models/token'
 import routeApi from '~/configs/route.api'
 
@@ -13,7 +13,17 @@ const register = async (payload: RegisterPayload): Promise<IResponse<Token>> => 
   return await client.post(routeApi.auth.register, payload)
 }
 
+const sendOTP = async () => {
+  return await client.get(routeApi.auth.sendOTP)
+}
+
+const verify = async (payload: VerifyPayload) => {
+  return await client.post(routeApi.auth.verify, payload)
+}
+
 export default {
   login,
-  register
+  register,
+  sendOTP,
+  verify
 }
