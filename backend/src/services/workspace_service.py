@@ -15,6 +15,7 @@ def show_workspace(keyword):
     workspace_list = (
         Workspace.query.join(WorkspaceUser, Workspace.id == WorkspaceUser.workspace_id)
         .filter(WorkspaceUser.user_id == current_user.id)
+        .filter(Workspace.title.like(f"%{keyword}%") if keyword else True)
         .all()
     )
 
