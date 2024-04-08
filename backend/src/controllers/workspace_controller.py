@@ -53,3 +53,10 @@ def edit_workspace(permalink):
     return workspace_service.edit_workspace(
         permalink, title, logo, description, new_permalink, is_private
     )
+@workspace.route("/<string:permalink>/members", methods=["GET"])
+@token_required
+@request_pagination
+def show_workspace_members(permalink):
+    member_keyword = request.args.get(key="member_kw", default="")
+    role_workspace = request.args.get(key="role", default="")
+    return workspace_service.show_workspace_members(member_keyword, role_workspace, permalink)
