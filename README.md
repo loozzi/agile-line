@@ -23,7 +23,7 @@
 	</p>
 	
 <h4>
-	<a href="#">View Demo</a>
+	<a href="https://agile-line-client.vercel.app/" target="_blank">View Demo</a>
 <span> · </span>
 	<a href="https://github.com/loozzi/agile-line/issues/">Report Bug</a>
 <span> · </span>
