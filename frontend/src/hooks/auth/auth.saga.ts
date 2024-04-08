@@ -4,8 +4,8 @@ import { all, call, fork, put, take } from 'redux-saga/effects'
 import { history } from '~/configs/history'
 import routes from '~/configs/routes'
 import { IResponse } from '~/models/IResponse'
-import { Token } from '~/models/token'
 import { LoginPayload, RegisterPayload } from '~/models/auth'
+import { Token } from '~/models/token'
 import { User } from '~/models/user'
 import authService from '~/services/auth.service'
 import tokenService from '~/services/token.service'
@@ -25,7 +25,6 @@ function* handleLogin(payload: LoginPayload) {
       toaster.success(resp.message)
       yield call(saveToLocalStorage, resp.data!)
       yield put(authActions.loginSuccess(resp.data?.user))
-      console.log(resp.data?.user)
       if (resp.data?.user !== undefined) history.push('/')
       else history.push(routes.auth.verify)
     } else {
@@ -63,8 +62,6 @@ function* handleRegister(payload: RegisterPayload) {
     yield put(authActions.loginFailed())
   }
 }
-
-// TODO: Handle verify
 
 function* watchAuthFlow() {
   while (true) {

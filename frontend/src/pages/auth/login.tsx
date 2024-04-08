@@ -1,4 +1,4 @@
-import { Button, Label, Link as LinkComp, Pane, TextInputField, majorScale } from 'evergreen-ui'
+import { Button, Label, Pane, TextInputField, majorScale } from 'evergreen-ui'
 import { useFormik } from 'formik'
 import { useMemo } from 'react'
 import { Link } from 'react-router-dom'

@@ -13,11 +13,11 @@ const register = async (payload: RegisterPayload): Promise<IResponse<Token>> => 
   return await client.post(routeApi.auth.register, payload)
 }
 
-const sendOTP = async () => {
+const sendOTP = async (): Promise<IResponse<undefined>> => {
   return await client.get(routeApi.auth.sendOTP)
 }
 
-const verify = async (payload: VerifyPayload) => {
+const verify = async (payload: VerifyPayload): Promise<IResponse<Token | undefined>> => {
   return await client.post(routeApi.auth.verify, payload)
 }
 
