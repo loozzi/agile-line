@@ -6,3 +6,4 @@ flask_bcrypt
 flask-cors
 pyjwt
 pymysql
+gunicorn

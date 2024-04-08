@@ -1,4 +1,4 @@
-import { Button, Label, Link as LinkComp, Pane, TextInputField, majorScale } from 'evergreen-ui'
+import { Button, Label, Pane, TextInputField, majorScale } from 'evergreen-ui'
 import { useFormik } from 'formik'
 import { useMemo } from 'react'
 import { Link } from 'react-router-dom'
@@ -6,7 +6,7 @@ import * as Yup from 'yup'
 import { useAppDispatch } from '~/app/hook'
 import routes from '~/configs/routes'
 import { authActions } from '~/hooks/auth/auth.slice'
-import { LoginPayload } from '~/models/user'
+import { LoginPayload } from '~/models/auth'
 
 export const LoginPage = () => {
   const dispatch = useAppDispatch()

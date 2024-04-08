@@ -6,7 +6,7 @@ import * as Yup from 'yup'
 import { useAppDispatch } from '~/app/hook'
 import routes from '~/configs/routes'
 import { authActions } from '~/hooks/auth/auth.slice'
-import { RegisterPayload } from '~/models/user'
+import { RegisterPayload } from '~/models/auth'
 
 export const RegisterPage = () => {
   const dispatch = useAppDispatch()

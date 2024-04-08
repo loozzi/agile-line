@@ -13,12 +13,3 @@ export interface UserDetail extends User {
   created_at: string
   updated_at: string
 }
-
-export interface LoginPayload {
-  username: string
-  password: string
-}
-
-export interface RegisterPayload extends LoginPayload {
-  email: string
-}
