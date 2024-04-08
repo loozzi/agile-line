@@ -34,7 +34,7 @@ app.register_blueprint(api, url_prefix="/api")
 
 @app.errorhandler(500)
 def internal_server_error(e):
-    return _response(500, "Internal Server Error")
+    return _response(500, "Internal Server Error", None, e)
 
 
 @app.errorhandler(404)
