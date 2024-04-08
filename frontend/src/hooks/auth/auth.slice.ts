@@ -1,6 +1,7 @@
 import { PayloadAction, createSlice } from '@reduxjs/toolkit'
-import { LoginPayload, RegisterPayload, User } from '~/models/user'
-
+import { LoginPayload, RegisterPayload } from '~/models/auth'
+import { User } from '~/models/user'
+import tokenService from '~/services/token.service'
 interface AuthState {
   isAuthenticated: boolean
   logging: boolean
@@ -12,7 +13,6 @@ const initialState: AuthState = {
   logging: false,
   users: undefined
 }
-
 const authSlice = createSlice({
   name: 'auth',
   initialState: initialState,
@@ -44,6 +44,10 @@ const authSlice = createSlice({
       state.logging = false
       state.isAuthenticated = false
       state.users = undefined
+    },
+    verifySuccess(state, actions: PayloadAction<User | undefined>) {
+      state.users = actions.payload
+      tokenService.setUser(actions.payload)
     }
   }
 })
