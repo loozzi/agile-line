@@ -63,6 +63,8 @@ def edit_workspace(permalink):
         new_permalink,
         is_private
     )
+
+
 @workspace.route("/<string:permalink>/members", methods=["GET"])
 @token_required
 @request_pagination
@@ -72,6 +74,8 @@ def show_workspace_members(permalink):
     return workspace_service.show_workspace_members(member_keyword,
                                                     role_workspace,
                                                     permalink)
+
+
 @workspace.route("/<string:permalink>/members", methods=["POST"])
 @token_required
 @request_pagination
@@ -79,8 +83,16 @@ def add_members_to_workspace(permalink):
     list_id_members = request.form.get("user_ids", default="").strip()
     try:
         list_id_members = eval(list_id_members)
-    except Exception as e:
+    except Exception:
         return _response(400,
                          message="Danh sách thành viên không hợp lệ")
     return workspace_service.add_members_to_workspace(permalink,
                                                       list_id_members)
+
+
+@workspace.route("/<string:permalink>/members", methods=["DELETE"])
+@token_required
+def delete_member_from_workspace(permalink):
+    user_id = request.args.get("user_id", default="")
+    return workspace_service.delete_member_from_workspace(permalink,
+                                                          user_id)
