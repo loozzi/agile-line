@@ -10,17 +10,22 @@ workspace = Blueprint("workspace", __name__)
 @token_required
 @request_pagination
 def show_workspace():
-    keyword = request.args.get(key="keyword", default="")
+    keyword = request.args.get(key="keyword",
+                               default="")
     return workspace_service.show_workspace(keyword)
 
 
 @workspace.route("/", methods=["POST"])
 @token_required
 def create_workspace():
-    title = request.form.get("title", default="").strip()
-    logo = request.form.get("logo", default="").strip()
-    description = request.form.get("description", default="").strip()
-    is_private = request.form.get("is_private", default="false").strip()
+    title = request.form.get("title",
+                             default="").strip()
+    logo = request.form.get("logo",
+                            default="").strip()
+    description = request.form.get("description",
+                                   default="").strip()
+    is_private = request.form.get("is_private",
+                                  default="false").strip()
     if not logo:
         logo = ""
     if not description:
@@ -33,7 +38,10 @@ def create_workspace():
         is_private = True
     else:
         is_private = False
-    return workspace_service.create_workspace(title, logo, description, is_private)
+    return workspace_service.create_workspace(title,
+                                              logo,
+                                              description,
+                                              is_private)
 
 
 @workspace.route("/<string:permalink>", methods=["GET"])
@@ -51,7 +59,9 @@ def edit_workspace(permalink):
     new_permalink = request.form.get("permalink", "").strip()
     is_private = request.form.get("is_private", "").strip()
     return workspace_service.edit_workspace(
-        permalink, title, logo, description, new_permalink, is_private
+        permalink, title, logo, description,
+        new_permalink,
+        is_private
     )
 @workspace.route("/<string:permalink>/members", methods=["GET"])
 @token_required
@@ -59,4 +69,18 @@ def edit_workspace(permalink):
 def show_workspace_members(permalink):
     member_keyword = request.args.get(key="member_kw", default="")
     role_workspace = request.args.get(key="role", default="")
-    return workspace_service.show_workspace_members(member_keyword, role_workspace, permalink)
+    return workspace_service.show_workspace_members(member_keyword,
+                                                    role_workspace,
+                                                    permalink)
+@workspace.route("/<string:permalink>/members", methods=["POST"])
+@token_required
+@request_pagination
+def add_members_to_workspace(permalink):
+    list_id_members = request.form.get("user_ids", default="").strip()
+    try:
+        list_id_members = eval(list_id_members)
+    except Exception as e:
+        return _response(400,
+                         message="Danh sách thành viên không hợp lệ")
+    return workspace_service.add_members_to_workspace(permalink,
+                                                      list_id_members)
