@@ -1,11 +1,38 @@
 from datetime import datetime, timezone
 
 from src import db
-from src.models import Workspace, WorkspaceUser, User, Project, UserRole, Role
+from src.models import Workspace, WorkspaceUser, User, Project
+from src.models import UserRole, Role, OtpVerification
 from src.utils import _response, _pagination, to_dict, gen_permalink
 from src.enums import WorkspaceRole
 from sqlalchemy import select, and_, update
 from flask import request
+
+
+def make_data_to_response_project(dict_user, role):
+    del dict_user["password"]
+    del dict_user["created_at"]
+    del dict_user["updated_at"]
+    del dict_user["description"]
+    del dict_user["phone_number"]
+    del dict_user["email"]
+    dict_user["role"] = role
+    dict_user["project"] = []
+    list_user_role = UserRole.query.filter_by(user_id=dict_user["id"]).all()
+    list_project = []
+    for user_role in list_user_role:
+        role = Role.query.filter_by(id=user_role.role_id).first()
+        if role is None:
+            continue
+        project_user = Project.query.filter_by(
+                                            id=role.project_id
+                                            ).first()
+        if project_user is None:
+            continue
+        project_user = to_dict(project_user)
+        list_project.append(project_user)
+    dict_user["project"] = list_project
+    return dict_user
 
 
 def make_data_to_response_page(list_data):
@@ -182,30 +209,50 @@ def show_workspace_members(member_keyword, role_workspace, permalink):
     list_response = []
     for i in list_res:
         data_user = i[0]
-        del data_user["password"]
-        del data_user["created_at"]
-        del data_user["updated_at"]
-        del data_user["description"]
-        del data_user["phone_number"]
-        del data_user["email"]
-        data_user["role"] = i[1]
-        data_user["project"] = {}
-        user_role = UserRole.query.filter_by(user_id=data_user["id"]).first()
-        if user_role is None:
-            list_response.append(data_user)
-            continue
-        role = Role.query.filter_by(id=user_role.role_id).first()
-        if role is None:
-            list_response.append(data_user)
-            continue
-        project_user = Project.query.filter_by(id=role.project_id).first()
-        if project_user is None:
-            list_response.append(data_user)
-            continue
-        project_user = to_dict(project_user)
-        data_user["project"] = project_user
+        data_user = make_data_to_response_project(data_user, role)
         list_response.append(data_user)
     user_list_pagination = make_data_to_response_page(list_response)
     return _response(200,
                      message="Tìm kiếm thành công",
+                     data=user_list_pagination)
+
+
+def add_members_to_workspace(permalink, list_id_members):
+    current_user = request.user
+    current_workspace = Workspace.query.filter_by(permalink=permalink).first()
+    current_user_workspace = WorkspaceUser.query.filter_by(
+                                    workspace_id=current_workspace.id
+                                    ).filter_by(
+                                        user_id=current_user.id
+                                        ).first()
+    if current_user_workspace is None:
+        return _response(404, "Không tìm thấy dữ liệu")
+    if current_user_workspace.role != WorkspaceRole.ADMIN:
+        return _response(403, "Không có quyền truy cập")
+    list_new_mems = []
+    for id_user in list_id_members:
+        user = User.query.filter_by(id=id_user).first()
+        if user is None:
+            return _response(400, message="Một số thành viên không tồn tại")
+        check_user_verify = OtpVerification.query.filter_by(
+                                user_id=id_user
+                                ).first()
+        if check_user_verify.verified is False:
+            return _response(400, message="Một số thành viên chưa xác thực")
+        worksp_user = WorkspaceUser.query.filter_by(user_id=id_user).first()
+        if worksp_user:
+            continue
+        new_user = WorkspaceUser(user_id=id_user,
+                                 workspace_id=current_workspace.id,
+                                 role=WorkspaceRole.MEMBER,
+                                 created_at=datetime.now(timezone.utc),
+                                 updated_at=datetime.now(timezone.utc)
+                                 )
+        db.session.add(new_user)
+        db.session.commit()
+        list_new_mems.append(make_data_to_response_project(to_dict(user),
+                                                           "MEMBER"))
+    user_list_pagination = make_data_to_response_page(list_new_mems)
+    return _response(200,
+                     message="Thêm thành viên thành công",
                      data=user_list_pagination)
