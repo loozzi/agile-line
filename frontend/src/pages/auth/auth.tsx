@@ -37,6 +37,9 @@ export const AuthTemplate = () => {
     if (current_path == routes.auth.root.split('/').join('')) {
       history.push(routes.auth.login)
     }
+    if (current_path.indexOf('verify') !== -1) {
+      setShowLoginForm(true)
+    }
   }, [])
 
   useEffect(() => {
