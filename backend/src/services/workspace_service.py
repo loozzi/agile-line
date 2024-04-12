@@ -256,3 +256,27 @@ def add_members_to_workspace(permalink, list_id_members):
     return _response(200,
                      message="Thêm thành viên thành công",
                      data=user_list_pagination)
+
+
+def delete_member_from_workspace(permalink, user_id):
+    current_user = request.user
+    current_workspace = Workspace.query.filter_by(permalink=permalink).first()
+    if current_workspace is None:
+        return _response(404, "Không tìm thấy dữ liệu")
+    current_user_workspace = WorkspaceUser.query.filter_by(
+                                user_id=current_user.id
+                                ).filter_by(
+                                    workspace_id=current_workspace.id).first()
+    if current_user_workspace is None:
+        return _response(404, "Không tìm thấy dữ liệu")
+    user_workspace_to_delete = WorkspaceUser.query.filter_by(
+                                user_id=user_id
+                                ).filter_by(
+                                    workspace_id=current_workspace.id).first()
+    if user_workspace_to_delete is None:
+        return _response(404, "Không tìm thấy dữ liệu")
+    if current_user_workspace.role != WorkspaceRole.ADMIN:
+        return _response(403, "Không có quyền truy cập")
+    db.session.delete(user_workspace_to_delete)
+    db.session.commit()
+    return _response(200, "Xóa thành viên thành công")
