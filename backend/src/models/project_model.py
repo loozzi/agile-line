@@ -21,10 +21,8 @@ class Project(db.Model):
     id: Mapped[int] = mapped_column(
         Integer, primary_key=True, autoincrement=True, nullable=False
     )
-    workspace_id: Mapped[int] = (
-        mapped_column(
-            Integer, ForeignKey("workspace.id", ondelete="CASCADE"), nullable=False
-        ),
+    workspace_id: Mapped[int] = mapped_column(
+        Integer, ForeignKey("workspace.id", ondelete="CASCADE"), nullable=False
     )
     name: Mapped[str] = mapped_column(String(1024), nullable=False)
     description: Mapped[str] = mapped_column(Text, nullable=True)
