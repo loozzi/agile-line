@@ -12,5 +12,4 @@ from src.models.role_model import Role
 from src.models.user_model import User
 from src.models.user_role_model import UserRole
 from src.models.workspace_model import Workspace
-from src.models.workspace_project_model import WorkspaceProject
 from src.models.workspace_user_model import WorkspaceUser
