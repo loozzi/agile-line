@@ -5,5 +5,10 @@ export default {
     register: '/auth/register',
     verify: '/auth/verify',
     logout: '/auth/logout'
+  },
+  workspace: {
+    root: '/workspace',
+    create: '/workspace/create',
+    list: '/workspace/list'
   }
 }

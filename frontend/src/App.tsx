@@ -1,13 +1,12 @@
 import { Route, Routes, useLocation } from 'react-router'
-import { Pane } from 'evergreen-ui'
-import envConfig from './configs/env.config'
-import NotFound from './pages/404'
 import routes from './configs/routes'
-import { LoginPage } from './pages/auth/login'
-import { RegisterPage } from './pages/auth/register'
+import NotFound from './pages/404'
 import { AuthTemplate } from './pages/auth/auth'
+import { LoginPage } from './pages/auth/login'
 import { LogoutPage } from './pages/auth/logout'
+import { RegisterPage } from './pages/auth/register'
 import { VerifyPage } from './pages/auth/verify'
+import { HomePage } from './pages/home'
 
 function App() {
   const location = useLocation()
@@ -15,7 +14,7 @@ function App() {
   return (
     <>
       <Routes location={location}>
-        <Route path='/' element={<Pane>{envConfig.API_ENDPOINT}</Pane>} />
+        <Route path='/' element={<HomePage />} />
         <Route path={routes.auth.root} element={<AuthTemplate />}>
           <Route path={routes.auth.login} element={<LoginPage />} />
           <Route path={routes.auth.register} element={<RegisterPage />} />
