@@ -9,23 +9,23 @@ from sqlalchemy import select, and_, update
 from flask import request
 
 
-def make_data_to_response_project(dict_user, role):
+def make_data_to_response_project(dict_user, role_workspace):
     del dict_user["password"]
     del dict_user["created_at"]
     del dict_user["updated_at"]
     del dict_user["description"]
     del dict_user["phone_number"]
     del dict_user["email"]
-    dict_user["role"] = role
+    dict_user["role"] = role_workspace
     dict_user["project"] = []
     list_user_role = UserRole.query.filter_by(user_id=dict_user["id"]).all()
     list_project = []
     for user_role in list_user_role:
-        roles = Role.query.filter_by(id=user_role.role_id).first()
-        if roles is None:
+        role_project = Role.query.filter_by(id=user_role.role_id).first()
+        if role_project is None:
             continue
         project_user = Project.query.filter_by(
-                                            id=roles.project_id
+                                            id=role_project.project_id
                                             ).first()
         if project_user is None:
             continue
@@ -39,7 +39,7 @@ def make_data_to_response_project(dict_user, role):
         del project_user["created_at"]
         del project_user["updated_at"]
         del project_user["permalink"]
-        project_user["roles"] = roles.name
+        project_user["roles"] = role_project.name
         list_project.append(project_user)
     dict_user["project"] = list_project
     return dict_user
