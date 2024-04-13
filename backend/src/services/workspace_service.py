@@ -9,28 +9,45 @@ from sqlalchemy import select, and_, update
 from flask import request
 
 
-def make_data_to_response_project(dict_user, role):
+def make_data_return_project(user_id, workspace_id):
+    list_user_role = UserRole.query.filter_by(user_id=user_id).all()
+    list_project = []
+    for user_role in list_user_role:
+        role_project = Role.query.filter_by(id=user_role.role_id).first()
+        if role_project is None:
+            continue
+        project_user = Project.query.filter_by(
+                                            id=role_project.project_id
+                                            ).filter_by(
+                                                workspace_id=workspace_id
+                                                ).first()
+        if project_user is None:
+            continue
+        project_user = to_dict(project_user)
+        del project_user["workspace_id"]
+        del project_user["description"]
+        del project_user["start_date"]
+        del project_user["end_date"]
+        del project_user["is_removed"]
+        del project_user["remove_date"]
+        del project_user["created_at"]
+        del project_user["updated_at"]
+        del project_user["permalink"]
+        project_user["roles"] = role_project.name
+        list_project.append(project_user)
+    return list_project
+
+
+def make_data_to_response_project(dict_user, role_workspace, workspaceId):
     del dict_user["password"]
     del dict_user["created_at"]
     del dict_user["updated_at"]
     del dict_user["description"]
     del dict_user["phone_number"]
     del dict_user["email"]
-    dict_user["role"] = role
+    dict_user["role"] = role_workspace
     dict_user["project"] = []
-    list_user_role = UserRole.query.filter_by(user_id=dict_user["id"]).all()
-    list_project = []
-    for user_role in list_user_role:
-        role = Role.query.filter_by(id=user_role.role_id).first()
-        if role is None:
-            continue
-        project_user = Project.query.filter_by(
-                                            id=role.project_id
-                                            ).first()
-        if project_user is None:
-            continue
-        project_user = to_dict(project_user)
-        list_project.append(project_user)
+    list_project = make_data_return_project(dict_user["id"], workspaceId)
     dict_user["project"] = list_project
     return dict_user
 
@@ -209,7 +226,9 @@ def show_workspace_members(member_keyword, role_workspace, permalink):
     list_response = []
     for i in list_res:
         data_user = i[0]
-        data_user = make_data_to_response_project(data_user, role)
+        data_user = make_data_to_response_project(
+                        data_user, i[1],
+                        workspace_to_find_user.id)
         list_response.append(data_user)
     user_list_pagination = make_data_to_response_page(list_response)
     return _response(200,
@@ -250,8 +269,10 @@ def add_members_to_workspace(permalink, list_id_members):
                                  )
         db.session.add(new_user)
         db.session.commit()
-        list_new_mems.append(make_data_to_response_project(to_dict(user),
-                                                           "MEMBER"))
+        list_new_mems.append(
+                        make_data_to_response_project(to_dict(user),
+                                                      "MEMBER",
+                                                      current_workspace.id))
     user_list_pagination = make_data_to_response_page(list_new_mems)
     return _response(200,
                      message="Thêm thành viên thành công",
@@ -280,3 +301,28 @@ def delete_member_from_workspace(permalink, user_id):
     db.session.delete(user_workspace_to_delete)
     db.session.commit()
     return _response(200, "Xóa thành viên thành công")
+
+
+def edit_role_members_in_workspace(permalink, edit_user_id, new_role):
+    current_workspace = Workspace.query.filter_by(permalink=permalink).first()
+    if current_workspace is None:
+        return _response(404, message="Không tìm thấy dữ liệu")
+    user_workspace_to_edit = WorkspaceUser.query.filter_by(
+                                user_id=edit_user_id,
+                                workspace_id=current_workspace.id).first()
+    if user_workspace_to_edit is None:
+        return _response(404, message="Không tìm thấy dữ liệu")
+    user_makes_edit = request.user
+    user_makes_edit_workspace = WorkspaceUser.query.filter_by(
+                                    user_id=user_makes_edit.id,
+                                    workspace_id=current_workspace.id).first()
+    if user_makes_edit_workspace is None:
+        return _response(404, message="Không tìm thấy dữ liệu")
+    if user_makes_edit_workspace.role != WorkspaceRole.ADMIN:
+        return _response(403, message="Không có quyền truy cập")
+    user_workspace_to_edit.role = new_role
+    db.session.commit()
+    user_has_changed = User.query.filter_by(id=edit_user_id).first()
+    data_return = make_data_to_response_project(
+                    to_dict(user_has_changed), new_role, current_workspace.id)
+    return _response(200, message="Chỉnh sửa thành công", data=data_return)
