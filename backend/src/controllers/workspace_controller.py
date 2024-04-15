@@ -96,3 +96,14 @@ def delete_member_from_workspace(permalink):
     user_id = request.args.get("user_id", default="")
     return workspace_service.delete_member_from_workspace(permalink,
                                                           user_id)
+
+
+@workspace.route("/<string:permalink>/members", methods=["PUT"])
+@token_required
+@request_pagination
+def edit_role_members_in_workspace(permalink):
+    edit_user_id = request.form.get("user_id", default="")
+    new_role = request.form.get("role", default="")
+    return workspace_service.edit_role_members_in_workspace(permalink,
+                                                           edit_user_id,
+                                                           new_role)
