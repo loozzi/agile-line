@@ -7,7 +7,7 @@ load_dotenv()
 
 class EnvConfig:
     def __init__(self) -> None:
-        self.SQLALCHEMY_DATABASE_URI = os.environ.get("SQLALCHEMY_DATABASE_URI_TEST")
+        self.SQLALCHEMY_DATABASE_URI = os.environ.get("SQLALCHEMY_DATABASE_URI")
 
         self.EMAIL_HOST = os.getenv("EMAIL_HOST")
         self.EMAIL_PORT = int(os.getenv("EMAIL_PORT"))
