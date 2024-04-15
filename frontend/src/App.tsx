@@ -24,7 +24,7 @@ function App() {
         </Route>
         <Route path={routes.auth.logout} element={<LogoutPage />} />
         <Route path={routes.workspace.root} element={<WorkspacePage />} />
-        <Route path={routes.workspace.permalink} element={<WorkspaceTemplate />} />
+        {/* <Route path={routes.workspace.permalink} element={<WorkspaceTemplate />} /> */}
         <Route path='*' element={<NotFound />} />
       </Routes>
     </>

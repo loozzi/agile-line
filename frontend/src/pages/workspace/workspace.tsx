@@ -1,4 +1,4 @@
-import { Button, CrossIcon, Pane, PlusIcon, majorScale } from 'evergreen-ui'
+import { Button, CrossIcon, Pane, PlusIcon, Table, majorScale } from 'evergreen-ui'
 import { useEffect, useState } from 'react'
 import { useAppSelector } from '~/app/hook'
 import { WorkspaceCreate } from '~/components/workspace/create'
@@ -6,6 +6,7 @@ import { WorkspaceList } from '~/components/workspace/list'
 import { selectIsAuthenticated } from '~/hooks/auth/auth.slice'
 import { Workspace, WorkspaceSearchParams } from '~/models/workspace'
 import workspaceService from '~/services/workspace.service'
+import { history } from '~/configs/history'
 
 export const WorkspacePage = () => {
   const isAuth = useAppSelector(selectIsAuthenticated)
@@ -30,18 +31,8 @@ export const WorkspacePage = () => {
 
   return (
     <Pane marginX={majorScale(2)}>
-      <Pane display='flex' flexDirection='column' marginY={majorScale(2)}>
-        <Pane>
-          <Button iconBefore={<PlusIcon />} intent='success' marginRight={majorScale(2)}>
-            Tạo mới
-          </Button>
-          <Button iconBefore={<CrossIcon />} intent='danger'>
-            Hủy bỏ
-          </Button>
-        </Pane>
-        <WorkspaceCreate />
-      </Pane>
       <WorkspaceList workspaces={workspaces} onSearch={onSearch} />
+      <WorkspaceCreate />
     </Pane>
   )
 }
