@@ -9,6 +9,7 @@ export default {
   workspace: {
     root: '/workspace',
     create: '/workspace/create',
-    list: '/workspace/list'
+    list: '/workspace/list',
+    permalink: '/:permalink'
   }
 }
