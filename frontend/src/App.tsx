@@ -7,8 +7,8 @@ import { LogoutPage } from './pages/auth/logout'
 import { RegisterPage } from './pages/auth/register'
 import { VerifyPage } from './pages/auth/verify'
 import { HomePage } from './pages/home'
-import { WorkspacePage } from './pages/workspace/workspace'
 import { WorkspaceTemplate } from './pages/workspace/template'
+import { WorkspacePage } from './pages/workspace/workspace'
 
 function App() {
   const location = useLocation()
@@ -24,7 +24,7 @@ function App() {
         </Route>
         <Route path={routes.auth.logout} element={<LogoutPage />} />
         <Route path={routes.workspace.root} element={<WorkspacePage />} />
-        {/* <Route path={routes.workspace.permalink} element={<WorkspaceTemplate />} /> */}
+        <Route path={routes.workspace.permalink} element={<WorkspaceTemplate />} />
         <Route path='*' element={<NotFound />} />
       </Routes>
     </>

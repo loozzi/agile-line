@@ -1,16 +1,23 @@
-import { Pane, majorScale, Button, PlusIcon, CrossIcon, TextInputField } from 'evergreen-ui'
+import MDEditor from '@uiw/react-md-editor'
+import { Button, Combobox, CrossIcon, Pane, PlusIcon, TextInputField, majorScale, toaster } from 'evergreen-ui'
 import { useFormik } from 'formik'
 import { Fragment, useMemo, useState } from 'react'
-import { WorkspaceCreatePayload } from '~/models/workspace'
 import * as Yup from 'yup'
+import { Workspace, WorkspaceCreatePayload } from '~/models/workspace'
 import { ImageUploaderComp } from '../image_uploader'
-import MDEditor from '@uiw/react-md-editor'
 // No import is required in the WebPack.
 import '@uiw/react-md-editor/markdown-editor.css'
 // No import is required in the WebPack.
 import '@uiw/react-markdown-preview/markdown.css'
+import workspaceService from '~/services/workspace.service'
 
-export const WorkspaceCreate = () => {
+interface WorkspaceCreateProps {
+  onCreateSuccess: (item: Workspace) => void
+}
+
+export const WorkspaceCreate = (props: WorkspaceCreateProps) => {
+  const { onCreateSuccess } = props
+
   const [showCreateForm, setShowCreateForm] = useState(false)
 
   const onToggleShowCreateForm = () => {
@@ -32,15 +39,36 @@ export const WorkspaceCreate = () => {
     validationSchema: Yup.object({
       title: Yup.string().required().min(6)
     }),
-    validateOnChange: false,
+    validateOnChange: true,
     validateOnBlur: false,
     onSubmit: (values) => {
-      console.log(values)
+      const payload: WorkspaceCreatePayload = { ...values }
+      if (!payload.description) {
+        payload.description = 'No description'
+      }
+      workspaceService.createWorkspace(payload).then((res) => {
+        if (res.status === 200) {
+          setShowCreateForm(false)
+          formik.resetForm()
+          toaster.success(res.message)
+          onCreateSuccess(res.data!)
+        } else {
+          toaster.danger(res.message)
+        }
+      })
     }
   })
 
   const onChangeDescription = (value: string | undefined) => {
     formik.setFieldValue('description', value)
+  }
+
+  const onChangeLogo = (value: string | undefined) => {
+    formik.setFieldValue('logo', value)
+  }
+
+  const onChangePrivacy = (value: string | undefined) => {
+    formik.setFieldValue('is_private', value === 'Riêng tư')
   }
 
   return (
@@ -65,7 +93,7 @@ export const WorkspaceCreate = () => {
             label='Thêm tiêu đề'
           />
 
-          <h5>Thêm mô tả</h5>
+          <h5 style={{ fontWeight: 600 }}>Thêm mô tả</h5>
           <MDEditor height={200} value={formik.values.description} onChange={onChangeDescription} />
 
           <ImageUploaderComp
@@ -73,6 +101,19 @@ export const WorkspaceCreate = () => {
             description='Tải lên 1 tệp hình ảnh biểu tượng. File nhỏ hơn 5 MB.'
             maxSizeInBytes={5 * 1024 ** 2}
             marginTop={majorScale(2)}
+            onChangeLogo={onChangeLogo}
+          />
+
+          <h5 style={{ fontWeight: 600 }}>Quyền riêng tư</h5>
+          <Combobox
+            initialSelectedItem={formik.values.is_private ? 'Riêng tư' : 'Công khai'}
+            openOnFocus
+            items={['Công khai', 'Riêng tư']}
+            onChange={(selected) => {
+              onChangePrivacy(selected)
+            }}
+            placeholder='Quyền riêng tư'
+            marginBottom={majorScale(4)}
           />
         </Fragment>
       )}

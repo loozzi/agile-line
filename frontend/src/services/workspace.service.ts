@@ -1,8 +1,8 @@
+import routeApi from '~/configs/route.api'
 import { IResponse } from '~/models/IResponse'
-import client from './axios.service'
 import { PaginationResponse } from '~/models/utils'
 import { Workspace, WorkspaceCreatePayload, WorkspaceSearchParams } from '~/models/workspace'
-import routeApi from '~/configs/route.api'
+import client from './axios.service'
 
 const getWorkspaces = async (params: WorkspaceSearchParams): Promise<IResponse<PaginationResponse<Workspace>>> => {
   return await client.get(routeApi.workspace.getWorkspaces, {
@@ -11,7 +11,7 @@ const getWorkspaces = async (params: WorkspaceSearchParams): Promise<IResponse<P
 }
 
 const createWorkspace = async (payload: WorkspaceCreatePayload): Promise<IResponse<Workspace>> => {
-  return await client.post('/workspaces', payload)
+  return await client.post(routeApi.workspace.createWorkspace, payload)
 }
 
 export default {

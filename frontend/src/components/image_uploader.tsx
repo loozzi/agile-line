@@ -1,4 +1,4 @@
-import { Pane, FileCard, FileUploader, PaneProps } from 'evergreen-ui'
+import { FileCard, FileUploader, Pane, PaneProps } from 'evergreen-ui'
 import React from 'react'
 
 interface ImageUploaderCompProps extends PaneProps {
@@ -6,19 +6,22 @@ interface ImageUploaderCompProps extends PaneProps {
   description?: string
   maxSizeInBytes?: number
   maxFiles?: number
+  onChangeLogo?: (value: string | undefined) => void
 }
 
 export const ImageUploaderComp = (props: ImageUploaderCompProps) => {
+  const { label, description, maxSizeInBytes, maxFiles, onChangeLogo, ...paneProps } = props
   const [files, setFiles] = React.useState([])
   const [fileRejections, setFileRejections] = React.useState([])
-  const handleChange = React.useCallback((files: any[]) => setFiles([files[0]]), [])
   const handleRejected = React.useCallback((fileRejections: any[]) => setFileRejections([fileRejections[0]]), [])
   const handleRemove = React.useCallback(() => {
     setFiles([])
     setFileRejections([])
   }, [])
-
-  const { label, description, maxSizeInBytes, maxFiles, ...paneProps } = props
+  const handleChange = React.useCallback((files: any[]) => {
+    setFiles([files[0]])
+    onChangeLogo(files[0].name)
+  }, [])
 
   return (
     <Pane {...paneProps}>
