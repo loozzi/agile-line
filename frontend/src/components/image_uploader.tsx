@@ -13,14 +13,17 @@ export const ImageUploaderComp = (props: ImageUploaderCompProps) => {
   const { label, description, maxSizeInBytes, maxFiles, onChangeLogo, ...paneProps } = props
   const [files, setFiles] = React.useState([])
   const [fileRejections, setFileRejections] = React.useState([])
-  const handleRejected = React.useCallback((fileRejections: any[]) => setFileRejections([fileRejections[0]]), [])
+  const handleRejected = React.useCallback(
+    (fileRejections: any[]) => setFileRejections([fileRejections[0] as never]),
+    []
+  )
   const handleRemove = React.useCallback(() => {
     setFiles([])
     setFileRejections([])
   }, [])
-  const handleChange = React.useCallback((files: any[]) => {
-    setFiles([files[0]])
-    onChangeLogo(files[0].name)
+  const handleChange = React.useCallback((files: never[] | any[]) => {
+    setFiles([files[0] as never])
+    onChangeLogo!(files[0].name as string)
   }, [])
 
   return (
