@@ -5,7 +5,7 @@ import { Link } from 'react-router-dom'
 import * as Yup from 'yup'
 import { useAppDispatch } from '~/app/hook'
 import routes from '~/configs/routes'
-import { authActions } from '~/hooks/auth/auth.slice'
+import { AUTH_REGISTER } from '~/hooks/auth/auth.slice'
 import { RegisterPayload } from '~/models/auth'
 
 export const RegisterPage = () => {
@@ -23,7 +23,7 @@ export const RegisterPage = () => {
   const formik = useFormik({
     initialValues: initialValues,
     onSubmit: (values) => {
-      dispatch(authActions.register(values))
+      dispatch({ type: AUTH_REGISTER, payload: values })
     },
     validationSchema: Yup.object({
       email: Yup.string().required().email(),
