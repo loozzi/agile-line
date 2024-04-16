@@ -44,6 +44,8 @@ const workspaceSlice = createSlice({
 
 // Actions
 export const workspaceActions = workspaceSlice.actions
+export const GET_WORKSPACE = 'GET_WORKSPACE'
+export const GET_LIST_WORKSPACE = 'GET_LIST_WORKSPACE'
 
 // Selectors
 export const selectGetWorkspace = (state: { workspace: WorkspaceState }) => state.workspace.loading

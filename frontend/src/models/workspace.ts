@@ -11,6 +11,10 @@ export interface Workspace {
   updated_at: string
 }
 
+export interface WorkspaceParams {
+  permalink: string
+}
+
 export interface WorkspaceSearchParams extends PaginationParams {
   keyword?: string
 }
