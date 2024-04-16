@@ -11,23 +11,6 @@ const uploadImage = async (image: File): Promise<IResponse<ImgurResponse>> => {
   return response
 }
 
-const convertImageToBase64 = (imageFile: File) => {
-  return new Promise((resolve, reject) => {
-    if (imageFile) {
-      const reader = new FileReader()
-
-      reader.readAsDataURL(imageFile)
-
-      reader.onload = () => {
-        resolve(reader.result?.toString().split(',')[1])
-      }
-    } else {
-      resolve(null)
-    }
-  })
-}
-
 export default {
-  uploadImage,
-  convertImageToBase64
+  uploadImage
 }
