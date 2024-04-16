@@ -1,5 +1,8 @@
-import { FileCard, FileUploader, Pane, PaneProps } from 'evergreen-ui'
+import { FileCard, FileUploader, Pane, PaneProps, toaster } from 'evergreen-ui'
 import React from 'react'
+import { IResponse } from '~/models/IResponse'
+import { ImgurResponse } from '~/models/imgur'
+import imgurService from '~/services/imgur.service'
 
 interface ImageUploaderCompProps extends PaneProps {
   label?: string
@@ -23,7 +26,22 @@ export const ImageUploaderComp = (props: ImageUploaderCompProps) => {
   }, [])
   const handleChange = React.useCallback((files: never[] | any[]) => {
     setFiles([files[0] as never])
-    onChangeLogo!(files[0].name as string)
+    toaster.notify('Uploading image...', {
+      id: 'upload-image'
+    })
+    imgurService.uploadImage(files[0]).then((data: IResponse<ImgurResponse>) => {
+      if (data.status === 200) {
+        onChangeLogo!(data.data!.link)
+        toaster.success('Upload image successfully', {
+          id: 'upload-image'
+        })
+      } else {
+        toaster.danger('Upload image failed', {
+          id: 'upload-image'
+        })
+        handleRemove()
+      }
+    })
   }, [])
 
   return (
