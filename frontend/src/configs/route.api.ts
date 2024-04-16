@@ -6,6 +6,12 @@ const auth = {
   verify: '/auth/verify'
 }
 
+const workspace = {
+  getWorkspaces: '/workspace/',
+  createWorkspace: '/workspace/'
+}
+
 export default {
-  auth
+  auth,
+  workspace
 }

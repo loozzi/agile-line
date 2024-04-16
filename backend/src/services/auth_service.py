@@ -1,20 +1,18 @@
-from datetime import datetime, timezone, timedelta
-
-from sqlalchemy import or_
-from src import bcrypt, db
-from src.models import User, OtpVerification, RefreshToken
-from src.utils import _response, jwt_generate, to_dict, jwt_decode
-from src.email_service import send_otp_email
+import random
+from datetime import datetime, timedelta, timezone
 
 from flask import request
-import random
+from sqlalchemy import or_
+from src import bcrypt, db
+from src.email_service import send_otp_email
+from src.models import OtpVerification, RefreshToken, User
+from src.utils import _response, jwt_decode, jwt_generate, to_dict
 
 
 def check_verify(user):
-    user_otp_verification = OtpVerification.query.filter_by(
-        user_id=user.id).first()
-    if (user_otp_verification is not None):
-        if (user_otp_verification.verified):
+    user_otp_verification = OtpVerification.query.filter_by(user_id=user.id).first()
+    if user_otp_verification is not None:
+        if user_otp_verification.verified:
             return True
     return False
 
@@ -28,10 +26,10 @@ def make_data_to_respone(user_to_generate, verify_check):
     del user_to_generate["created_at"]
     del user_to_generate["updated_at"]
     data_respone = {
-            "user": user_to_generate,
-            "access_token": tokens["access_token"],
-            "refresh_token": tokens["refresh_token"],
-        }
+        "user": user_to_generate,
+        "access_token": tokens["access_token"],
+        "refresh_token": tokens["refresh_token"],
+    }
     if verify_check is False:
         data_respone = {
             "access_token": tokens["access_token"],
@@ -84,26 +82,20 @@ def verify(otp):
         data_respone = make_data_to_respone(current_user, True)
         #
         if otp_verify.verified:
-            return _response(status=200,
-                             message="Đã xác minh",
-                             data=data_respone)
+            return _response(status=200, message="Đã xác minh", data=data_respone)
         if otp == otp_verify.otp_code:
             # khi nào làm xong cmp thì xóa timedelta(hours=7)
-            if ((otp_verify.expiry_date + timedelta(hours=7))
-                    .astimezone(timezone.utc).timestamp() >
-                    datetime.now(timezone.utc).timestamp()):
+            if (otp_verify.expiry_date + timedelta(hours=7)).astimezone(
+                timezone.utc
+            ).timestamp() > datetime.now(timezone.utc).timestamp():
                 otp_verify.verified = True
                 db.session.commit()
-                return _response(status=200,
-                                 message="OTP hợp lệ",
-                                 data=data_respone)
+                return _response(status=200, message="OTP hợp lệ", data=data_respone)
             else:
-                return _response(status=400,
-                                 message="OTP đã hết hạn",
-                                 error="Expired OTP")
-    return _response(status=400,
-                     message="OTP không chính xác",
-                     error="Invalid OTP")
+                return _response(
+                    status=400, message="OTP đã hết hạn", error="Expired OTP"
+                )
+    return _response(status=400, message="OTP không chính xác", error="Invalid OTP")
 
 
 def send_otp():
@@ -114,9 +106,11 @@ def send_otp():
         if otp_user.verified:
             return _response(status=200, message="Đã xác minh")
         # khi nào làm xong cmp thì xóa timedelta(hours=7)
-        if ((otp_user.updated_at + timedelta(hours=7) + timedelta(seconds=60))
-                .astimezone(timezone.utc).timestamp() >
-                (datetime.now(timezone.utc)).timestamp()):
+        if (
+            otp_user.updated_at + timedelta(hours=7) + timedelta(seconds=60)
+        ).astimezone(timezone.utc).timestamp() > (
+            datetime.now(timezone.utc)
+        ).timestamp():
             return _response(status=400, message="Vui lòng chờ 60s")
         OTP_send = str(random.randint(100000, 999999))
         if send_otp_email(send_to, OTP_send):
@@ -134,8 +128,9 @@ def send_otp():
         add_otp = OtpVerification(
             user_id=current_user.id,
             otp_code=OTP_send,
-            expiry_date=(datetime.now(timezone.utc) + timedelta(minutes=30))
-            .astimezone(timezone.utc),
+            expiry_date=(datetime.now(timezone.utc) + timedelta(minutes=30)).astimezone(
+                timezone.utc
+            ),
             created_at=datetime.now(timezone.utc),
             updated_at=datetime.now(timezone.utc),
         )
@@ -149,19 +144,23 @@ def send_otp():
 def refresh_token(refresh_token):
     token_decode = jwt_decode(refresh_token)
     if "is_refresh_token" not in token_decode.keys():
-        return _response(status=400,
-                         message="RefreshToken không hợp lệ",
-                         error="Invalid RefreshToken")
-    current_user = request.user
+        return _response(
+            status=400,
+            message="RefreshToken không hợp lệ",
+            error="Invalid RefreshToken",
+        )
+    current_user = User.query.get(token_decode["id"])
     if check_verify(current_user) is False:
         data = make_data_to_respone(current_user, False)
         return _response(status=200, message="Chưa xác minh OTP", data=data)
     user_token = RefreshToken.query.filter_by(user_id=current_user.id).first()
     if user_token.token != refresh_token:
-        return _response(status=400,
-                         message="RefreshToken không chính xác",
-                         error="Invalid RefreshToken")
+        return _response(
+            status=400,
+            message="RefreshToken không chính xác",
+            error="Invalid RefreshToken",
+        )
     data_respone = make_data_to_respone(current_user, True)
-    return _response(status=200,
-                     message="RefreshToken đã được tạo mới",
-                     data=data_respone)
+    return _response(
+        status=200, message="RefreshToken đã được tạo mới", data=data_respone
+    )
