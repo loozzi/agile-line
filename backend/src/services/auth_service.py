@@ -65,7 +65,7 @@ def login(username, password):
     if user and bcrypt.check_password_hash(user.password, password):
         if check_verify(user) is False:
             data = make_data_to_respone(user, False)
-            return _response(200, "Chưa xác minh OTP", data)
+            return _response(406, "Chưa xác minh OTP", data)
         data = make_data_to_respone(user, True)
         return _response(200, "Đăng nhập thành công", data)
 

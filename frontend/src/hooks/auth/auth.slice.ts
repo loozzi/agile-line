@@ -42,9 +42,13 @@ const authSlice = createSlice({
       state.isAuthenticated = false
       state.users = undefined
     },
+    verify(state) {
+      state.logging = true
+    },
     verifySuccess(state, actions: PayloadAction<User | undefined>) {
       state.users = actions.payload
       tokenService.setUser(actions.payload)
+      state.logging = false
     }
   }
 })

@@ -3,12 +3,10 @@ import { useFormik } from 'formik'
 import { useEffect, useMemo, useState } from 'react'
 import * as Yup from 'yup'
 import { useAppDispatch } from '~/app/hook'
-import { authActions } from '~/hooks/auth/auth.slice'
+import { AUTH_VERIFY } from '~/hooks/auth/auth.slice'
 import { IResponse } from '~/models/IResponse'
 import { VerifyPayload } from '~/models/auth'
-import { Token } from '~/models/token'
 import authService from '~/services/auth.service'
-import tokenService from '~/services/token.service'
 
 export const VerifyPage = () => {
   const [secondsRemaining, setSecondsRemaining] = useState(60)
@@ -38,16 +36,9 @@ export const VerifyPage = () => {
   const formik = useFormik({
     initialValues: initialValues,
     onSubmit: (value: VerifyPayload) => {
-      authService.verify(value).then((data: IResponse<Token | undefined>) => {
-        if (data.status === 200) {
-          const { refresh_token, access_token } = data.data!
-          dispatch(authActions.verifySuccess(data.data?.user))
-          tokenService.setRefreshToken(refresh_token)
-          tokenService.setAccessToken(access_token)
-          window.location.href = '/'
-        } else {
-          toaster.danger(data.message)
-        }
+      dispatch({
+        type: AUTH_VERIFY,
+        payload: value
       })
     },
     validationSchema: Yup.object({
