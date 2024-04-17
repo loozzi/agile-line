@@ -1,6 +1,7 @@
 import { toaster } from 'evergreen-ui'
 import { all, call, fork, put, take } from 'redux-saga/effects'
 
+import { PayloadAction } from '@reduxjs/toolkit'
 import { history } from '~/configs/history'
 import routes from '~/configs/routes'
 import { IResponse } from '~/models/IResponse'
@@ -9,7 +10,7 @@ import { Token } from '~/models/token'
 import { User } from '~/models/user'
 import authService from '~/services/auth.service'
 import tokenService from '~/services/token.service'
-import { authActions } from './auth.slice'
+import { AUTH_LOGIN, AUTH_LOGOUT, AUTH_REGISTER, authActions } from './auth.slice'
 
 function* saveToLocalStorage(data: Token) {
   const { access_token, refresh_token, user } = data
@@ -44,7 +45,6 @@ function* handleLogout() {
 
 function* handleRegister(payload: RegisterPayload) {
   try {
-    console.log(payload)
     const resp: IResponse<Token> = yield call(authService.register, payload)
     if (resp.status === 200) {
       toaster.success(resp.message)
@@ -86,16 +86,16 @@ function* watchAuthFlow() {
     }
 
     if (isLogin) {
-      yield take(authActions.logout.type)
+      yield take(AUTH_LOGOUT)
       yield call(handleLogout)
     } else {
-      const { type, payload } = yield take([authActions.login.type, authActions.register.type])
-      switch (type) {
-        case authActions.login.type:
-          yield call(handleLogin, payload)
+      const actions: PayloadAction<LoginPayload | RegisterPayload> = yield take([AUTH_LOGIN, AUTH_REGISTER])
+      switch (actions.type) {
+        case AUTH_LOGIN:
+          yield call(handleLogin, actions.payload as LoginPayload)
           break
-        case authActions.register.type:
-          yield call(handleRegister, payload)
+        case AUTH_REGISTER:
+          yield call(handleRegister, actions.payload as RegisterPayload)
           break
       }
     }
