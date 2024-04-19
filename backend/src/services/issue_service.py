@@ -39,7 +39,7 @@ def create_resource_and_response(list_resource, issue):
             updated_at=datetime.now(timezone.utc)
         )
         db.session.add(new_resource)
-        db.session.commit()
+        db.session.flush()
         data_response.append({
             "id": new_resource.id,
             "link": new_resource.link,
@@ -108,7 +108,7 @@ def create_issue(project_id, name, description, status, label,
         updated_at=datetime.now(timezone.utc)
     )
     db.session.add(new_issue)
-    db.session.commit()
+    db.session.flush()
     label = Label.query.filter_by(title=label).first()
     if label is None:
         return _response(400, "Nhãn không tồn tại")
@@ -119,7 +119,7 @@ def create_issue(project_id, name, description, status, label,
         updated_at=datetime.now(timezone.utc)
     )
     db.session.add(issue_label)
-    db.session.commit()
+    db.session.flush()
     new_activity = Activity(
         user_id=current_user.id,
         issue_id=new_issue.id,
