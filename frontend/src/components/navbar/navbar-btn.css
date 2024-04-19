@@ -1,0 +1,5 @@
+.navbar--button:hover {
+  background-color: var(--button-hover);
+  color: #000;
+  cursor: pointer;
+}

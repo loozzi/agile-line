@@ -7,3 +7,4 @@ flask-cors
 pyjwt
 pymysql
 gunicorn
+requests

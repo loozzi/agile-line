@@ -1,8 +1,8 @@
 from flask import Blueprint, request
+from src.middlewares.login_required import token_required
 from src.models import User
 from src.services import auth_service
 from src.utils import _response
-from src.middlewares.login_required import token_required
 
 auth = Blueprint("auth", __name__)
 
@@ -52,10 +52,13 @@ def send_otp():
 
 
 @auth.route("/refresh-token", methods=["POST"])
-@token_required
 def refresh_Token():
     try:
         Refresh_token = request.form.get("refresh_token")
     except:
-        return _response(status=400, message="RefreshToken không tồn tại", error="RefreshToken does not exist")
+        return _response(
+            status=400,
+            message="RefreshToken không tồn tại",
+            error="RefreshToken does not exist",
+        )
     return auth_service.refresh_token(Refresh_token)
