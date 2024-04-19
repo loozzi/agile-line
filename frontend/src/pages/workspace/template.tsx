@@ -18,7 +18,14 @@ export const WorkspaceTemplate = (props: WorkspaceTemplateProps) => {
         width='100%'
         overflow='auto'
       />
-      <Pane margin={majorScale(2)} borderRadius={majorScale(1)} backgroundColor='#fff' flex={1} overflow='auto'>
+      <Pane
+        margin={majorScale(2)}
+        padding={majorScale(2)}
+        borderRadius={majorScale(1)}
+        backgroundColor='#fff'
+        flex={1}
+        overflow='auto'
+      >
         {!!children ? children : <Outlet />}
       </Pane>
     </Pane>

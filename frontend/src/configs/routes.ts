@@ -10,6 +10,10 @@ export default {
     root: '/workspace',
     create: '/workspace/create',
     list: '/workspace/list',
-    permalink: '/:permalink'
+    permalink: '/:permalink',
+    setting: {
+      page: '/:permalink/settings',
+      slug: 'settings'
+    }
   }
 }

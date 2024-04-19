@@ -1,6 +1,7 @@
 import {
   Avatar,
   Button,
+  CogIcon,
   ExpandAllIcon,
   InboxIcon,
   LayersIcon,
@@ -31,6 +32,10 @@ export const NavbarComp = (props: NavbarCompProps) => {
 
   const handleOpenModalWorkspace = () => {
     history.push(routes.workspace.root)
+  }
+
+  const handleRedirect = (route: string) => {
+    history.push(route)
   }
 
   useEffect(() => {
@@ -116,6 +121,11 @@ export const NavbarComp = (props: NavbarCompProps) => {
         }
         marginTop={majorScale(2)}
       ></CollapseComp>
+      <NavbarButtonComp
+        label='Settings'
+        beforeIcon={<CogIcon />}
+        onClick={() => handleRedirect(`/${params.permalink}/${routes.workspace.setting.slug}`)}
+      />
     </Pane>
   )
 }
