@@ -5,7 +5,7 @@ import { Link } from 'react-router-dom'
 import * as Yup from 'yup'
 import { useAppDispatch } from '~/app/hook'
 import routes from '~/configs/routes'
-import { authActions } from '~/hooks/auth/auth.slice'
+import { AUTH_LOGIN } from '~/hooks/auth/auth.slice'
 import { LoginPayload } from '~/models/auth'
 
 export const LoginPage = () => {
@@ -22,7 +22,7 @@ export const LoginPage = () => {
   const formik = useFormik({
     initialValues: initialValues,
     onSubmit: (values) => {
-      dispatch(authActions.login(values))
+      dispatch({ type: AUTH_LOGIN, payload: values })
     },
     validationSchema: Yup.object({
       username: Yup.string().required().min(6),

@@ -1,15 +1,16 @@
 import { toaster } from 'evergreen-ui'
 import { all, call, fork, put, take } from 'redux-saga/effects'
 
+import { PayloadAction } from '@reduxjs/toolkit'
 import { history } from '~/configs/history'
 import routes from '~/configs/routes'
 import { IResponse } from '~/models/IResponse'
-import { LoginPayload, RegisterPayload } from '~/models/auth'
+import { LoginPayload, RegisterPayload, VerifyPayload } from '~/models/auth'
 import { Token } from '~/models/token'
 import { User } from '~/models/user'
 import authService from '~/services/auth.service'
 import tokenService from '~/services/token.service'
-import { authActions } from './auth.slice'
+import { AUTH_LOGIN, AUTH_LOGOUT, AUTH_REGISTER, AUTH_VERIFY, authActions } from './auth.slice'
 
 function* saveToLocalStorage(data: Token) {
   const { access_token, refresh_token, user } = data
@@ -25,8 +26,11 @@ function* handleLogin(payload: LoginPayload) {
       toaster.success(resp.message)
       yield call(saveToLocalStorage, resp.data!)
       yield put(authActions.loginSuccess(resp.data?.user))
-      if (resp.data?.user !== undefined) history.push('/')
-      else history.push(routes.auth.verify)
+      history.push('/')
+    } else if (resp.status === 406) {
+      toaster.warning(resp.message)
+      yield call(saveToLocalStorage, resp.data!)
+      history.push(routes.auth.verify)
     } else {
       resp.status === 500 ? toaster.danger(resp.message) : toaster.warning(resp.message)
       yield put(authActions.loginFailed())
@@ -39,12 +43,15 @@ function* handleLogin(payload: LoginPayload) {
 
 function* handleLogout() {
   yield put(authActions.logout())
-  yield all([call(tokenService.removeAccessToken), call(tokenService.removeRefreshToken)])
+  yield all([
+    call(tokenService.removeAccessToken),
+    call(tokenService.removeRefreshToken),
+    call(tokenService.removeUser)
+  ])
 }
 
 function* handleRegister(payload: RegisterPayload) {
   try {
-    console.log(payload)
     const resp: IResponse<Token> = yield call(authService.register, payload)
     if (resp.status === 200) {
       toaster.success(resp.message)
@@ -61,6 +68,24 @@ function* handleRegister(payload: RegisterPayload) {
     toaster.danger('Lỗi rồi, vui lòng thử lại')
     yield put(authActions.loginFailed())
   }
+}
+
+function* handleVerify(payload: VerifyPayload) {
+  try {
+    const resp: IResponse<Token> = yield call(authService.verify, payload)
+    if (resp.status === 200) {
+      toaster.success(resp.message)
+      yield call(saveToLocalStorage, resp.data!)
+      yield put(authActions.verifySuccess(resp.data?.user))
+      history.push('/')
+    } else {
+      toaster.danger(resp.message)
+    }
+    return true
+  } catch (error) {
+    toaster.danger('Lỗi rồi, vui lòng thử lại')
+  }
+  return false
 }
 
 function* watchAuthFlow() {
@@ -86,16 +111,27 @@ function* watchAuthFlow() {
     }
 
     if (isLogin) {
-      yield take(authActions.logout.type)
-      yield call(handleLogout)
+      let isVerify = false
+      while (!isVerify) {
+        const actions: PayloadAction<VerifyPayload | undefined> = yield take([AUTH_LOGOUT, AUTH_VERIFY])
+        switch (actions.type) {
+          case AUTH_LOGOUT:
+            yield call(handleLogout)
+            isVerify = true
+            break
+          case AUTH_VERIFY:
+            isVerify = yield call(handleVerify, actions.payload as VerifyPayload)
+            break
+        }
+      }
     } else {
-      const { type, payload } = yield take([authActions.login.type, authActions.register.type])
-      switch (type) {
-        case authActions.login.type:
-          yield call(handleLogin, payload)
+      const actions: PayloadAction<LoginPayload | RegisterPayload> = yield take([AUTH_LOGIN, AUTH_REGISTER])
+      switch (actions.type) {
+        case AUTH_LOGIN:
+          yield call(handleLogin, actions.payload as LoginPayload)
           break
-        case authActions.register.type:
-          yield call(handleRegister, payload)
+        case AUTH_REGISTER:
+          yield call(handleRegister, actions.payload as RegisterPayload)
           break
       }
     }

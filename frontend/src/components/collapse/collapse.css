@@ -1,0 +1,4 @@
+.collapse--header:hover {
+  cursor: pointer;
+  background-color: var(--button-hover);
+}

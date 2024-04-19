@@ -1,5 +1,4 @@
 import { PayloadAction, createSlice } from '@reduxjs/toolkit'
-import { LoginPayload, RegisterPayload } from '~/models/auth'
 import { User } from '~/models/user'
 import tokenService from '~/services/token.service'
 interface AuthState {
@@ -17,13 +16,11 @@ const authSlice = createSlice({
   name: 'auth',
   initialState: initialState,
   reducers: {
-    login(state, actions: PayloadAction<LoginPayload>) {
+    login(state) {
       state.logging = true
-      actions
     },
-    register(state, actions: PayloadAction<RegisterPayload>) {
+    register(state) {
       state.logging = true
-      actions
     },
     loginSuccess(state, actions: PayloadAction<User | undefined>) {
       state.logging = false
@@ -45,15 +42,23 @@ const authSlice = createSlice({
       state.isAuthenticated = false
       state.users = undefined
     },
+    verify(state) {
+      state.logging = true
+    },
     verifySuccess(state, actions: PayloadAction<User | undefined>) {
       state.users = actions.payload
       tokenService.setUser(actions.payload)
+      state.logging = false
     }
   }
 })
 
 // Actions
 export const authActions = authSlice.actions
+export const AUTH_LOGIN = 'AUTH_LOGIN'
+export const AUTH_REGISTER = 'AUTH_REGISTER'
+export const AUTH_LOGOUT = 'AUTH_LOGOUT'
+export const AUTH_VERIFY = 'AUTH_VERIFY'
 
 // Selectors
 export const selectLogging = (state: { auth: AuthState }) => state.auth.logging
