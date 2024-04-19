@@ -2,7 +2,7 @@ import { ArrowLeftIcon, Button, LogInIcon, Pane, majorScale, toaster } from 'eve
 import { useEffect, useState } from 'react'
 import { Outlet } from 'react-router'
 import { useAppSelector } from '~/app/hook'
-import icons from '~/assets/icons'
+import { GithubIcon } from '~/assets/icons'
 import imgs from '~/assets/imgs'
 import { history } from '~/configs/history'
 import routes from '~/configs/routes'
@@ -80,12 +80,7 @@ export const AuthTemplate = () => {
           >
             Đăng nhập bằng tài khoản
           </Button>
-          <Button
-            width={majorScale(40)}
-            height={majorScale(5)}
-            onClick={loginViaGithub}
-            iconBefore={<img src={icons.github} />}
-          >
+          <Button width={majorScale(40)} height={majorScale(5)} onClick={loginViaGithub} iconBefore={<GithubIcon />}>
             Đăng nhập bằng Github
           </Button>
         </Pane>
