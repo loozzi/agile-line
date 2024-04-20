@@ -1,6 +1,7 @@
 import {
   Avatar,
   Button,
+  CogIcon,
   ExpandAllIcon,
   InboxIcon,
   LayersIcon,
@@ -21,6 +22,7 @@ import { GET_WORKSPACE, selectCurrentWorkspace } from '~/hooks/workspace/workspa
 import { WorkspaceParams } from '~/models/workspace'
 import { CollapseComp } from '../collapse/collapse'
 import { NavbarButtonComp } from './navbar-btn'
+import { UsersGroupIcon } from '~/assets/icons'
 
 interface NavbarCompProps extends PaneProps {}
 
@@ -31,6 +33,10 @@ export const NavbarComp = (props: NavbarCompProps) => {
 
   const handleOpenModalWorkspace = () => {
     history.push(routes.workspace.root)
+  }
+
+  const handleRedirect = (route: string) => {
+    history.push(route)
   }
 
   useEffect(() => {
@@ -116,6 +122,28 @@ export const NavbarComp = (props: NavbarCompProps) => {
         }
         marginTop={majorScale(2)}
       ></CollapseComp>
+      <CollapseComp
+        label={
+          <span
+            style={{
+              fontWeight: 600
+            }}
+          >
+            Cài đặt Workspace
+          </span>
+        }
+      >
+        <NavbarButtonComp
+          label='Thông tin cơ bản'
+          beforeIcon={<CogIcon />}
+          onClick={() => handleRedirect(`/${params.permalink}/${routes.workspace.setting.slug}`)}
+        />
+        <NavbarButtonComp
+          label='Thành viên'
+          beforeIcon={<UsersGroupIcon />}
+          onClick={() => handleRedirect(`/${params.permalink}/${routes.workspace.members.slug}`)}
+        />
+      </CollapseComp>
     </Pane>
   )
 }

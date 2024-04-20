@@ -1,5 +1,5 @@
 import { FileCard, FileUploader, Pane, PaneProps, toaster } from 'evergreen-ui'
-import React from 'react'
+import { useCallback, useState } from 'react'
 import { IResponse } from '~/models/IResponse'
 import { ImgurResponse } from '~/models/imgur'
 import imgurService from '~/services/imgur.service'
@@ -14,17 +14,14 @@ interface ImageUploaderCompProps extends PaneProps {
 
 export const ImageUploaderComp = (props: ImageUploaderCompProps) => {
   const { label, description, maxSizeInBytes, maxFiles, onChangeLogo, ...paneProps } = props
-  const [files, setFiles] = React.useState([])
-  const [fileRejections, setFileRejections] = React.useState([])
-  const handleRejected = React.useCallback(
-    (fileRejections: any[]) => setFileRejections([fileRejections[0] as never]),
-    []
-  )
-  const handleRemove = React.useCallback(() => {
+  const [files, setFiles] = useState([])
+  const [fileRejections, setFileRejections] = useState([])
+  const handleRejected = useCallback((fileRejections: any[]) => setFileRejections([fileRejections[0] as never]), [])
+  const handleRemove = useCallback(() => {
     setFiles([])
     setFileRejections([])
   }, [])
-  const handleChange = React.useCallback((files: never[] | any[]) => {
+  const handleChange = useCallback((files: never[] | any[]) => {
     setFiles([files[0] as never])
     toaster.notify('Uploading image...', {
       id: 'upload-image'

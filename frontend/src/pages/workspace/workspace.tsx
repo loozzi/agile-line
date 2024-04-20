@@ -6,6 +6,7 @@ import { WorkspaceList } from '~/components/workspace/list'
 import { selectIsAuthenticated } from '~/hooks/auth/auth.slice'
 import { Workspace, WorkspaceSearchParams } from '~/models/workspace'
 import workspaceService from '~/services/workspace.service'
+import { ForbiddenPage } from '../403'
 
 export const WorkspacePage = () => {
   const isAuth = useAppSelector(selectIsAuthenticated)
@@ -28,8 +29,7 @@ export const WorkspacePage = () => {
   }, [params])
 
   if (!isAuth) {
-    // TODO: return 403 page
-    return <div>Not authenticated</div>
+    return <ForbiddenPage />
   }
 
   return (

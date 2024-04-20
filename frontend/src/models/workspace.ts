@@ -25,3 +25,9 @@ export interface WorkspaceCreatePayload {
   description: string
   is_private: boolean
 }
+
+export interface WorkspaceUpdatePayload extends WorkspaceCreatePayload {
+  permalink: string
+}
+
+export type WorkspaceRole = 'admin' | 'member' | 'moderator'

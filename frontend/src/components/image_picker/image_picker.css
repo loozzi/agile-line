@@ -1,0 +1,19 @@
+.image-picker:hover {
+  cursor: pointer;
+}
+
+.image-picker--overlay {
+  display: none;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+  font-size: 32px;
+  text-align: center;
+  color: white;
+  text-shadow: 2px 2px 10px #000;
+  background-color: rgba(0, 0, 0, 0.25);
+}
+
+.image-picker:hover > .image-picker--overlay {
+  display: flex;
+}
