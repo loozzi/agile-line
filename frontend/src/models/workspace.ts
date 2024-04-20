@@ -31,8 +31,3 @@ export interface WorkspaceUpdatePayload extends WorkspaceCreatePayload {
 }
 
 export type WorkspaceRole = 'admin' | 'member' | 'moderator'
-
-export interface WorkspaceGetMembersParams extends WorkspaceParams, PaginationParams {
-  member_kw?: string
-  role?: WorkspaceRole
-}

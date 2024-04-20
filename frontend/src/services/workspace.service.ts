@@ -1,16 +1,16 @@
 import routeApi from '~/configs/route.api'
 import { IResponse } from '~/models/IResponse'
+import { WorkspaceSetRolePayload } from '~/models/member'
+import { Member, WorkspaceGetMembersParams } from '~/models/member'
 import { PaginationResponse } from '~/models/utils'
 import {
   Workspace,
   WorkspaceCreatePayload,
-  WorkspaceGetMembersParams,
   WorkspaceParams,
   WorkspaceSearchParams,
   WorkspaceUpdatePayload
 } from '~/models/workspace'
 import client from './axios.service'
-import { Member } from '~/models/user'
 
 const getWorkspaces = async (params: WorkspaceSearchParams): Promise<IResponse<PaginationResponse<Workspace>>> => {
   return await client.get(routeApi.workspace.getWorkspaces, {
@@ -39,10 +39,18 @@ const getMembers = async (params: WorkspaceGetMembersParams): Promise<IResponse<
   })
 }
 
+const changeRoleMember = async (
+  params: WorkspaceParams,
+  payload: WorkspaceSetRolePayload
+): Promise<IResponse<Member>> => {
+  return await client.put(routeApi.workspace.members.replace(':permalink', params.permalink), payload)
+}
+
 export default {
   getWorkspaces,
   getWorkspace,
   createWorkspace,
   editWorkspace,
-  getMembers
+  getMembers,
+  changeRoleMember
 }

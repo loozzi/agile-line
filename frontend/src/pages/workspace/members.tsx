@@ -1,10 +1,9 @@
-import { Pagination } from 'evergreen-ui'
 import { useEffect, useState } from 'react'
 import { useParams } from 'react-router'
 import { ListMemberComp } from '~/components/setting/list-member'
-import { Member } from '~/models/user'
+import { Member, WorkspaceGetMembersParams } from '~/models/member'
 import { PaginationResponse } from '~/models/utils'
-import { WorkspaceGetMembersParams, WorkspaceRole } from '~/models/workspace'
+import { WorkspaceRole } from '~/models/workspace'
 import workspaceService from '~/services/workspace.service'
 
 export const WorkspaceMemberPage = () => {
