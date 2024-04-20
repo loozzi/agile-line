@@ -1,6 +1,6 @@
 import routeApi from '~/configs/route.api'
 import { IResponse } from '~/models/IResponse'
-import { WorkspaceRemoveMemberParams, WorkspaceSetRolePayload } from '~/models/member'
+import { WorkspaceAddMembersPayload, WorkspaceRemoveMemberParams, WorkspaceSetRolePayload } from '~/models/member'
 import { Member, WorkspaceGetMembersParams } from '~/models/member'
 import { PaginationResponse } from '~/models/utils'
 import {
@@ -52,6 +52,13 @@ const removeMember = async (params: WorkspaceRemoveMemberParams): Promise<IRespo
   })
 }
 
+const addMembers = async (
+  params: WorkspaceParams,
+  payload: WorkspaceAddMembersPayload
+): Promise<IResponse<PaginationResponse<Member>>> => {
+  return await client.post(routeApi.workspace.members.replace(':permalink', params.permalink), payload)
+}
+
 export default {
   getWorkspaces,
   getWorkspace,
@@ -59,5 +66,6 @@ export default {
   editWorkspace,
   getMembers,
   changeRoleMember,
-  removeMember
+  removeMember,
+  addMembers
 }

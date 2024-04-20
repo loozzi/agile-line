@@ -1,10 +1,13 @@
+import { Pane, majorScale } from 'evergreen-ui'
 import { useEffect, useState } from 'react'
 import { useParams } from 'react-router'
+import { WorkspaceAddMemberComp } from '~/components/setting/add-member'
 import { ListMemberComp } from '~/components/setting/list-member'
 import { Member, WorkspaceGetMembersParams } from '~/models/member'
 import { PaginationResponse } from '~/models/utils'
 import { WorkspaceRole } from '~/models/workspace'
 import workspaceService from '~/services/workspace.service'
+import { SettingPane } from './setting'
 
 export const WorkspaceMemberPage = () => {
   const params = useParams()
@@ -57,15 +60,20 @@ export const WorkspaceMemberPage = () => {
   // TODO: Implement styles
   // TODO: Add member by email or username
   return (
-    <div>
-      {!!members && (
-        <ListMemberComp
-          members={members}
-          handleChangePage={handleChangePage}
-          filterByUsername={filterByUsername}
-          filterByRole={filterByRole}
-        />
-      )}
-    </div>
+    <Pane>
+      <Pane marginBottom={majorScale(4)}>
+        {!!members && (
+          <ListMemberComp
+            members={members}
+            handleChangePage={handleChangePage}
+            filterByUsername={filterByUsername}
+            filterByRole={filterByRole}
+          />
+        )}
+      </Pane>
+      <SettingPane heading='Thêm thành viên'>
+        <WorkspaceAddMemberComp />
+      </SettingPane>
+    </Pane>
   )
 }

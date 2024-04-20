@@ -2,18 +2,18 @@ import MDEditor from '@uiw/react-md-editor'
 import { Button, EditIcon, Pane, PaneProps, TextInputField, TrashIcon, majorScale, toaster } from 'evergreen-ui'
 import { useFormik } from 'formik'
 import { useEffect } from 'react'
+import * as Yup from 'yup'
 import { useAppDispatch, useAppSelector } from '~/app/hook'
 import { ImagePickerComp } from '~/components/image_picker/image_picker'
 import { GET_WORKSPACE, selectCurrentWorkspace, selectGetWorkspace } from '~/hooks/workspace/workspace.slice'
 import { WorkspaceParams, WorkspaceUpdatePayload } from '~/models/workspace'
 import workspaceService from '~/services/workspace.service'
-import * as Yup from 'yup'
 
 interface SettingPaneProps extends PaneProps {
   heading: string
 }
 
-const SettingPane = (props: SettingPaneProps) => {
+export const SettingPane = (props: SettingPaneProps) => {
   const { heading, children } = props
 
   return (
