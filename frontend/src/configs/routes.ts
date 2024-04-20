@@ -14,6 +14,10 @@ export default {
     setting: {
       page: '/:permalink/settings',
       slug: 'settings'
+    },
+    members: {
+      page: '/:permalink/members',
+      slug: 'members'
     }
   }
 }

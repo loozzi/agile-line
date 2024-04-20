@@ -29,3 +29,10 @@ export interface WorkspaceCreatePayload {
 export interface WorkspaceUpdatePayload extends WorkspaceCreatePayload {
   permalink: string
 }
+
+export type WorkspaceRole = 'admin' | 'member' | 'moderator'
+
+export interface WorkspaceGetMembersParams extends WorkspaceParams, PaginationParams {
+  member_kw?: string
+  role?: WorkspaceRole
+}

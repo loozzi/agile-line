@@ -9,7 +9,8 @@ const auth = {
 const workspace = {
   getWorkspaces: '/workspace/',
   createWorkspace: '/workspace/',
-  editWorkspace: '/workspace/'
+  editWorkspace: '/workspace/',
+  members: '/workspace/:permalink/members'
 }
 
 export default {
