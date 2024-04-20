@@ -1,6 +1,17 @@
-import { Pane, PaneProps, Table, Image, majorScale, Combobox, Pagination, toaster } from 'evergreen-ui'
+import {
+  Pane,
+  PaneProps,
+  Table,
+  Image,
+  majorScale,
+  Combobox,
+  Pagination,
+  toaster,
+  Button,
+  TrashIcon
+} from 'evergreen-ui'
 import { useParams } from 'react-router'
-import { Member, WorkspaceSetRolePayload } from '~/models/member'
+import { Member, WorkspaceRemoveMemberParams, WorkspaceSetRolePayload } from '~/models/member'
 import { PaginationResponse } from '~/models/utils'
 import { WorkspaceParams, WorkspaceRole } from '~/models/workspace'
 import workspaceService from '~/services/workspace.service'
@@ -15,6 +26,7 @@ interface ListMemberCompProps extends PaneProps {
 export const ListMemberComp = (props: ListMemberCompProps) => {
   const { members, handleChangePage, filterByUsername, filterByRole, ...paneProps } = props
   const params = useParams()
+
   const handleChangeRole = (role: WorkspaceRole, user_id: number) => {
     const _params: WorkspaceParams = { permalink: params.permalink || '' }
     const payload: WorkspaceSetRolePayload = {
@@ -24,6 +36,21 @@ export const ListMemberComp = (props: ListMemberCompProps) => {
     workspaceService.changeRoleMember(_params, payload).then((data) => {
       if (data.status === 200) {
         toaster.success(data.message)
+      } else {
+        toaster.danger(data.message)
+      }
+    })
+  }
+
+  const handleRemoveMember = (user_id: number) => {
+    const _params: WorkspaceRemoveMemberParams = {
+      permalink: params.permalink || '',
+      user_id: user_id
+    }
+    workspaceService.removeMember(_params).then((data) => {
+      if (data.status === 200) {
+        toaster.success(data.message)
+        handleChangePage(members?.pagination.current_page || 1)
       } else {
         toaster.danger(data.message)
       }
@@ -51,6 +78,7 @@ export const ListMemberComp = (props: ListMemberCompProps) => {
               />
             </Pane>
           </Table.TextHeaderCell>
+          <Table.TextHeaderCell>Actions</Table.TextHeaderCell>
         </Table.Head>
         <Table.Body>
           {members?.items.map((member: Member) => (
@@ -76,6 +104,11 @@ export const ListMemberComp = (props: ListMemberCompProps) => {
                   openOnFocus
                   onChange={(selected) => handleChangeRole(selected as WorkspaceRole, member.id)}
                 />
+              </Table.TextCell>
+              <Table.TextCell>
+                <Button intent='danger' iconBefore={<TrashIcon />} onClick={() => handleRemoveMember(member.id)}>
+                  Xóa
+                </Button>
               </Table.TextCell>
             </Table.Row>
           ))}

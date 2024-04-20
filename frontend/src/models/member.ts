@@ -21,3 +21,7 @@ export interface WorkspaceSetRolePayload {
   user_id: number
   role: WorkspaceRole
 }
+
+export interface WorkspaceRemoveMemberParams extends WorkspaceParams {
+  user_id: number
+}
