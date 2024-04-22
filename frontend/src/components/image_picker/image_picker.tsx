@@ -48,6 +48,7 @@ export const ImagePickerComp = (props: ImagePickerCompProps) => {
       }}
       position='relative'
       onClick={onClick}
+      overflow='hidden'
     >
       <span className='image-picker--overlay'>{textOverlay ? textOverlay : 'Upload'}</span>
       <input type='file' hidden accept='image/png, image/jpeg' ref={inputRef} onChange={onChange} />

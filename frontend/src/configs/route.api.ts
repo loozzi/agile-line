@@ -13,7 +13,16 @@ const workspace = {
   members: '/workspace/:permalink/members'
 }
 
+const user = {
+  getUser: '/user/',
+  getUserByUsername: '/user/:username',
+  editUser: '/user/',
+  changePassword: '/user/password',
+  changeEmail: '/user/email'
+}
+
 export default {
   auth,
-  workspace
+  workspace,
+  user
 }
