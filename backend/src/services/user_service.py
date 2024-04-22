@@ -1,15 +1,20 @@
 from datetime import datetime, timezone
+
+from flask import request
 from src import bcrypt, db
 from src.models import User
 from src.utils import _response, jwt_generate, to_dict
-
-from flask import request
 
 
 def make_data_to_respone(user):
     data = to_dict(user)
     del data["password"]
     return data
+
+
+def get_info(user):
+    data = make_data_to_respone(user)
+    return _response(200, "Lấy thông tin người dùng thành công", data)
 
 
 def update_email(email, password):
