@@ -14,27 +14,33 @@ from flask import request
 def show_project_in_workspace(permalink, issue_kw, leader_kw, member_kw, status):
     curr_workspace = Workspace.query.filter_by(permalink=permalink).first()
     project_list = (
-        Project.query.join(WorkspaceProject, WorkspaceProject.project_id == Project.id)
-        .join(Role, Project.id == Role.project_id)
+        Project.query.join(Role, Project.id == Role.project_id)
         .join(UserRole, UserRole.role_id == Role.id)
         .join(User, User.id == UserRole.user_id)
-        .filter(WorkspaceProject.workspace_id == curr_workspace.id)
+        .filter(Project.workspace_id == curr_workspace.id)
         .filter(
             or_(
                 Issue.name.like(f"%{issue_kw}%"),
                 Issue.description.like(f"%{issue_kw}%"),
             )
+            if issue_kw
+            else True
         )
         .filter(
             and_(
-                User.username.like(f"%{leader_kw}%"), Role.description == "ROLE_LEADER"
+                User.username.like(f"%{leader_kw}%"),
+                Role.description == "ROLE_LEADER",
             )
+            if leader_kw
+            else True
         )
-        .filter(User.username.like(f"%{member_kw}%"))
+        .filter(User.username.like(f"%{member_kw}%") if member_kw else True)
         .filter(Project.status == status)
         .all()
     )
     project_list_dict = [to_dict(row) for row in project_list]
+    for project in project_list_dict:
+        project["status"] = str(project["status"])
     project_list_pagination = make_data_to_response_page(project_list_dict)
     return _response(200, message="Retrieve Success", data=project_list_pagination)
 
@@ -44,7 +50,44 @@ def display_project(permalink):
     if project is None:
         return _response(400, "Không tìm thấy project")
     return_project = to_dict(project)
-
+    del return_project["workspace_id"]
+    del return_project["is_removed"]
+    del return_project["remove_date"]
+    del return_project["created_at"]
+    project_leader_role = (
+        Role.query.filter_by(project_id=project.id)
+        .filter_by(description="ROLE_LEADER")
+        .first()
+    )
+    project_leader = UserRole.query.filter_by(role_id=project_leader_role.id).first()
+    leader_user = to_dict(User.query.filter_by(id=project_leader.user_id).first())
+    del leader_user["password"]
+    del leader_user["email"]
+    del leader_user["phone_number"]
+    del leader_user["description"]
+    del leader_user["created_at"]
+    del leader_user["updated_at"]
+    leader_user["role"] = project_leader_role.name
+    return_project["leader"] = leader_user
+    project_member_role = (
+        Role.query.filter_by(project_id=project.id)
+        .filter_by(description="ROLE_MEMBER")
+        .first()
+    )
+    list_member = []
+    project_members = UserRole.query.filter_by(role_id=project_member_role.id).all()
+    for member in project_members:
+        member_user = to_dict(User.query.filter_by(id=member.user_id).first())
+        del member_user["password"]
+        del member_user["email"]
+        del member_user["phone_number"]
+        del member_user["description"]
+        del member_user["created_at"]
+        del member_user["updated_at"]
+        member_user["role"] = project_member_role.name
+        list_member.append(member_user)
+    return_project["members"] = list_member
+    return_project["status"] = str(return_project["status"])
     return _response(200, message="Retrieve Success", data=return_project)
 
 
@@ -60,7 +103,8 @@ def create_project(
     member_id,
 ):
     curr_user = request.user
-    if not is_workspace_user(curr_user):
+    workspace = Workspace.query.filter_by(id=workspace_id).first()
+    if not is_workspace_user(curr_user, workspace):
         return _response(403, "Bạn không nằm trong workspace này")
     user_workspace_role = WorkspaceUser.query.filter_by(user_id=curr_user.id).first()
     if not (
@@ -68,7 +112,7 @@ def create_project(
         or user_workspace_role.role == WorkspaceRole.MODERATOR
     ):
         return _response(403, "Không có quyền khởi tạo project")
-    if Workspace.query.filter_by(id=workspace_id).first is None:
+    if Workspace.query.filter_by(id=workspace_id).first() is None:
         return _response(400, "Không tìm thấy workspace")
     if User.query.filter_by(id=leader_id).first() is None:
         return _response(400, "Không tìm thấy leader được thêm vào")
@@ -87,8 +131,6 @@ def create_project(
         permalink=gen_permalink(),
         is_removed=False,
         remove_date=datetime.now(timezone.utc) + timedelta(days=30),
-        leader_id=leader_id,
-        member_id=member_id,
         created_at=datetime.now(timezone.utc),
         updated_at=datetime.now(timezone.utc),
     )
@@ -96,7 +138,7 @@ def create_project(
     db.session.flush()
     new_project_leader_role = Role(
         name="leader",
-        description="ROLE.LEADER",
+        description="ROLE_LEADER",
         project_id=new_project.id,
         created_at=datetime.now(timezone.utc),
         updated_at=datetime.now(timezone.utc),
@@ -113,7 +155,7 @@ def create_project(
     db.session.flush()
     new_project_member_role = Role(
         name="member",
-        description="ROLE.MEMBER",
+        description="ROLE_MEMBER",
         project_id=new_project.id,
         created_at=datetime.now(timezone.utc),
         updated_at=datetime.now(timezone.utc),
@@ -133,7 +175,7 @@ def create_project(
         member_list.append(new_member)
         member = UserRole(
             user_id=user_id,
-            role_id=new_project_member_role,
+            role_id=new_project_member_role.id,
             created_at=datetime.now(timezone.utc),
             updated_at=datetime.now(timezone.utc),
         )
@@ -141,6 +183,7 @@ def create_project(
         db.session.flush()
     db.session.commit()
     return_project = to_dict(new_project)
+    return_project["status"] = str(return_project["status"])
     new_leader = to_dict(User.query.filter_by(id=leader_id).first())
     del new_leader["password"]
     del new_leader["email"]
@@ -150,6 +193,9 @@ def create_project(
     del new_leader["updated_at"]
     return_project["leader"] = new_leader
     return_project["members"] = member_list
+    del return_project["workspace_id"]
     del return_project["is_removed"]
     del return_project["remove_date"]
+    del return_project["created_at"]
+    db.session.commit()
     return _response(200, message="Tạo project thành công", data=return_project)
