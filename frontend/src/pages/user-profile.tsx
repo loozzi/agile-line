@@ -24,8 +24,13 @@ export const UserProfilePage = () => {
   const [currentUser, setCurrentUser] = useState<UserDetail | undefined>(undefined)
   const [isShowDialog, setIsShowDialog] = useState(false)
   const [typeDialog, setTypeDialog] = useState<'info' | 'email' | 'password' | undefined>(undefined)
+  const [currentAvatar, setCurrentAvatar] = useState<string | undefined>(undefined)
 
-  const onChangeImage = (value: string | undefined): void => {}
+  const onChangeImage = (value: string | undefined): void => {
+    updateInfoFormik.setFieldValue('avatar', value)
+    setCurrentAvatar(value)
+    console.log(value)
+  }
 
   const initialUpdateInfoValues: UserUpdateInfoPayload = useMemo(
     () => ({
@@ -184,6 +189,7 @@ export const UserProfilePage = () => {
         email: currentUser.email,
         password: ''
       })
+      setCurrentAvatar(currentUser.avatar ?? '')
     }
   }, [currentUser])
 
@@ -222,7 +228,7 @@ export const UserProfilePage = () => {
               Ảnh đại diện
             </Label>
             <ImagePickerComp
-              src={currentUser?.avatar ?? imgs.blank_avatar}
+              src={!!currentAvatar ? currentAvatar : imgs.blank_avatar}
               onChangeImage={onChangeImage}
               width={majorScale(24)}
               height={majorScale(24)}
