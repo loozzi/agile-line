@@ -8,13 +8,15 @@ import {
   Pagination,
   toaster,
   Button,
-  TrashIcon
+  TrashIcon,
+  Popover
 } from 'evergreen-ui'
 import { useParams } from 'react-router'
 import { Member, WorkspaceRemoveMemberParams, WorkspaceSetRolePayload } from '~/models/member'
 import { PaginationResponse } from '~/models/utils'
 import { WorkspaceParams, WorkspaceRole } from '~/models/workspace'
 import workspaceService from '~/services/workspace.service'
+import { UserPopover } from '../user-popover'
 
 interface ListMemberCompProps extends PaneProps {
   members: PaginationResponse<Member>
@@ -64,7 +66,7 @@ export const ListMemberComp = (props: ListMemberCompProps) => {
           <Table.SearchHeaderCell onChange={filterByUsername} placeholder='Username'>
             Username
           </Table.SearchHeaderCell>
-          <Table.TextHeaderCell>Họ và tên</Table.TextHeaderCell>
+          {/* <Table.TextHeaderCell>Họ và tên</Table.TextHeaderCell> */}
           <Table.TextHeaderCell>
             <Pane display='flex' alignItems='center'>
               Role
@@ -84,18 +86,20 @@ export const ListMemberComp = (props: ListMemberCompProps) => {
           {members?.items.map((member: Member) => (
             <Table.Row key={member.id}>
               <Table.TextCell>
-                <Pane display='flex' alignItems='center'>
-                  <Image
-                    src={member.avatar}
-                    width={40}
-                    height={40}
-                    marginRight={majorScale(2)}
-                    borderRadius={majorScale(15)}
-                  />
-                  {member.username}
-                </Pane>
+                <Popover content={({ close }) => <UserPopover close={close} member={member} />}>
+                  <Pane display='flex' alignItems='center' cursor='pointer'>
+                    <Image
+                      src={member.avatar}
+                      width={40}
+                      height={40}
+                      marginRight={majorScale(2)}
+                      borderRadius={majorScale(15)}
+                    />
+                    {member.username}
+                  </Pane>
+                </Popover>
               </Table.TextCell>
-              <Table.TextCell>{`${member.first_name} ${member.last_name}`}</Table.TextCell>
+              {/* <Table.TextCell>{`${member.first_name} ${member.last_name}`}</Table.TextCell> */}
               <Table.TextCell>
                 <Combobox
                   items={['admin', 'moderator', 'member']}
