@@ -17,7 +17,8 @@ export default {
     },
     members: {
       page: '/:permalink/members',
-      slug: 'members'
+      slug: 'members',
+      detail: '/:permalink/members/:username'
     }
   },
   profile: { page: '/user/:username', slug: 'user' }
