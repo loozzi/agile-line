@@ -68,4 +68,4 @@ def edit_info():
 @user.route("/", methods=["GET"])
 @token_required
 def get_info():
-    return user_service.make_data_to_respone(request.user)
+    return user_service.get_info(request.user)
