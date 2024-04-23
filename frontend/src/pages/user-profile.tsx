@@ -208,8 +208,8 @@ export const UserProfilePage = () => {
       <Pane
         maxWidth={majorScale(92)}
         width='100%'
-        margin={majorScale(4)}
-        marginTop={majorScale(8)}
+        margin={majorScale(2)}
+        marginBottom={0}
         display='flex'
         flexDirection='column'
         alignItems='flex-start'
