@@ -1,10 +1,12 @@
 import MDEditor from '@uiw/react-md-editor'
-import { Button, EditIcon, Pane, PaneProps, TextInputField, TrashIcon, majorScale, toaster } from 'evergreen-ui'
+import { Button, Dialog, EditIcon, Pane, PaneProps, TextInputField, TrashIcon, majorScale, toaster } from 'evergreen-ui'
 import { useFormik } from 'formik'
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import * as Yup from 'yup'
 import { useAppDispatch, useAppSelector } from '~/app/hook'
 import { ImagePickerComp } from '~/components/image_picker/image_picker'
+import { history } from '~/configs/history'
+import routes from '~/configs/routes'
 import { GET_WORKSPACE, selectCurrentWorkspace, selectGetWorkspace } from '~/hooks/workspace/workspace.slice'
 import { WorkspaceParams, WorkspaceUpdatePayload } from '~/models/workspace'
 import workspaceService from '~/services/workspace.service'
@@ -34,6 +36,8 @@ export const WorkspaceSettingPage = () => {
   const currentWorkspace = useAppSelector(selectCurrentWorkspace)
   const loading = useAppSelector(selectGetWorkspace)
   const dispatch = useAppDispatch()
+  const [isShownConfirmDelete, setShownConfirmDelete] = useState<boolean>(false)
+  const [confirmDeleteInput, setConfirmDeleteInput] = useState<string>('')
 
   const onChangeImage = (value: string | undefined): void => {
     const params: WorkspaceParams = {
@@ -120,14 +124,22 @@ export const WorkspaceSettingPage = () => {
   }
 
   const handleDeleteWorkspace = () => {
-    // TODO: Handle delete workspace
-    // Show modal to confirm delete workspace
-    // Input workspace name to confirm delete
-    // If input workspace name is correct, delete workspace
-    // If input workspace name is incorrect, show error message
-    // If delete workspace successfully, redirect to list workspace page
-    // If delete workspace failed, show error message
-    console.log('delete workspace')
+    setShownConfirmDelete(true)
+  }
+
+  const confirmDeleteWorkspace = () => {
+    if (confirmDeleteInput === `delete/${currentWorkspace?.permalink}`) {
+      workspaceService.deleteWorkspace({ permalink: currentWorkspace?.permalink || '' }).then((data) => {
+        if (data.status === 200) {
+          toaster.success(data.message)
+          history.push(routes.workspace.root)
+        } else {
+          toaster.danger(data.message)
+        }
+      })
+    } else {
+      toaster.danger('Xác nhận sai!')
+    }
   }
 
   useEffect(() => {
@@ -211,6 +223,27 @@ export const WorkspaceSettingPage = () => {
           </SettingPane>
         </Pane>
       )}
+      <Dialog
+        title='Xác nhận xóa workspace'
+        intent='danger'
+        isShown={isShownConfirmDelete}
+        confirmLabel='Xác nhận'
+        onConfirm={confirmDeleteWorkspace}
+        onCloseComplete={() => {
+          setShownConfirmDelete(false)
+        }}
+      >
+        Nhập{' '}
+        <b>
+          <i>delete/{currentWorkspace?.permalink}</i>
+        </b>{' '}
+        để xác nhận xóa workspace
+        <TextInputField
+          onChange={(e: any) => setConfirmDeleteInput(e.target.value)}
+          value={confirmDeleteInput}
+          placeholder='Nhập thông tin'
+        />
+      </Dialog>
     </Pane>
   )
 }

@@ -59,6 +59,10 @@ const addMembers = async (
   return await client.post(routeApi.workspace.members.replace(':permalink', params.permalink), payload)
 }
 
+const deleteWorkspace = async (params: WorkspaceParams): Promise<IResponse<undefined>> => {
+  return await client.delete(routeApi.workspace.deleteWorkspace + params.permalink)
+}
+
 export default {
   getWorkspaces,
   getWorkspace,
@@ -67,5 +71,6 @@ export default {
   getMembers,
   changeRoleMember,
   removeMember,
-  addMembers
+  addMembers,
+  deleteWorkspace
 }

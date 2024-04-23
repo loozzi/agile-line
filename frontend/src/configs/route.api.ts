@@ -10,7 +10,8 @@ const workspace = {
   getWorkspaces: '/workspace/',
   createWorkspace: '/workspace/',
   editWorkspace: '/workspace/',
-  members: '/workspace/:permalink/members'
+  members: '/workspace/:permalink/members',
+  deleteWorkspace: '/workspace/'
 }
 
 const user = {
