@@ -1,5 +1,8 @@
-import { Pane, Image, Label, majorScale, TagIcon, Badge, Button, IconButton, TrashIcon } from 'evergreen-ui'
-import { Member } from '~/models/member'
+import { Badge, Button, IconButton, Image, Label, Pane, TagIcon, TrashIcon, majorScale, toaster } from 'evergreen-ui'
+import { useParams } from 'react-router'
+import { history } from '~/configs/history'
+import { Member, WorkspaceRemoveMemberParams } from '~/models/member'
+import workspaceService from '~/services/workspace.service'
 
 interface UserPopoverProps {
   close?: () => void
@@ -8,6 +11,25 @@ interface UserPopoverProps {
 
 export const UserPopover = (props: UserPopoverProps) => {
   const { member } = props
+  const params = useParams()
+
+  const handleRemoveMember = () => {
+    const _params: WorkspaceRemoveMemberParams = {
+      permalink: params.permalink || '',
+      user_id: member?.id || 0
+    }
+    workspaceService.removeMember(_params).then((data) => {
+      if (data.status === 200) {
+        toaster.success(data.message)
+      } else {
+        toaster.danger(data.message)
+      }
+    })
+  }
+
+  const handleViewDetail = () => {
+    history.push(`/${params.permalink}/members/${member?.username}`)
+  }
 
   return (
     <Pane display='flex' flexDirection='column' padding={majorScale(2)}>
@@ -26,15 +48,25 @@ export const UserPopover = (props: UserPopoverProps) => {
         </Pane>
       </Pane>
       <Pane display='flex' alignItems='center' marginTop={majorScale(1)}>
-        <Button flex={1} marginRight={majorScale(2)}>
+        <Button flex={1} marginRight={majorScale(2)} onClick={handleViewDetail}>
           Xem chi tiết
         </Button>
-        <IconButton appearance='primary' intent='danger' icon={<TrashIcon />} />
+        <IconButton appearance='primary' intent='danger' icon={<TrashIcon />} onClick={handleRemoveMember} />
       </Pane>
       <Pane marginTop={majorScale(2)}>
         {member?.project.map((project) => (
           <Pane key={project.id} display='flex' alignItems='center' marginTop={majorScale(1)}>
-            <TagIcon color='green' marginRight={majorScale(1)} />
+            {!!project.icon ? (
+              <Image
+                src={project.icon}
+                width={majorScale(4)}
+                height={majorScale(4)}
+                borderRadius={majorScale(1)}
+                marginRight={majorScale(1)}
+              />
+            ) : (
+              <TagIcon color='green' size={majorScale(4)} marginRight={majorScale(1)} />
+            )}
             <Label>{project.name}</Label>
           </Pane>
         ))}
