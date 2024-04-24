@@ -4,8 +4,7 @@ from src import db
 from src.models import Workspace, WorkspaceUser, Project
 from src.models import UserRole, Role, User, Issue
 from src.utils import _response, to_dict, gen_permalink
-from src.services.workspace_service import is_workspace_user
-from src.services.workspace_service import make_data_to_response_page
+from src.utils import make_data_to_response_page, is_workspace_user
 from src.enums import WorkspaceRole
 from sqlalchemy import and_, or_
 from flask import request

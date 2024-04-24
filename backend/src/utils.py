@@ -3,8 +3,10 @@ from math import ceil
 
 import jwt
 from sqlalchemy.dialects.mysql import insert
+from sqlalchemy import and_, select
 from src import db, env_config
-from src.models import RefreshToken
+from src.models import RefreshToken, WorkspaceUser
+from flask import request
 import uuid
 
 
@@ -78,7 +80,35 @@ def jwt_generate(user):
 
 
 def jwt_decode(token):
-    data_decode = jwt.decode(token,
-                             key=env_config.SECRET_KEY,
-                             algorithms=["HS256"])
+    data_decode = jwt.decode(token, key=env_config.SECRET_KEY, algorithms=["HS256"])
     return data_decode
+
+
+def make_data_to_response_page(list_data):
+    limit_page = request.pagination["limit"]
+    page_cur = request.pagination["page"]
+    start_index = (page_cur - 1) * limit_page
+    end_index = min(start_index + limit_page, len(list_data))
+    current_page_item = list_data[start_index:end_index]
+    data_pagination = _pagination(
+        current_page=page_cur,
+        total_item=len(list_data),
+        items=current_page_item,
+        limit=limit_page,
+    )
+    return data_pagination
+
+
+def is_workspace_user(user, workspace):
+    result = db.session.execute(
+        select(WorkspaceUser).where(
+            and_(
+                WorkspaceUser.workspace_id == workspace.id,
+                WorkspaceUser.user_id == user.id,
+            )
+        )
+    )
+    if result.fetchone():
+        return True
+    else:
+        return False
