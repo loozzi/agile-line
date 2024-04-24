@@ -1,5 +1,16 @@
 import MDEditor from '@uiw/react-md-editor'
-import { Button, Dialog, EditIcon, Pane, PaneProps, TextInputField, TrashIcon, majorScale, toaster } from 'evergreen-ui'
+import {
+  Button,
+  Dialog,
+  EditIcon,
+  Label,
+  Pane,
+  PaneProps,
+  TextInputField,
+  TrashIcon,
+  majorScale,
+  toaster
+} from 'evergreen-ui'
 import { useFormik } from 'formik'
 import { useEffect, useState } from 'react'
 import * as Yup from 'yup'
@@ -193,8 +204,10 @@ export const WorkspaceSettingPage = () => {
                 isInvalid={!!formik.errors.permalink}
                 validationMessage={formik.errors.permalink}
               />
-              <h5 style={{ fontWeight: 600, fontSize: 14, marginBottom: majorScale(1) }}>Chỉnh sửa mô tả</h5>
-              <MDEditor height={200} value={formik.values.description} onChange={onChangeDescription} />
+              <div data-color-mode='light'>
+                <Label>Chỉnh sửa mô tả</Label>
+                <MDEditor height={200} value={formik.values.description} onChange={onChangeDescription} />
+              </div>
               <Button
                 appearance='primary'
                 iconBefore={<EditIcon />}

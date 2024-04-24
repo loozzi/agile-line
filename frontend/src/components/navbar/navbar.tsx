@@ -29,6 +29,18 @@ import { selectUser } from '~/hooks/auth/auth.slice'
 
 interface NavbarCompProps extends PaneProps {}
 
+interface NavbarButtonConfig {
+  label: string
+  beforeIcon?: any
+  afterIcon?: any
+  onClick: () => void
+  maxLabelWidth?: number
+}
+interface NavbarCollapseConfig {
+  label: string
+  children: NavbarButtonConfig[]
+}
+
 export const NavbarComp = (props: NavbarCompProps) => {
   const dispatch = useAppDispatch()
   const params = useParams()
@@ -42,6 +54,52 @@ export const NavbarComp = (props: NavbarCompProps) => {
   const handleRedirect = (route: string) => {
     history.push(route)
   }
+
+  const navBarConfig: NavbarCollapseConfig[] = [
+    {
+      label: 'Workspace',
+      children: [
+        {
+          label: 'Views',
+          beforeIcon: <LayersIcon />,
+          onClick: handleOpenModalWorkspace
+        },
+        {
+          label: 'Roadmaps',
+          beforeIcon: <MapIcon />,
+          onClick: handleOpenModalWorkspace
+        },
+        {
+          label: 'Teams',
+          beforeIcon: <PersonIcon />,
+          onClick: handleOpenModalWorkspace
+        }
+      ]
+    },
+    {
+      label: 'Favourites',
+      children: []
+    },
+    {
+      label: 'Projects',
+      children: []
+    },
+    {
+      label: 'Cài đặt Workspace',
+      children: [
+        {
+          label: 'Thông tin cơ bản',
+          beforeIcon: <CogIcon />,
+          onClick: () => handleRedirect(`/${params.permalink}/${routes.workspace.setting.slug}`)
+        },
+        {
+          label: 'Thành viên',
+          beforeIcon: <UsersGroupIcon />,
+          onClick: () => handleRedirect(`/${params.permalink}/${routes.workspace.members.slug}`)
+        }
+      ]
+    }
+  ]
 
   useEffect(() => {
     const { permalink } = params
@@ -84,71 +142,13 @@ export const NavbarComp = (props: NavbarCompProps) => {
             onClick={handleOpenModalWorkspace}
           />
         </Pane>
-
-        <CollapseComp
-          label={
-            <span
-              style={{
-                fontWeight: 600
-              }}
-            >
-              Workspace
-            </span>
-          }
-          marginTop={majorScale(2)}
-        >
-          <NavbarButtonComp label='Views' beforeIcon={<LayersIcon />} onClick={handleOpenModalWorkspace} />
-          <NavbarButtonComp label='Roadmaps' beforeIcon={<MapIcon />} onClick={handleOpenModalWorkspace} />
-          <NavbarButtonComp label='Teams' beforeIcon={<PersonIcon />} onClick={handleOpenModalWorkspace} />
-        </CollapseComp>
-
-        <CollapseComp
-          label={
-            <span
-              style={{
-                fontWeight: 600
-              }}
-            >
-              Favourites
-            </span>
-          }
-          marginTop={majorScale(2)}
-        ></CollapseComp>
-
-        <CollapseComp
-          label={
-            <span
-              style={{
-                fontWeight: 600
-              }}
-            >
-              Projects
-            </span>
-          }
-          marginTop={majorScale(2)}
-        ></CollapseComp>
-        <CollapseComp
-          label={
-            <span
-              style={{
-                fontWeight: 600
-              }}
-            >
-              Cài đặt Workspace
-            </span>
-          }
-        >
-          <NavbarButtonComp
-            label='Thông tin cơ bản'
-            beforeIcon={<CogIcon />}
-            onClick={() => handleRedirect(`/${params.permalink}/${routes.workspace.setting.slug}`)}
-          />
-          <NavbarButtonComp
-            label='Thành viên'
-            beforeIcon={<UsersGroupIcon />}
-            onClick={() => handleRedirect(`/${params.permalink}/${routes.workspace.members.slug}`)}
-          />
-        </CollapseComp>
+        {navBarConfig.map((config, index) => (
+          <CollapseComp key={index} label={config.label} marginTop={majorScale(2)}>
+            {config.children.map((button, index) => (
+              <NavbarButtonComp key={index} {...button} />
+            ))}
+          </CollapseComp>
+        ))}
       </Pane>
       <Pane>
         <NavbarButtonComp
