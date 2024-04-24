@@ -1,7 +1,7 @@
 from flask import Blueprint, request
 from src.services import issue_service
 from src.utils import _response
-from src.middlewares import token_required
+from src.middlewares import token_required, request_pagination
 
 issue = Blueprint("issue", __name__)
 
@@ -35,7 +35,60 @@ def create_issue():
             list_resource = eval(list_resource)
         except Exception:
             return _response(400, message="Resources không hợp lệ")
+    else:
+        list_resource = []
     return issue_service.create_issue(project_id, name, description, status,
                                       label, priority, assignee_id,
                                       assignor_id,
                                       testor, milestone_id, list_resource)
+
+
+@issue.route("/", methods=["GET"])
+@request_pagination
+def get_user_issue():
+    user_name_in_project = request.args.get("username",
+                                            default="").strip()
+    project_id = request.args.get("project_id", default="").strip()
+    keyword = request.args.get("keyword", default="").strip()
+    status = request.args.get("status", default="").strip()
+    label = request.args.get("label", default="").strip()
+    if label != "":
+        try:
+            label = eval(label)
+        except Exception:
+            return _response(400, message="Danh sách label không hợp lệ")
+    else:
+        label = []
+    return issue_service.get_issue_user(user_name_in_project,
+                                        project_id, keyword, status, label)
+
+
+@issue.route("/<string:permalink>", methods=["GET"])
+def get_detail_issue(permalink):
+    return issue_service.get_detail_issue(permalink)
+
+
+@issue.route("/", methods=["PUT"])
+@token_required
+def edit_issue():
+    issue_id = request.form.get("id", "").strip()
+    if issue_id == "":
+        return _response(400, "Vui lòng chọn issue")
+    name = request.form.get("name", "").strip()
+    status = request.form.get("status", "").strip()
+    label = request.form.get("label", "").strip()
+    if label != "":
+        try:
+            label = eval(label)
+        except Exception:
+            return _response(400, message="Danh sách label không hợp lệ")
+    else:
+        label = []
+    priority = request.form.get("priority", "").strip()
+    assignee_id = request.form.get("assignee_id", "").strip()
+    assignor_id = request.form.get("assignor_id", "").strip()
+    testor_id = request.form.get("testor_id", "").strip()
+    milestone_id = request.form.get("milestone_id", "").strip()
+    return issue_service.edit_issue(issue_id, name, status, label, priority,
+                                    assignee_id, assignor_id, testor_id,
+                                    milestone_id)
