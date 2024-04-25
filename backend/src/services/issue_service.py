@@ -11,6 +11,8 @@ from flask import request
 
 def create_response_activity(current_issue):
     activities = Activity.query.filter_by(issue_id=current_issue.id).first()
+    activities.action = "edit"
+    db.session.commit()
     activities = to_dict(activities)
     del activities["issue_id"]
     return activities
@@ -312,3 +314,40 @@ def edit_issue(issue_id, new_name, new_status, new_labels,
     return _response(status=200,
                      message="Chỉnh sửa issue thành công",
                      data=data_response)
+
+
+def edit_status_issue(status, permalink):
+    current_user = request.user
+    current_issue = Issue.query.filter_by(permalink=permalink).first()
+    if current_issue is None:
+        return _response(status=404,
+                         message="Không tìm thấy issue")
+    if check_user_project(current_issue.project_id, current_user.id) is False:
+        return _response(status=403,
+                         message="Không có quyền chỉnh sửa issue")
+    current_issue.status = status
+    db.session.commit()
+    resources = Resources.query.filter(
+                    Resources.issue_id == current_issue.id).all()
+    list_resource = [i.link for i in resources]
+    current_project = Project.query.filter(
+                    Project.id == current_issue.project_id).first()
+    data_response = make_data_response_issue(current_issue,
+                                             list_resource,
+                                             current_project)
+    data_response["activity"] = create_response_activity(current_issue)
+    return _response(status=200,
+                     message="Chỉnh sửa status thành công",
+                     data=data_response)
+
+
+def delete_issue(id):
+    current_user = request.user
+    current_issue = Issue.query.filter_by(id=id).first()
+    if current_issue is None:
+        return _response(status=404, message="Không tìm thấy issue")
+    if check_user_project(current_issue.project_id, current_user.id) is False:
+        return _response(status=403, message="Không có quyền xóa issue")
+    db.session.delete(current_issue)
+    db.session.commit()
+    return _response(status=200, message="Xóa issue thành công")
