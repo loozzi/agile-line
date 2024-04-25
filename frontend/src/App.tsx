@@ -11,6 +11,8 @@ import { WorkspaceTemplate } from './pages/workspace/template'
 import { WorkspacePage } from './pages/workspace/workspace'
 import { WorkspaceSettingPage } from './pages/workspace/setting'
 import { WorkspaceMemberPage } from './pages/workspace/members'
+import { UserProfilePage } from './pages/user-profile'
+import { PrivateLayout } from './pages/private'
 
 function App() {
   const location = useLocation()
@@ -29,6 +31,9 @@ function App() {
         <Route path={routes.workspace.permalink} element={<WorkspaceTemplate />}>
           <Route path={routes.workspace.setting.page} element={<WorkspaceSettingPage />} />
           <Route path={routes.workspace.members.page} element={<WorkspaceMemberPage />} />
+        </Route>
+        <Route path='/' element={<PrivateLayout />}>
+          <Route path={routes.profile.page} element={<UserProfilePage />} />
         </Route>
         <Route path='*' element={<NotFound />} />
       </Routes>

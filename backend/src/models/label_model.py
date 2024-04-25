@@ -19,7 +19,7 @@ class Label(db.Model):
     color: Mapped[str] = mapped_column(String(8), nullable=False)
     title: Mapped[str] = mapped_column(String(1024), nullable=False)
     description: Mapped[str] = mapped_column(Text, nullable=True)
-    create_at: Mapped[datetime.datetime] = mapped_column(
+    created_at: Mapped[datetime.datetime] = mapped_column(
         TIMESTAMP(timezone=True), server_default=func.current_timestamp()
     )
     updated_at: Mapped[datetime.datetime] = mapped_column(

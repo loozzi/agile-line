@@ -5,3 +5,4 @@ from src.controllers.workspace_controller import workspace
 from src.controllers.label_controller import label
 from src.controllers.issue_controller import issue
 from src.controllers.resource_controller import resource
+from src.controllers.project_controller import project

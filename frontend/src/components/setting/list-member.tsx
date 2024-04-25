@@ -1,20 +1,24 @@
 import {
+  Button,
+  Combobox,
+  Dialog,
+  Image,
+  Pagination,
   Pane,
   PaneProps,
+  Popover,
   Table,
-  Image,
+  TrashIcon,
   majorScale,
-  Combobox,
-  Pagination,
-  toaster,
-  Button,
-  TrashIcon
+  toaster
 } from 'evergreen-ui'
+import { useState } from 'react'
 import { useParams } from 'react-router'
 import { Member, WorkspaceRemoveMemberParams, WorkspaceSetRolePayload } from '~/models/member'
 import { PaginationResponse } from '~/models/utils'
 import { WorkspaceParams, WorkspaceRole } from '~/models/workspace'
 import workspaceService from '~/services/workspace.service'
+import { UserPopover } from '../user-popover'
 
 interface ListMemberCompProps extends PaneProps {
   members: PaginationResponse<Member>
@@ -27,11 +31,22 @@ export const ListMemberComp = (props: ListMemberCompProps) => {
   const { members, handleChangePage, filterByUsername, filterByRole, ...paneProps } = props
   const params = useParams()
 
+  const [userIdSelected, setUserIdSelected] = useState<number | null>(null)
+  const [roleSelected, setRoleSelected] = useState<WorkspaceRole | null>(null)
+  const [isShownRemove, setShownRemove] = useState<boolean>(false)
+  const [isShownChangeRole, setShownChangeRole] = useState<boolean>(false)
+
   const handleChangeRole = (role: WorkspaceRole, user_id: number) => {
+    setRoleSelected(role)
+    setUserIdSelected(user_id)
+    setShownChangeRole(true)
+  }
+
+  const confirmChangeRole = () => {
     const _params: WorkspaceParams = { permalink: params.permalink || '' }
     const payload: WorkspaceSetRolePayload = {
-      user_id: user_id,
-      role: role
+      user_id: userIdSelected || 0,
+      role: roleSelected || 'member'
     }
     workspaceService.changeRoleMember(_params, payload).then((data) => {
       if (data.status === 200) {
@@ -43,9 +58,14 @@ export const ListMemberComp = (props: ListMemberCompProps) => {
   }
 
   const handleRemoveMember = (user_id: number) => {
+    setUserIdSelected(user_id)
+    setShownRemove(true)
+  }
+
+  const confirmRemoveMember = () => {
     const _params: WorkspaceRemoveMemberParams = {
       permalink: params.permalink || '',
-      user_id: user_id
+      user_id: userIdSelected || 0
     }
     workspaceService.removeMember(_params).then((data) => {
       if (data.status === 200) {
@@ -64,7 +84,7 @@ export const ListMemberComp = (props: ListMemberCompProps) => {
           <Table.SearchHeaderCell onChange={filterByUsername} placeholder='Username'>
             Username
           </Table.SearchHeaderCell>
-          <Table.TextHeaderCell>Họ và tên</Table.TextHeaderCell>
+          {/* <Table.TextHeaderCell>Họ và tên</Table.TextHeaderCell> */}
           <Table.TextHeaderCell>
             <Pane display='flex' alignItems='center'>
               Role
@@ -84,18 +104,20 @@ export const ListMemberComp = (props: ListMemberCompProps) => {
           {members?.items.map((member: Member) => (
             <Table.Row key={member.id}>
               <Table.TextCell>
-                <Pane display='flex' alignItems='center'>
-                  <Image
-                    src={member.avatar}
-                    width={40}
-                    height={40}
-                    marginRight={majorScale(2)}
-                    borderRadius={majorScale(15)}
-                  />
-                  {member.username}
-                </Pane>
+                <Popover content={({ close }) => <UserPopover close={close} member={member} />}>
+                  <Pane display='flex' alignItems='center' cursor='pointer'>
+                    <Image
+                      src={member.avatar}
+                      width={40}
+                      height={40}
+                      marginRight={majorScale(2)}
+                      borderRadius={majorScale(15)}
+                    />
+                    {member.username}
+                  </Pane>
+                </Popover>
               </Table.TextCell>
-              <Table.TextCell>{`${member.first_name} ${member.last_name}`}</Table.TextCell>
+              {/* <Table.TextCell>{`${member.first_name} ${member.last_name}`}</Table.TextCell> */}
               <Table.TextCell>
                 <Combobox
                   items={['admin', 'moderator', 'member']}
@@ -124,6 +146,26 @@ export const ListMemberComp = (props: ListMemberCompProps) => {
         onNextPage={() => handleChangePage(members?.pagination.current_page + 1)}
         onPreviousPage={() => handleChangePage(members?.pagination.current_page - 1)}
       />
+      <Dialog
+        isShown={isShownRemove || isShownChangeRole}
+        onConfirm={() => {
+          if (isShownRemove) return confirmRemoveMember()
+          else return confirmChangeRole()
+        }}
+        onCloseComplete={() => {
+          setShownRemove(false)
+          setShownChangeRole(false)
+        }}
+        title={isShownRemove ? 'Xác nhận xóa member' : 'Xác nhận thay đổi role'}
+        intent={isShownRemove ? 'danger' : 'none'}
+        confirmLabel='Xác nhận'
+      >
+        {isShownRemove ? (
+          <p>Bạn có chắc chắn muốn xóa member này khỏi workspace?</p>
+        ) : (
+          <p>Bạn có chắc chắn muốn thay đổi role của member này?</p>
+        )}
+      </Dialog>
     </Pane>
   )
 }

@@ -1,7 +1,7 @@
 export interface ProjectMinimize {
   id: number
   name: string
-  icon: string
+  icon?: string
   status: string
   roles: string[]
 }

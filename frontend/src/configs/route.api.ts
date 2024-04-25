@@ -10,10 +10,20 @@ const workspace = {
   getWorkspaces: '/workspace/',
   createWorkspace: '/workspace/',
   editWorkspace: '/workspace/',
-  members: '/workspace/:permalink/members'
+  members: '/workspace/:permalink/members',
+  deleteWorkspace: '/workspace/'
+}
+
+const user = {
+  getUser: '/user/',
+  getUserByUsername: '/user/:username',
+  editUser: '/user/',
+  changePassword: '/user/password',
+  changeEmail: '/user/email'
 }
 
 export default {
   auth,
-  workspace
+  workspace,
+  user
 }
