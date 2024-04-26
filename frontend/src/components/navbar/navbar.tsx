@@ -9,7 +9,7 @@ import {
   MapIcon,
   Pane,
   PaneProps,
-  PersonIcon,
+  ProjectsIcon,
   PropertyIcon,
   StyleIcon,
   UserIcon,
@@ -18,14 +18,14 @@ import {
 import { useEffect } from 'react'
 import { useParams } from 'react-router'
 import { useAppDispatch, useAppSelector } from '~/app/hook'
+import { UsersGroupIcon } from '~/assets/icons'
 import { history } from '~/configs/history'
 import routes from '~/configs/routes'
+import { selectUser } from '~/hooks/auth/auth.slice'
 import { GET_WORKSPACE, selectCurrentWorkspace } from '~/hooks/workspace/workspace.slice'
 import { WorkspaceParams } from '~/models/workspace'
 import { CollapseComp } from '../collapse/collapse'
 import { NavbarButtonComp } from './navbar-btn'
-import { UsersGroupIcon } from '~/assets/icons'
-import { selectUser } from '~/hooks/auth/auth.slice'
 
 interface NavbarCompProps extends PaneProps {}
 
@@ -70,9 +70,9 @@ export const NavbarComp = (props: NavbarCompProps) => {
           onClick: handleOpenModalWorkspace
         },
         {
-          label: 'Teams',
-          beforeIcon: <PersonIcon />,
-          onClick: handleOpenModalWorkspace
+          label: 'Projects',
+          beforeIcon: <ProjectsIcon />,
+          onClick: () => handleRedirect(`/${params.permalink}/${routes.workspace.projects.slug}`)
         }
       ]
     },
