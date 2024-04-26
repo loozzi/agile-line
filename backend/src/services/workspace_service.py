@@ -62,6 +62,10 @@ def show_workspace(keyword):
         .all()
     )
     workspace_list_dict = [to_dict(row) for row in workspace_list]
+    for workspace in workspace_list_dict:
+        workspace["count_of_members"] = WorkspaceUser.query.filter_by(
+            workspace_id=workspace["id"]
+        ).count()
     workspace_list_pagination = make_data_to_response_page(workspace_list_dict)
     return _response(200, message="Tìm kiếm thành công", data=workspace_list_pagination)
 
@@ -128,6 +132,8 @@ def edit_workspace(permalink, title, logo, description, new_permalink, is_privat
     else:
         is_private = False
     new_permalink = new_permalink.replace(" ", "-")
+    if Workspace.query.filter_by(permalink=new_permalink).first() is not None:
+        return _response(400, "Workspace với permalink này đã tồn tại")
     try:
         db.session.execute(
             update(Workspace)
