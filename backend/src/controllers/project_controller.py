@@ -18,10 +18,6 @@ def show_project_in_workspace(permalink):
     leader_kw = request.args.get("leader_kw", "").strip()
     member_kw = request.args.get("member_kw", "").strip()
     status = request.args.get("status", "").strip()
-    if not status:
-        return _response(400, "Vui lòng cung cấp đủ thông tin")
-    if status not in ProjectStatus:
-        return _response(400, "Trạng thái không hợp lệ")
     return project_service.show_project_in_workspace(
         permalink, issue_kw, leader_kw, member_kw, status
     )
@@ -44,10 +40,13 @@ def create_project():
     description = request.form.get("description", "").strip()
     icon = request.form.get("icon", "").strip()
     status = request.form.get("status", "").strip()
-    if not name or not description or not icon or not status:
+    if not name:
         return _response(400, "Vui lòng nhập đủ thông tin")
-    if status not in ProjectStatus:
-        return _response(400, "Trạng thái không hợp lệ")
+    if status not in [status.value for status in ProjectStatus]:
+        return _response(
+            400,
+            "Trạng thái không hợp lệ. Vui lòng chọn một trong các trạng thái hợp lệ: backlog, cancelled, completed, inprogress, paused, planned",
+        )
     try:
         start_day = int(request.form.get("start_day", ""))
         start_month = int(request.form.get("start_month", ""))

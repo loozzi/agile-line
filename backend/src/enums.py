@@ -31,3 +31,8 @@ class WorkspaceRole(enum.Enum):
     ADMIN = "admin"
     MEMBER = "member"
     MODERATOR = "moderator"
+
+
+class ProjectDefaultRole(enum.Enum):
+    LEADER = "ROLE_LEADER"
+    MEMBER = "ROLE_MEMBER"
