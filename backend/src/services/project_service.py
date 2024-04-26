@@ -162,6 +162,15 @@ def create_project(
     db.session.add(new_project_member_role)
     db.session.flush()
     member_list = []
+    if leader_id not in member_id:
+        leader_member = UserRole(
+            user_id=leader_id,
+            role_id=new_project_member_role.id,
+            created_at=datetime.now(timezone.utc),
+            updated_at=datetime.now(timezone.utc),
+        )
+        db.session.add(leader_member)
+        db.session.flush()
     for user_id in member_id:
         new_member = to_dict(User.query.filter_by(id=user_id).first())
         del new_member["password"]
@@ -180,7 +189,6 @@ def create_project(
         )
         db.session.add(member)
         db.session.flush()
-    db.session.commit()
     return_project = to_dict(new_project)
     return_project["status"] = return_project["status"].value
     new_leader = to_dict(User.query.filter_by(id=leader_id).first())
