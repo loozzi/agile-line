@@ -9,8 +9,24 @@ from src.services.workspace_service import make_data_to_response_page
 from flask import request
 
 
-def create_response_activity(current_issue):
-    activities = Activity.query.filter_by(issue_id=current_issue.id).first()
+def create_response_activity(current_issue, current_user):
+    activities = Activity.query.filter(
+                    Activity.issue_id == current_issue.id).filter(
+                        Activity.user_id == current_user.id).first()
+    if activities is None:
+        activities = Activity(
+            issue_id = current_issue.id,
+            user_id = current_user.id,
+            action = "edit",
+            is_edited = True,
+            created_at = datetime.now(timezone.utc),
+            updated_at = datetime.now(timezone.utc),
+        )
+        db.session.flush()
+    else:
+        activities.action = "edit"
+        activities.is_edited=True
+    db.session.commit()
     activities = to_dict(activities)
     del activities["issue_id"]
     return activities
@@ -52,7 +68,7 @@ def create_resource_and_response(list_resource, issue):
                 updated_at=datetime.now(timezone.utc)
             )
             db.session.add(new_resource)
-            db.session.flush()
+            db.session.commit()
         data_response.append({
             "id": new_resource.id,
             "link": new_resource.link,
@@ -115,6 +131,11 @@ def create_issue(project_id, name, description, status, label,
         assignor_id = current_user.id
     if testor == "":
         testor = current_user.id
+    milestone = Milestone.query.filter(Milestone.id == milestone_id).first()
+    if milestone is None:
+        milestone_id = None
+    else:
+        milestone_id = milestone.id
     new_issue = Issue(
         project_id=project_id,
         name=name,
@@ -152,10 +173,12 @@ def create_issue(project_id, name, description, status, label,
     )
     db.session.add(new_activity)
     db.session.commit()
+    data_response = make_data_response_issue(new_issue, list_resource,
+                                                   current_project)
+    db.session.commit()
     return _response(status=200,
                      message="Tạo issue thành công",
-                     data=make_data_response_issue(new_issue, list_resource,
-                                                   current_project))
+                     data=data_response)
 
 
 def get_issue_user(user_name, project_id, keyword, status, label_list):
@@ -218,7 +241,10 @@ def get_detail_issue(permalink):
                     issue_id=current_issue.id).all()
     for i in resources:
         list_resource.append(i.link)
-    update_activity = create_response_activity(current_issue)
+    activity = Activity.query.filter_by(issue_id=current_issue.id).all()
+    activity = activity[-1]
+    update_activity = to_dict(activity)
+    del update_activity["issue_id"]
     response = make_data_response_issue(
                     current_issue, list_resource, current_project)
     response["activities"] = update_activity
@@ -290,16 +316,8 @@ def edit_issue(issue_id, new_name, new_status, new_labels,
     if new_milestone is None:
         new_milestone_id = None
     current_issue.milestone_id = new_milestone_id
-    db.session.flush()
-    # chỉnh sửa activity
-    activity = Activity.query.filter(Activity.issue_id == issue_id
-                                     ).filter(
-                                         Activity.user_id == request.user.id
-                                         ).first()
-    activity.action = "edit"
-    activity.is_edited = True
-    activity.updated_at = datetime.now(timezone.utc)
     db.session.commit()
+    #
     resources = Resources.query.filter_by(issue_id=current_issue.id).all()
     list_resource = []
     for i in resources:
@@ -307,8 +325,45 @@ def edit_issue(issue_id, new_name, new_status, new_labels,
     data_response = make_data_response_issue(current_issue,
                                              list_resource,
                                              current_project)
-    update_activity = create_response_activity(current_issue)
+    update_activity = create_response_activity(current_issue, request.user)
     data_response["activities"] = update_activity
     return _response(status=200,
                      message="Chỉnh sửa issue thành công",
                      data=data_response)
+
+
+def edit_status_issue(status, permalink):
+    current_user = request.user
+    current_issue = Issue.query.filter_by(permalink=permalink).first()
+    if current_issue is None:
+        return _response(status=404,
+                         message="Không tìm thấy issue")
+    if check_user_project(current_issue.project_id, current_user.id) is False:
+        return _response(status=403,
+                         message="Không có quyền chỉnh sửa issue")
+    current_issue.status = status
+    db.session.commit()
+    resources = Resources.query.filter(
+                    Resources.issue_id == current_issue.id).all()
+    list_resource = [i.link for i in resources]
+    current_project = Project.query.filter(
+                    Project.id == current_issue.project_id).first()
+    data_response = make_data_response_issue(current_issue,
+                                             list_resource,
+                                             current_project)
+    data_response["activity"] = create_response_activity(current_issue, current_user)
+    return _response(status=200,
+                     message="Chỉnh sửa status thành công",
+                     data=data_response)
+
+
+def delete_issue(id):
+    current_user = request.user
+    current_issue = Issue.query.filter_by(id=id).first()
+    if current_issue is None:
+        return _response(status=404, message="Không tìm thấy issue")
+    if check_user_project(current_issue.project_id, current_user.id) is False:
+        return _response(status=403, message="Không có quyền xóa issue")
+    db.session.delete(current_issue)
+    db.session.commit()
+    return _response(status=200, message="Xóa issue thành công")
