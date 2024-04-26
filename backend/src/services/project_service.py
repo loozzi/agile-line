@@ -5,7 +5,7 @@ from src.models import Workspace, WorkspaceUser, Project
 from src.models import UserRole, Role, User, Issue
 from src.utils import _response, to_dict, gen_permalink
 from src.utils import make_data_to_response_page, is_workspace_user
-from src.enums import WorkspaceRole
+from src.enums import WorkspaceRole, ProjectStatus
 from sqlalchemy import and_, or_
 from flask import request
 
@@ -103,6 +103,8 @@ def create_project(
 ):
     curr_user = request.user
     workspace = Workspace.query.filter_by(id=workspace_id).first()
+    if workspace is None:
+        return _response(400, "Không tìm thấy workspace")
     if not is_workspace_user(curr_user, workspace):
         return _response(403, "Bạn không nằm trong workspace này")
     user_workspace_role = WorkspaceUser.query.filter_by(user_id=curr_user.id).first()
@@ -111,8 +113,6 @@ def create_project(
         or user_workspace_role.role == WorkspaceRole.MODERATOR
     ):
         return _response(403, "Không có quyền khởi tạo project")
-    if Workspace.query.filter_by(id=workspace_id).first() is None:
-        return _response(400, "Không tìm thấy workspace")
     if User.query.filter_by(id=leader_id).first() is None:
         return _response(400, "Không tìm thấy leader được thêm vào")
     for user_id in member_id:
@@ -124,7 +124,7 @@ def create_project(
         name=name,
         description=description,
         icon=icon,
-        status=status,
+        status=ProjectStatus[status.upper()],
         start_date=start_date,
         end_date=end_date,
         permalink=gen_permalink(),
@@ -198,3 +198,161 @@ def create_project(
     del return_project["created_at"]
     db.session.commit()
     return _response(200, message="Tạo project thành công", data=return_project)
+
+
+def make_data_to_respone_user_in_project(user, project):
+    data = to_dict(user)
+    del data["password"]
+    del data["email"]
+    del data["phone_number"]
+    del data["description"]
+    user_roles = (
+        db.session.query(Role)
+        .join(UserRole, UserRole.role_id == Role.id)
+        .filter(UserRole.user_id == user.id, Role.project_id == project.id)
+        .all()
+    )
+    # Chuyển đổi danh sách các role thành list của dictionaries
+    data["roles"] = [role.name for role in user_roles]
+    return data
+
+
+def make_data_to_respone(project):
+    data = to_dict(project)
+    data["status"] = str(data["status"].value)
+    del data["workspace_id"]
+    del data["is_removed"]
+    del data["remove_date"]
+
+    # Lấy tất cả người trong project
+    users = (
+        db.session.query(User)
+        .join(UserRole)
+        .join(Role)
+        .filter(Role.project_id == project.id)
+        .distinct()
+        .all()
+    )
+
+    members_data = []
+    leader_data = None
+    for user in users:
+        user_dict = make_data_to_respone_user_in_project(user, project)
+        if "leader" in user_dict["roles"]:
+            leader_data = user_dict
+            members_data.append(leader_data)
+        else:
+            members_data.append(user_dict)
+
+    # Thêm thông tin leader và members vào dữ liệu project
+    data["leader"] = leader_data
+    data["members"] = members_data
+
+    return data
+
+
+def is_user_leader(user_id, project_id):
+    # Thực hiện join giữa user, user_role, và role để lấy role của user trong project
+    user_roles = (
+        db.session.query(Role)
+        .join(UserRole, UserRole.role_id == Role.id)
+        .filter(UserRole.user_id == user_id, Role.project_id == project_id)
+        .all()
+    )
+
+    return any("ROLE_LEADER" in role.description for role in user_roles)
+
+
+def edit_project(update_info, permalink):
+    curr_project = Project.query.filter_by(permalink=permalink).first()
+    if curr_project is None:
+        return _response(404, "Không tìm thấy dữ liệu")
+    user = request.user
+
+    # Kiểm tra xem người dùng có role là ROLE_LEADER không
+    if not is_user_leader(user.id, curr_project.id):
+        return _response(403, "Không có quyền chỉnh sửa Project")
+
+    # Cập nhật thông tin project nếu người dùng có quyền
+    try:
+        for key, value in update_info.items():
+            setattr(curr_project, key, value)
+        curr_project.updated_at = datetime.now(timezone.utc)
+        db.session.commit()
+        data = make_data_to_respone(curr_project)
+        return _response(200, "Cập nhật thành công", data)
+    except Exception as e:
+        db.session.rollback()
+        return _response(500, "Lỗi server: " + str(e))
+
+
+def edit_status(status, permalink):
+    curr_project = Project.query.filter_by(permalink=permalink).first()
+    if curr_project is None:
+        return _response(404, "Không tìm thấy dữ liệu")
+    user = request.user
+
+    # Kiểm tra xem người dùng có role là ROLE_LEADER không
+    if not is_user_leader(user.id, curr_project.id):
+        return _response(403, "Không có quyền chỉnh sửa Project")
+
+    # Cập nhật thông tin project nếu người dùng có quyền
+    try:
+        curr_project.status = ProjectStatus[status.upper()]
+        curr_project.updated_at = datetime.now(timezone.utc)
+        db.session.commit()
+        data = make_data_to_respone(curr_project)
+        return _response(200, "Cập nhật thành công", data)
+    except Exception as e:
+        db.session.rollback()
+        return _response(500, "Lỗi server: " + str(e))
+
+
+def edit_leader(leader_id, permalink):
+    curr_project = Project.query.filter_by(permalink=permalink).first()
+    if curr_project is None:
+        return _response(404, "Không tìm thấy dữ liệu")
+    user = request.user
+
+    # Kiểm tra xem người dùng có phải ADMIN của workspace không
+    if not is_user_leader(user.id, curr_project.id):
+        return _response(403, "Không có quyền chỉnh sửa Project")
+
+    # Cập nhật thông tin project nếu người dùng có quyền
+    try:
+        # Tìm và xóa role của leader hiện tại
+        current_leader = (
+            db.session.query(UserRole)
+            .join(Role)
+            .filter(
+                Role.description == "ROLE_LEADER", Role.project_id == curr_project.id
+            )
+            .first()
+        )
+        if current_leader:
+            db.session.delete(current_leader)
+
+        # Thêm ROLE_LEADER cho người dùng mới
+        leader_user = UserRole(
+            user_id=leader_id,
+            role_id=db.session.query(Role.id)
+            .filter(
+                Role.description == "ROLE_LEADER", Role.project_id == curr_project.id
+            )
+            .scalar(),
+            created_at=datetime.now(timezone.utc),
+            updated_at=datetime.now(timezone.utc),
+        )
+        db.session.add(leader_user)
+
+        curr_project.updated_at = datetime.now(timezone.utc)
+        db.session.commit()
+        data = make_data_to_respone(curr_project)
+        return _response(200, "Cập nhật thành công", data)
+    except Exception as e:
+        db.session.rollback()
+        return _response(500, "Lỗi server: " + str(e))
+
+
+def edit_members(target, permalink):
+    return 0
