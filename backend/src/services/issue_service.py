@@ -54,7 +54,7 @@ def create_resource_and_response(list_resource, issue):
                 updated_at=datetime.now(timezone.utc)
             )
             db.session.add(new_resource)
-            db.session.flush()
+            db.session.commit()
         data_response.append({
             "id": new_resource.id,
             "link": new_resource.link,
@@ -154,10 +154,12 @@ def create_issue(project_id, name, description, status, label,
     )
     db.session.add(new_activity)
     db.session.commit()
+    data_response = make_data_response_issue(new_issue, list_resource,
+                                                   current_project)
+    db.session.commit()
     return _response(status=200,
                      message="Tạo issue thành công",
-                     data=make_data_response_issue(new_issue, list_resource,
-                                                   current_project))
+                     data=data_response)
 
 
 def get_issue_user(user_name, project_id, keyword, status, label_list):
