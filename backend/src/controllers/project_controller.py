@@ -46,7 +46,7 @@ def create_project():
     status = request.form.get("status", "").strip()
     if not name or not description or not icon or not status:
         return _response(400, "Vui lòng nhập đủ thông tin")
-    if status not in ProjectStatus:
+    if status not in [status.value for status in ProjectStatus]:
         return _response(400, "Trạng thái không hợp lệ")
     try:
         start_day = int(request.form.get("start_day", ""))
