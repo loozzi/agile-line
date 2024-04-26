@@ -9,9 +9,23 @@ from src.services.workspace_service import make_data_to_response_page
 from flask import request
 
 
-def create_response_activity(current_issue):
-    activities = Activity.query.filter_by(issue_id=current_issue.id).first()
-    activities.action = "edit"
+def create_response_activity(current_issue, current_user):
+    activities = Activity.query.filter(
+                    Activity.issue_id == current_issue.id).filter(
+                        Activity.user_id == current_user.id).first()
+    if activities is None:
+        activities = Activity(
+            issue_id = current_issue.id,
+            user_id = current_user.id,
+            action = "edit",
+            is_edited = True,
+            created_at = datetime.now(timezone.utc),
+            updated_at = datetime.now(timezone.utc),
+        )
+        db.session.flush()
+    else:
+        activities.action = "edit"
+        activities.is_edited=True
     db.session.commit()
     activities = to_dict(activities)
     del activities["issue_id"]
@@ -117,6 +131,11 @@ def create_issue(project_id, name, description, status, label,
         assignor_id = current_user.id
     if testor == "":
         testor = current_user.id
+    milestone = Milestone.query.filter(Milestone.id == milestone_id).first()
+    if milestone is None:
+        milestone_id = None
+    else:
+        milestone_id = milestone.id
     new_issue = Issue(
         project_id=project_id,
         name=name,
@@ -222,7 +241,10 @@ def get_detail_issue(permalink):
                     issue_id=current_issue.id).all()
     for i in resources:
         list_resource.append(i.link)
-    update_activity = create_response_activity(current_issue)
+    activity = Activity.query.filter_by(issue_id=current_issue.id).all()
+    activity = activity[-1]
+    update_activity = to_dict(activity)
+    del update_activity["issue_id"]
     response = make_data_response_issue(
                     current_issue, list_resource, current_project)
     response["activities"] = update_activity
@@ -294,16 +316,8 @@ def edit_issue(issue_id, new_name, new_status, new_labels,
     if new_milestone is None:
         new_milestone_id = None
     current_issue.milestone_id = new_milestone_id
-    db.session.flush()
-    # chỉnh sửa activity
-    activity = Activity.query.filter(Activity.issue_id == issue_id
-                                     ).filter(
-                                         Activity.user_id == request.user.id
-                                         ).first()
-    activity.action = "edit"
-    activity.is_edited = True
-    activity.updated_at = datetime.now(timezone.utc)
     db.session.commit()
+    #
     resources = Resources.query.filter_by(issue_id=current_issue.id).all()
     list_resource = []
     for i in resources:
@@ -311,7 +325,7 @@ def edit_issue(issue_id, new_name, new_status, new_labels,
     data_response = make_data_response_issue(current_issue,
                                              list_resource,
                                              current_project)
-    update_activity = create_response_activity(current_issue)
+    update_activity = create_response_activity(current_issue, request.user)
     data_response["activities"] = update_activity
     return _response(status=200,
                      message="Chỉnh sửa issue thành công",
@@ -337,7 +351,7 @@ def edit_status_issue(status, permalink):
     data_response = make_data_response_issue(current_issue,
                                              list_resource,
                                              current_project)
-    data_response["activity"] = create_response_activity(current_issue)
+    data_response["activity"] = create_response_activity(current_issue, current_user)
     return _response(status=200,
                      message="Chỉnh sửa status thành công",
                      data=data_response)
