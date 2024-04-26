@@ -34,12 +34,12 @@ def show_project_in_workspace(permalink, issue_kw, leader_kw, member_kw, status)
             else True
         )
         .filter(User.username.like(f"%{member_kw}%") if member_kw else True)
-        .filter(Project.status == status)
+        .filter(Project.status == status if status else True)
         .all()
     )
     project_list_dict = [to_dict(row) for row in project_list]
     for project in project_list_dict:
-        project["status"] = str(project["status"])
+        project["status"] = project["status"].value
     project_list_pagination = make_data_to_response_page(project_list_dict)
     return _response(200, message="Retrieve Success", data=project_list_pagination)
 
@@ -86,7 +86,7 @@ def display_project(permalink):
         member_user["role"] = project_member_role.name
         list_member.append(member_user)
     return_project["members"] = list_member
-    return_project["status"] = str(return_project["status"])
+    return_project["status"] = return_project["status"].value
     return _response(200, message="Retrieve Success", data=return_project)
 
 
@@ -182,7 +182,7 @@ def create_project(
         db.session.flush()
     db.session.commit()
     return_project = to_dict(new_project)
-    return_project["status"] = str(return_project["status"])
+    return_project["status"] = return_project["status"].value
     new_leader = to_dict(User.query.filter_by(id=leader_id).first())
     del new_leader["password"]
     del new_leader["email"]
