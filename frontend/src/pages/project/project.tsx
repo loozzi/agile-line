@@ -120,10 +120,10 @@ export const ProjectPage = () => {
           </Pane>
         }
         onCloseComplete={() => setShowCreateProjectDialog(false)}
-        confirmLabel='Tạo project'
+        hasFooter={false}
         width={majorScale(120)}
       >
-        <CreateProjectDialog />
+        <CreateProjectDialog closeDialog={() => setShowCreateProjectDialog(false)} />
       </Dialog>
     </Pane>
   )
