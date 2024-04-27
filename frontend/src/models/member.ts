@@ -27,5 +27,5 @@ export interface WorkspaceRemoveMemberParams extends WorkspaceParams {
 }
 
 export interface WorkspaceAddMembersPayload {
-  user_ids: number[]
+  user_ids: number[] | string
 }
