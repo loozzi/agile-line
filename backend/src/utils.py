@@ -1,13 +1,13 @@
+import uuid
 from datetime import datetime, timedelta, timezone
 from math import ceil
 
 import jwt
-from sqlalchemy.dialects.mysql import insert
+from flask import request
 from sqlalchemy import and_, select
+from sqlalchemy.dialects.mysql import insert
 from src import db, env_config
 from src.models import RefreshToken, WorkspaceUser
-from flask import request
-import uuid
 
 
 def gen_permalink():
@@ -48,9 +48,18 @@ def jwt_generate(user):
     )
 
     data["exp"] = int((datetime.now(timezone.utc) + timedelta(days=7)).timestamp())
-    data["is_refresh_token"] = True
+    data_rf = data.copy()
+    del data_rf["username"]
+    del data_rf["email"]
+    del data_rf["phone_number"]
+    del data_rf["first_name"]
+    del data_rf["last_name"]
+    del data_rf["avatar"]
+    del data_rf["description"]
+
+    data_rf["is_refresh_token"] = True
     refresh_token = jwt.encode(
-        data,
+        data_rf,
         key=env_config.SECRET_KEY,
         algorithm="HS256",
     )
