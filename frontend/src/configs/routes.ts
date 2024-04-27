@@ -19,6 +19,11 @@ export default {
       page: '/:permalink/members',
       slug: 'members',
       detail: '/:permalink/members/:username'
+    },
+    projects: {
+      page: '/:permalink/projects',
+      slug: 'projects',
+      detail: '/:permalink/projects/:projectId'
     }
   },
   profile: { page: '/user/:username', slug: 'user' }

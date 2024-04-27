@@ -30,7 +30,13 @@ export const CollapseComp = (props: CollapseCompProps) => {
         }}
         className='collapse--header'
       >
-        {label}
+        <span
+          style={{
+            fontWeight: 600
+          }}
+        >
+          {label}
+        </span>
         {isCollapse ? <ChevronDownIcon /> : <ChevronRightIcon />}
       </span>
       {isCollapse && !!children && children}

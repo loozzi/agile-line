@@ -1,5 +1,5 @@
 import MDEditor from '@uiw/react-md-editor'
-import { Button, Combobox, CrossIcon, Pane, PlusIcon, TextInputField, majorScale, toaster } from 'evergreen-ui'
+import { Button, Combobox, CrossIcon, Label, Pane, PlusIcon, TextInputField, majorScale, toaster } from 'evergreen-ui'
 import { useFormik } from 'formik'
 import { Fragment, useMemo, useState } from 'react'
 import * as Yup from 'yup'
@@ -93,9 +93,10 @@ export const WorkspaceCreate = (props: WorkspaceCreateProps) => {
             label='Thêm tiêu đề'
           />
 
-          <h5 style={{ fontWeight: 600 }}>Thêm mô tả</h5>
-          <MDEditor height={200} value={formik.values.description} onChange={onChangeDescription} />
-
+          <div data-color-mode='light'>
+            <Label>Thêm mô tả</Label>
+            <MDEditor height={200} value={formik.values.description} onChange={onChangeDescription} />
+          </div>
           <ImageUploaderComp
             label='Biểu tượng / Icon'
             description='Tải lên 1 tệp hình ảnh biểu tượng. File nhỏ hơn 5 MB.'

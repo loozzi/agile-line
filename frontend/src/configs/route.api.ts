@@ -22,8 +22,13 @@ const user = {
   changeEmail: '/user/email'
 }
 
+const project = {
+  create: '/project/'
+}
+
 export default {
   auth,
   workspace,
-  user
+  user,
+  project
 }
