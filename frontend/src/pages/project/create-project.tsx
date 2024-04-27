@@ -1,5 +1,5 @@
 import MDEditor from '@uiw/react-md-editor'
-import { Button, Label, Menu, Pane, Popover, TagIcon, TextInputField, majorScale } from 'evergreen-ui'
+import { Button, Image, Label, Menu, Pane, Popover, TagIcon, TextInputField, majorScale, toaster } from 'evergreen-ui'
 import { useFormik } from 'formik'
 import { useEffect, useMemo, useState } from 'react'
 import { useParams } from 'react-router'
@@ -12,20 +12,27 @@ import {
   CanceledIcon,
   CompletedIcon,
   InprogressIcon,
-  LoaderIcon,
   PausedIcon,
   PlannedIcon,
   UsersGroupIcon
 } from '~/assets/icons'
+import imgs from '~/assets/imgs'
+import { ImagePickerComp } from '~/components/image_picker/image_picker'
 import { PopupSearchMember } from '~/components/popup_search_member'
+import { PopupSelectedMember } from '~/components/popup_selected_member'
 import { selectUser } from '~/hooks/auth/auth.slice'
 import { selectCurrentWorkspace } from '~/hooks/workspace/workspace.slice'
-import { Member, WorkspaceGetMembersParams } from '~/models/member'
 import { ProjectCreatePayload } from '~/models/project'
-import workspaceService from '~/services/workspace.service'
+import projectService from '~/services/project.service'
 
 interface CreateProjectDialogProps {
   closeDialog: () => void
+}
+
+export interface Leader {
+  user_id: number
+  username: string
+  avatar: string
 }
 
 export const CreateProjectDialog = (props: CreateProjectDialogProps) => {
@@ -39,21 +46,26 @@ export const CreateProjectDialog = (props: CreateProjectDialogProps) => {
     { label: 'paused', icon: <PausedIcon /> }
   ]
 
-  const [workspaceMembers, setWorkspaceMembers] = useState<Member[]>([])
+  const currentWorkspace = useAppSelector(selectCurrentWorkspace)
+  const currentUser = useAppSelector(selectUser)
+  const [workspaceMembers, setWorkspaceMembers] = useState<number[]>([])
+
   const [startDate, setStartDate] = useState<string>('')
   const [endDate, setEndDate] = useState<string>('')
   const [currentDate, setCurrentDate] = useState<string>('')
+  const [leader, setLeader] = useState<Leader>({
+    user_id: currentUser?.id!,
+    username: currentUser?.username!,
+    avatar: currentUser?.avatar!
+  })
   const params = useParams()
-
-  const currentWorkspace = useAppSelector(selectCurrentWorkspace)
-  const currentUser = useAppSelector(selectUser)
 
   const initialValues: ProjectCreatePayload = useMemo(
     () => ({
       workspace_id: currentWorkspace?.id!,
       name: '',
       description: '',
-      icon: '',
+      icon: imgs.blank_project,
       status: 'backlog',
       start_day: 0,
       start_month: 0,
@@ -61,8 +73,8 @@ export const CreateProjectDialog = (props: CreateProjectDialogProps) => {
       end_day: 0,
       end_month: 0,
       end_year: 0,
-      leader_id: currentUser?.id!,
-      members_id: [currentUser?.id!]
+      leader_id: leader.user_id,
+      members_id: [leader.user_id]
     }),
     []
   )
@@ -74,14 +86,31 @@ export const CreateProjectDialog = (props: CreateProjectDialogProps) => {
     validationSchema: Yup.object({
       name: Yup.string().required('Tên dự án không được để trống')
     }),
-    onSubmit: (values) => {}
+    onSubmit: (values) => {
+      projectService
+        .createProject(values)
+        .then((data) => {
+          console.log(data)
+          if (data.status === 200) {
+            toaster.success(data.message)
+          } else {
+            toaster.danger(data.message)
+          }
+        })
+        .catch((error) => {
+          error
+          toaster.danger('Có lỗi xảy ra')
+        })
+    }
   })
 
   const onChangeDescription = (value?: string) => {
     payloadFormik.setFieldValue('description', value)
   }
 
-  const setSelectedMember = (member_id: number) => {}
+  const setSelectedMembers = (member_id: number[]) => {
+    setWorkspaceMembers(member_id)
+  }
 
   const onChangeDate = (date: string, type: 'start' | 'end') => {
     const [year, month, day] = date.split('-')
@@ -106,6 +135,20 @@ export const CreateProjectDialog = (props: CreateProjectDialogProps) => {
     }
   }
 
+  const selectLeader = (leader: Leader) => {
+    setLeader(leader)
+    payloadFormik.setFieldValue('leader_id', leader.user_id)
+    payloadFormik.setFieldValue('members_id', [leader.user_id])
+  }
+
+  const onChangeImage = (value: string | undefined) => {
+    if (!value) {
+      toaster.danger('Upload ảnh thất bại')
+    } else {
+      payloadFormik.setFieldValue('icon', value)
+    }
+  }
+
   useEffect(() => {
     onChangeDate(startDate, 'start')
     onChangeDate(endDate, 'end')
@@ -116,11 +159,11 @@ export const CreateProjectDialog = (props: CreateProjectDialogProps) => {
   }, [startDate, endDate])
 
   useEffect(() => {
-    const _params: WorkspaceGetMembersParams = {
-      permalink: params.permalink || '',
-      member_kw: ''
-    }
-    workspaceService.getMembers(_params).then((data) => {})
+    // const _params: WorkspaceGetMembersParams = {
+    //   permalink: params.permalink || '',
+    //   member_kw: ''
+    // }
+    // workspaceService.getMembers(_params).then((data) => {})
     const today = new Date()
     let year = today.getFullYear()
     let month = String(today.getMonth() + 1).padStart(2, '0')
@@ -133,20 +176,35 @@ export const CreateProjectDialog = (props: CreateProjectDialogProps) => {
     setCurrentDate(formattedDate)
   }, [])
 
+  useEffect(() => {
+    payloadFormik.setFieldValue('members_id', workspaceMembers)
+  }, [workspaceMembers])
+
   return (
     <form onSubmit={payloadFormik.handleSubmit}>
       <Pane>
-        <TextInputField
-          label='Tên dự án'
-          name='name'
-          placeholder='Tên dự án'
-          inputHeight={majorScale(6)}
-          value={payloadFormik.values.name}
-          onChange={payloadFormik.handleChange}
-          onBlur={payloadFormik.handleBlur}
-          validationMessage={payloadFormik.errors.name}
-          isInvalid={!!payloadFormik.errors.name}
-        />
+        <Pane display='flex'>
+          <ImagePickerComp
+            src={payloadFormik.values.icon}
+            onChangeImage={onChangeImage}
+            width={majorScale(12)}
+            height={majorScale(12)}
+            marginRight={majorScale(2)}
+            borderRadius={majorScale(1)}
+          />
+          <TextInputField
+            label='Tên dự án'
+            name='name'
+            placeholder='Tên dự án'
+            inputHeight={majorScale(6)}
+            value={payloadFormik.values.name}
+            onChange={payloadFormik.handleChange}
+            onBlur={payloadFormik.handleBlur}
+            validationMessage={payloadFormik.errors.name}
+            isInvalid={!!payloadFormik.errors.name}
+            flex={1}
+          />
+        </Pane>
         <div data-color-mode='light'>
           <Label>Thêm mô tả</Label>
           <MDEditor height={200} value={payloadFormik.values.description} onChange={onChangeDescription} />
@@ -185,15 +243,31 @@ export const CreateProjectDialog = (props: CreateProjectDialogProps) => {
           </Button>
         </Popover>
         <Popover
-          content={<PopupSearchMember permalink={params.permalink || ''} setSelectedMember={setSelectedMember} />}
+          content={
+            <PopupSearchMember permalink={params.permalink || ''} selectLeader={selectLeader} currentLeader={leader} />
+          }
         >
-          <Button type='button' iconBefore={<LoaderIcon />} marginBottom={majorScale(1)} marginRight={majorScale(1)}>
-            Leader
+          <Button
+            type='button'
+            iconBefore={
+              <Image src={leader.avatar} width={majorScale(3)} height={majorScale(3)} borderRadius={majorScale(2)} />
+            }
+            marginBottom={majorScale(1)}
+            marginRight={majorScale(1)}
+          >
+            {leader.username}
           </Button>
         </Popover>
-        <Button type='button' iconBefore={<UsersGroupIcon />} marginBottom={majorScale(1)} marginRight={majorScale(1)}>
-          Thành viên
-        </Button>
+        <PopupSelectedMember changeSelectedMembers={setSelectedMembers}>
+          <Button
+            type='button'
+            iconBefore={<UsersGroupIcon />}
+            marginBottom={majorScale(1)}
+            marginRight={majorScale(1)}
+          >
+            Thành viên
+          </Button>
+        </PopupSelectedMember>
         <Popover
           content={<TextInputField type='date' onChange={(e: any) => setStartDate(e.target.value)} value={startDate} />}
         >
@@ -203,7 +277,7 @@ export const CreateProjectDialog = (props: CreateProjectDialogProps) => {
             marginBottom={majorScale(1)}
             marginRight={majorScale(1)}
           >
-            {`${payloadFormik.values.start_day}/${payloadFormik.values.start_month}/${payloadFormik.values.start_year}`}
+            {`Bắt đầu: ${payloadFormik.values.start_day}/${payloadFormik.values.start_month}/${payloadFormik.values.start_year}`}
           </Button>
         </Popover>
         <Popover
@@ -222,7 +296,7 @@ export const CreateProjectDialog = (props: CreateProjectDialogProps) => {
             marginBottom={majorScale(1)}
             marginRight={majorScale(1)}
           >
-            {`${payloadFormik.values.end_day}/${payloadFormik.values.end_month}/${payloadFormik.values.end_year}`}
+            {`Kết thúc: ${payloadFormik.values.end_day}/${payloadFormik.values.end_month}/${payloadFormik.values.end_year}`}
           </Button>
         </Popover>
       </Pane>
