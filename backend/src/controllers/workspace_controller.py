@@ -105,5 +105,13 @@ def edit_role_members_in_workspace(permalink):
     edit_user_id = request.form.get("user_id", default="")
     new_role = request.form.get("role", default="")
     return workspace_service.edit_role_members_in_workspace(permalink,
-                                                           edit_user_id,
-                                                           new_role)
+                                                            edit_user_id,
+                                                            new_role)
+
+
+@workspace.route("/<string:permalink>/labels", methods=["GET"])
+@token_required
+@request_pagination
+def show_labels_in_workspace(permalink):
+    return workspace_service.show_labels_in_workspace(
+            permalink)
