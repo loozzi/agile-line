@@ -2,18 +2,9 @@ from datetime import datetime, timezone
 
 from flask import request
 from src import db
-from src.models import Label, Workspace, WorkspaceUser
+from src.models import Label, Workspace
 from src.utils import _response, to_dict
 from src.services.issue_service import check_user_workspace
-
-
-def check_user_workspace(workspace_id, user_id):
-    workspace_user = WorkspaceUser.query.filter_by(
-        workspace_id=workspace_id, user_id=user_id
-    ).first()
-    if workspace_user is None:
-        return False
-    return True
 
 
 def create_label(title, color, workspace_id, description):
@@ -23,7 +14,8 @@ def create_label(title, color, workspace_id, description):
         return _response(400, "Không tìm thấy workspace")
     if check_user_workspace(workspace_id, current_user.id) is False:
         return _response(403, "Không có quyền tạo label")
-    exist_label = Label.query.filter_by(title=title, workspace_id=workspace_id).first()
+    exist_label = Label.query.filter_by(title=title,
+                                        workspace_id=workspace_id).first()
     if exist_label is not None:
         return _response(409, "Label đã tồn tại")
     new_label = Label(
@@ -49,14 +41,12 @@ def create_label(title, color, workspace_id, description):
         "created_at": new_label.created_at,
         "updated_at": new_label.updated_at,
     }
-    return _response(status=200, message="tạo label thành công", data=data_response)
+    return _response(status=200,
+                     message="tạo label thành công",
+                     data=data_response)
 
 
 def edit_label(id, title, color, description):
-    exist_label = Label.query.filter_by(title=title).first()
-    if exist_label is not None:
-        return _response(409,
-                         "Title đã tồn tại, vui lòng chọn title khác")
     current_user = request.user
     current_label = Label.query.filter_by(id=id).first()
     if current_label is None:
@@ -66,7 +56,12 @@ def edit_label(id, title, color, description):
                             current_user.id) is False:
         return _response(403,
                          "Không có quyền sửa label")
-    
+    exist_label = Label.query.filter(
+                    Label.title == title).filter(
+                        Label.color == color).first()
+    if exist_label is not None:
+        return _response(409,
+                         "Title đã tồn tại, vui lòng chọn title khác")
     current_label.title = title
     current_label.color = color
     current_label.description = description
