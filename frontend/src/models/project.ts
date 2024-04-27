@@ -37,5 +37,5 @@ export interface ProjectCreatePayload {
   end_month: number
   end_year: number
   leader_id: number
-  members_id: number[]
+  members_id: number[] | string
 }

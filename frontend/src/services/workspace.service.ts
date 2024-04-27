@@ -56,7 +56,10 @@ const addMembers = async (
   params: WorkspaceParams,
   payload: WorkspaceAddMembersPayload
 ): Promise<IResponse<PaginationResponse<Member>>> => {
-  return await client.post(routeApi.workspace.members.replace(':permalink', params.permalink), payload)
+  return await client.post(routeApi.workspace.members.replace(':permalink', params.permalink), {
+    ...payload,
+    user_ids: `[${payload.user_ids.toString()}]`
+  })
 }
 
 const deleteWorkspace = async (params: WorkspaceParams): Promise<IResponse<undefined>> => {
