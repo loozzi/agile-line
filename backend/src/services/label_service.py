@@ -3,7 +3,8 @@ from datetime import datetime, timezone
 from flask import request
 from src import db
 from src.models import Label, Workspace, WorkspaceUser
-from src.utils import _response
+from src.utils import _response, to_dict
+from src.services.issue_service import check_user_workspace
 
 
 def check_user_workspace(workspace_id, user_id):
@@ -49,3 +50,42 @@ def create_label(title, color, workspace_id, description):
         "updated_at": new_label.updated_at,
     }
     return _response(status=200, message="tạo label thành công", data=data_response)
+
+
+def edit_label(id, title, color, description):
+    exist_label = Label.query.filter_by(title=title).first()
+    if exist_label is not None:
+        return _response(409,
+                         "Title đã tồn tại, vui lòng chọn title khác")
+    current_user = request.user
+    current_label = Label.query.filter_by(id=id).first()
+    if current_label is None:
+        return _response(404,
+                         "Không tìm thấy label")
+    if check_user_workspace(current_label.workspace_id,
+                            current_user.id) is False:
+        return _response(403,
+                         "Không có quyền sửa label")
+    
+    current_label.title = title
+    current_label.color = color
+    current_label.description = description
+    current_label.updated_at = datetime.now(timezone.utc)
+    db.session.commit()
+    current_label = to_dict(current_label)
+    del current_label["workspace_id"]
+    return _response(200, "Sửa label thành công",
+                     current_label)
+
+
+def delete_label(id):
+    current_user = request.user
+    current_label = Label.query.filter_by(id=id).first()
+    if current_label is None:
+        return _response(404, "Không tìm thấy label")
+    if check_user_workspace(current_label.workspace_id,
+                            current_user.id) is False:
+        return _response(403, "Không có quyền xóa label")
+    db.session.delete(current_label)
+    db.session.commit()
+    return _response(200, "Xóa label thành công")
