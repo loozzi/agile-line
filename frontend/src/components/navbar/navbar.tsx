@@ -2,7 +2,9 @@ import {
   Avatar,
   Button,
   CogIcon,
+  Dialog,
   ExpandAllIcon,
+  IconButton,
   InboxIcon,
   LayersIcon,
   LogOutIcon,
@@ -16,7 +18,7 @@ import {
   UserIcon,
   majorScale
 } from 'evergreen-ui'
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { useParams } from 'react-router'
 import { useAppDispatch, useAppSelector } from '~/app/hook'
 import { UsersGroupIcon } from '~/assets/icons'
@@ -24,9 +26,10 @@ import { history } from '~/configs/history'
 import routes from '~/configs/routes'
 import { selectUser } from '~/hooks/auth/auth.slice'
 import { GET_WORKSPACE, selectCurrentWorkspace } from '~/hooks/workspace/workspace.slice'
-import { WorkspaceParams } from '~/models/workspace'
+import { Workspace, WorkspaceParams } from '~/models/workspace'
 import { CollapseComp } from '../collapse/collapse'
 import { NavbarButtonComp } from './navbar-btn'
+import { WorkspaceCreate } from '../workspace/create'
 
 interface NavbarCompProps extends PaneProps {}
 
@@ -47,6 +50,11 @@ export const NavbarComp = (props: NavbarCompProps) => {
   const params = useParams()
   const currentWorkspace = useAppSelector(selectCurrentWorkspace)
   const currentUser = useAppSelector(selectUser)
+  const [isShownCreate, setShownCreate] = useState<boolean>(false)
+
+  const onCreateSuccess = (item: Workspace): void => {
+    history.push(`/${item.permalink}`)
+  }
 
   const handleOpenModalWorkspace = () => {
     history.push(routes.workspace.root)
@@ -113,7 +121,7 @@ export const NavbarComp = (props: NavbarCompProps) => {
       const payload: WorkspaceParams = { permalink: permalink }
       dispatch({ type: GET_WORKSPACE, payload: payload })
     }
-  }, [])
+  }, [params])
 
   return (
     <Pane {...props} display='flex' flexDirection='column' justifyContent='space-between' padding={majorScale(2)}>
@@ -134,7 +142,7 @@ export const NavbarComp = (props: NavbarCompProps) => {
             labelBold={true}
             afterIcon={<ExpandAllIcon />}
           />
-          <Button iconAfter={<StyleIcon />} paddingLeft='0'></Button>
+          <IconButton icon={<StyleIcon />} onClick={() => setShownCreate(true)} />
         </Pane>
         <Pane marginTop={majorScale(2)}>
           <NavbarButtonComp
@@ -168,6 +176,14 @@ export const NavbarComp = (props: NavbarCompProps) => {
           onClick={() => handleRedirect(routes.auth.logout)}
         />
       </Pane>
+      <Dialog
+        isShown={isShownCreate}
+        title='Tạo workspace'
+        onCloseComplete={() => setShownCreate(false)}
+        hasFooter={false}
+      >
+        <WorkspaceCreate onCreateSuccess={onCreateSuccess} onClose={() => setShownCreate(false)} />
+      </Dialog>
     </Pane>
   )
 }
