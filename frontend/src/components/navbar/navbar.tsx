@@ -12,6 +12,7 @@ import {
   ProjectsIcon,
   PropertyIcon,
   StyleIcon,
+  TagIcon,
   UserIcon,
   majorScale
 } from 'evergreen-ui'
@@ -96,6 +97,11 @@ export const NavbarComp = (props: NavbarCompProps) => {
           label: 'Thành viên',
           beforeIcon: <UsersGroupIcon />,
           onClick: () => handleRedirect(`/${params.permalink}/${routes.workspace.members.slug}`)
+        },
+        {
+          label: 'Nhãn',
+          beforeIcon: <TagIcon />,
+          onClick: () => handleRedirect(`/${params.permalink}/${routes.workspace.labels.slug}`)
         }
       ]
     }
