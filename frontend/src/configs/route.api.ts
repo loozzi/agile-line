@@ -20,7 +20,8 @@ const user = {
   getUserByUsername: '/user/:username',
   editUser: '/user/',
   changePassword: '/user/password',
-  changeEmail: '/user/email'
+  changeEmail: '/user/email',
+  search: '/user/search'
 }
 
 const project = {
