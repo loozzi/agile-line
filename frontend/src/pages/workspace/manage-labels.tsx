@@ -1,4 +1,16 @@
-import { Badge, Button, Dialog, EditIcon, IconButton, Pane, PlusIcon, Table, majorScale } from 'evergreen-ui'
+import {
+  Badge,
+  Button,
+  Dialog,
+  EditIcon,
+  IconButton,
+  Pane,
+  PlusIcon,
+  Table,
+  TrashIcon,
+  majorScale,
+  toaster
+} from 'evergreen-ui'
 import { useEffect, useState } from 'react'
 import { useParams } from 'react-router'
 import { useAppSelector } from '~/app/hook'
@@ -13,12 +25,25 @@ export const ManageLabelPage = () => {
   const [dataCreateOrEdit, setDataCreateOrEdit] = useState<LabelResponse | undefined>(undefined)
   const [labels, setLabels] = useState<LabelResponse[]>([]) // [LabelResponse]
   const [count, setCount] = useState(0)
+  const [removeId, setRemoveId] = useState<number | undefined>(undefined) // [number | undefined]
   const currentWorkspace = useAppSelector(selectCurrentWorkspace)
   const params = useParams()
 
   const handleCreate = () => {
     setIsShowDialog(true)
     setDataCreateOrEdit(undefined)
+  }
+
+  const handleRemove = () => {
+    labelService.remove(removeId!).then((data) => {
+      if (data.status === 200) {
+        setCount(count + 1)
+        toaster.success(data.message)
+      } else {
+        toaster.danger(data.message)
+      }
+      setRemoveId(undefined)
+    })
   }
 
   useEffect(() => {
@@ -72,7 +97,9 @@ export const ManageLabelPage = () => {
                     setIsShowDialog(true)
                     setDataCreateOrEdit(label)
                   }}
+                  marginRight={majorScale(1)}
                 />
+                <IconButton icon={<TrashIcon />} intent='danger' onClick={() => setRemoveId(label.id)} />
               </Table.TextCell>
             </Table.Row>
           ))}
@@ -92,6 +119,16 @@ export const ManageLabelPage = () => {
             setCount(count + 1)
           }}
         />
+      </Dialog>
+      <Dialog
+        isShown={!!removeId}
+        onConfirm={handleRemove}
+        title='Xác nhận xóa nhãn'
+        onCancel={() => setRemoveId(undefined)}
+        confirmLabel='Xóa'
+        cancelLabel='Hủy bỏ'
+      >
+        Mọi dữ liệu liên quan sẽ bị mất. Bạn có chắc chắn muốn xóa nhãn này không?
       </Dialog>
     </Pane>
   )

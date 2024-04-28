@@ -16,7 +16,9 @@ const update = async (payload: CreateLabelPayload): Promise<IResponse<LabelRespo
   return await client.put(routeApi.label.update, payload)
 }
 
-const remove = async () => {}
+const remove = async (id: number): Promise<IResponse<undefined>> => {
+  return await client.delete(routeApi.label.delete, { params: { id } })
+}
 
 export default {
   getAll,
