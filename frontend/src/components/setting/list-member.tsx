@@ -158,7 +158,8 @@ export const ListMemberComp = (props: ListMemberCompProps) => {
         }}
         title={isShownRemove ? 'Xác nhận xóa member' : 'Xác nhận thay đổi role'}
         intent={isShownRemove ? 'danger' : 'none'}
-        confirmLabel='Xác nhận'
+        confirmLabel={isShownRemove ? 'Xóa' : 'Xác nhận'}
+        cancelLabel='Hủy bỏ'
       >
         {isShownRemove ? (
           <p>Bạn có chắc chắn muốn xóa member này khỏi workspace?</p>
