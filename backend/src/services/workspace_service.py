@@ -10,6 +10,17 @@ from sqlalchemy import update
 from flask import request
 
 
+def make_data_return_roles(project, user_id):
+    roles_tuple = db.session.query(Role, UserRole).join(
+                    UserRole, UserRole.role_id == Role.id).filter(
+                        Role.project_id == project.id).filter(
+                            UserRole.user_id == user_id).all()
+    list_role = []
+    for i in roles_tuple:
+        list_role.append(i[0].name)
+    return list_role
+
+
 def make_data_return_project(user_id, workspace_id):
     list_user_role = UserRole.query.filter_by(user_id=user_id).all()
     list_project = []
@@ -24,18 +35,14 @@ def make_data_return_project(user_id, workspace_id):
         )
         if project_user is None:
             continue
-        project_user = to_dict(project_user)
-        del project_user["workspace_id"]
-        del project_user["description"]
-        del project_user["start_date"]
-        del project_user["end_date"]
-        del project_user["is_removed"]
-        del project_user["remove_date"]
-        del project_user["created_at"]
-        del project_user["updated_at"]
-        del project_user["permalink"]
-        project_user["roles"] = role_project.name
-        list_project.append(project_user)
+        project_user_dict = {}
+        project_user_dict["id"] = project_user.id
+        project_user_dict["name"] = project_user.name
+        project_user_dict["icon"] = project_user.icon
+        project_user_dict["status"] = project_user.status.value
+        project_user_dict["roles"] = make_data_return_roles(
+                                        project_user, user_id)
+        list_project.append(project_user_dict)
     return list_project
 
 
