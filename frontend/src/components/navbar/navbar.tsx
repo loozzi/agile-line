@@ -1,6 +1,5 @@
 import {
   Avatar,
-  Button,
   CogIcon,
   Dialog,
   ExpandAllIcon,
@@ -28,8 +27,8 @@ import { selectUser } from '~/hooks/auth/auth.slice'
 import { GET_WORKSPACE, selectCurrentWorkspace } from '~/hooks/workspace/workspace.slice'
 import { Workspace, WorkspaceParams } from '~/models/workspace'
 import { CollapseComp } from '../collapse/collapse'
-import { NavbarButtonComp } from './navbar-btn'
 import { WorkspaceCreate } from '../workspace/create'
+import { NavbarButtonComp } from './navbar-btn'
 
 interface NavbarCompProps extends PaneProps {}
 
