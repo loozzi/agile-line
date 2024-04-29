@@ -126,6 +126,7 @@ export const ManageLabelPage = () => {
         title='Xác nhận xóa nhãn'
         onCancel={() => setRemoveId(undefined)}
         confirmLabel='Xóa'
+        intent='danger'
         cancelLabel='Hủy bỏ'
       >
         Mọi dữ liệu liên quan sẽ bị mất. Bạn có chắc chắn muốn xóa nhãn này không?

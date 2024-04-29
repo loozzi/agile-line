@@ -239,7 +239,8 @@ export const WorkspaceSettingPage = () => {
         title='Xác nhận xóa workspace'
         intent='danger'
         isShown={isShownConfirmDelete}
-        confirmLabel='Xác nhận'
+        confirmLabel='Xóa'
+        cancelLabel='Hủy bỏ'
         onConfirm={confirmDeleteWorkspace}
         onCloseComplete={() => {
           setShownConfirmDelete(false)
