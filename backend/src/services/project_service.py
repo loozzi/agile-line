@@ -251,6 +251,7 @@ def make_data_to_respone(project):
     return data
 
 
+# Kiểm tra user có phải là Leader của Project không
 def is_user_leader(user_id, project_id):
     # Thực hiện join giữa user, user_role, và role để lấy role của user trong project
     user_roles = (
@@ -314,9 +315,23 @@ def edit_leader(leader_id, permalink):
         return _response(404, "Không tìm thấy dữ liệu")
     user = request.user
 
-    # Kiểm tra xem người dùng có phải ADMIN của workspace không
+    # Kiểm tra xem người dùng có role là ROLE_LEADER không
     if not is_user_leader(user.id, curr_project.id):
         return _response(403, "Không có quyền chỉnh sửa Project")
+
+    # Kiểm tra xem leader_id có nằm trong project không
+    users = (
+        db.session.query(User)
+        .join(UserRole)
+        .join(Role)
+        .filter(Role.project_id == curr_project.id)
+        .distinct()
+        .all()
+    )
+    users_id = [user.id for user in users]
+
+    if leader_id not in users_id:
+        return _response(400, "Id không hợp lệ")
 
     # Cập nhật thông tin project nếu người dùng có quyền
     try:
@@ -354,5 +369,68 @@ def edit_leader(leader_id, permalink):
         return _response(500, "Lỗi server: " + str(e))
 
 
-def edit_members(target, permalink):
-    return 0
+def edit_members(members_id, permalink):
+    curr_project = Project.query.filter_by(permalink=permalink).first()
+    if curr_project is None:
+        return _response(404, "Không tìm thấy dữ liệu")
+    user = request.user
+
+    # Kiểm tra xem người dùng có role là ROLE_LEADER không
+    if not is_user_leader(user.id, curr_project.id):
+        return _response(403, "Không có quyền chỉnh sửa Project")
+
+    # Kiểm tra xem id trong members_id có nằm trong workspace không
+    curr_workspace_user = (
+        db.session.query(WorkspaceUser)
+        .join(Workspace)
+        .join(Project)
+        .filter(Project.id == curr_project.id)
+        .distinct()
+        .all()
+    )
+    users_id = [workspaceuser.user_id for workspaceuser in curr_workspace_user]
+
+    invalid_member_ids = set(members_id) - set(users_id)
+    if invalid_member_ids:
+        return _response(400, "Một số thành viên không hợp lệ")
+
+    # Kiểm tra nếu leader_id không nằm trong members_id thì báo lỗi
+    if any(is_user_leader(user_id, curr_project.id) for user_id in members_id) == False:
+        return _response(400, "Không thể xóa leader khỏi project")
+
+    # Cập nhật thông tin project nếu người dùng có quyền
+    try:
+        # Tìm và xóa role của tất cả trừ leader hiện tại
+        current_leader = (
+            db.session.query(UserRole)
+            .join(Role)
+            .filter(
+                Role.description == "ROLE_LEADER", Role.project_id == curr_project.id
+            )
+            .first()
+        )
+        UserRole.query.filter(UserRole.user_id != current_leader.user_id).delete()
+
+        # Thêm ROLE cho thành viên mới
+        for id in members_id:
+            if id != current_leader.user_id:
+                new_member = UserRole(
+                    user_id=id,
+                    role_id=db.session.query(Role.id)
+                    .filter(
+                        Role.description == "ROLE_MEMBER",
+                        Role.project_id == curr_project.id,
+                    )
+                    .scalar(),
+                    created_at=datetime.now(timezone.utc),
+                    updated_at=datetime.now(timezone.utc),
+                )
+                db.session.add(new_member)
+
+        curr_project.updated_at = datetime.now(timezone.utc)
+        db.session.commit()
+        data = make_data_to_respone(curr_project)
+        return _response(200, "Cập nhật thành công", data)
+    except Exception as e:
+        db.session.rollback()
+        return _response(500, "Lỗi server: " + str(e))
