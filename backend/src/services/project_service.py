@@ -317,16 +317,12 @@ def edit_project(update_info, permalink):
         return _response(403, "Không có quyền chỉnh sửa Project")
 
     # Cập nhật thông tin project nếu người dùng có quyền
-    try:
-        for key, value in update_info.items():
-            setattr(curr_project, key, value)
-        curr_project.updated_at = datetime.now(timezone.utc)
-        db.session.commit()
-        data = make_data_to_respone(curr_project)
-        return _response(200, "Cập nhật thành công", data)
-    except Exception as e:
-        db.session.rollback()
-        return _response(500, "Lỗi server: " + str(e))
+    for key, value in update_info.items():
+        setattr(curr_project, key, value)
+    curr_project.updated_at = datetime.now(timezone.utc)
+    db.session.commit()
+    data = make_data_to_respone(curr_project)
+    return _response(200, "Cập nhật thành công", data)
 
 
 def edit_status(status, permalink):
@@ -340,15 +336,11 @@ def edit_status(status, permalink):
         return _response(403, "Không có quyền chỉnh sửa Project")
 
     # Cập nhật thông tin project nếu người dùng có quyền
-    try:
-        curr_project.status = ProjectStatus[status.upper()]
-        curr_project.updated_at = datetime.now(timezone.utc)
-        db.session.commit()
-        data = make_data_to_respone(curr_project)
-        return _response(200, "Cập nhật thành công", data)
-    except Exception as e:
-        db.session.rollback()
-        return _response(500, "Lỗi server: " + str(e))
+    curr_project.status = ProjectStatus[status.upper()]
+    curr_project.updated_at = datetime.now(timezone.utc)
+    db.session.commit()
+    data = make_data_to_respone(curr_project)
+    return _response(200, "Cập nhật thành công", data)
 
 
 def edit_leader(leader_id, permalink):
@@ -376,39 +368,31 @@ def edit_leader(leader_id, permalink):
         return _response(400, "Id không hợp lệ")
 
     # Cập nhật thông tin project nếu người dùng có quyền
-    try:
-        # Tìm và xóa role của leader hiện tại
-        current_leader = (
-            db.session.query(UserRole)
-            .join(Role)
-            .filter(
-                Role.description == "ROLE_LEADER", Role.project_id == curr_project.id
-            )
-            .first()
-        )
-        if current_leader:
-            db.session.delete(current_leader)
+    # Tìm và xóa role của leader hiện tại
+    current_leader = (
+        db.session.query(UserRole)
+        .join(Role)
+        .filter(Role.description == "ROLE_LEADER", Role.project_id == curr_project.id)
+        .first()
+    )
+    if current_leader:
+        db.session.delete(current_leader)
 
-        # Thêm ROLE_LEADER cho người dùng mới
-        leader_user = UserRole(
-            user_id=leader_id,
-            role_id=db.session.query(Role.id)
-            .filter(
-                Role.description == "ROLE_LEADER", Role.project_id == curr_project.id
-            )
-            .scalar(),
-            created_at=datetime.now(timezone.utc),
-            updated_at=datetime.now(timezone.utc),
-        )
-        db.session.add(leader_user)
+    # Thêm ROLE_LEADER cho người dùng mới
+    leader_user = UserRole(
+        user_id=leader_id,
+        role_id=db.session.query(Role.id)
+        .filter(Role.description == "ROLE_LEADER", Role.project_id == curr_project.id)
+        .scalar(),
+        created_at=datetime.now(timezone.utc),
+        updated_at=datetime.now(timezone.utc),
+    )
+    db.session.add(leader_user)
 
-        curr_project.updated_at = datetime.now(timezone.utc)
-        db.session.commit()
-        data = make_data_to_respone(curr_project)
-        return _response(200, "Cập nhật thành công", data)
-    except Exception as e:
-        db.session.rollback()
-        return _response(500, "Lỗi server: " + str(e))
+    curr_project.updated_at = datetime.now(timezone.utc)
+    db.session.commit()
+    data = make_data_to_respone(curr_project)
+    return _response(200, "Cập nhật thành công", data)
 
 
 def edit_members(members_id, permalink):
@@ -441,38 +425,32 @@ def edit_members(members_id, permalink):
         return _response(400, "Không thể xóa leader khỏi project")
 
     # Cập nhật thông tin project nếu người dùng có quyền
-    try:
-        # Tìm và xóa role của tất cả trừ leader hiện tại
-        current_leader = (
-            db.session.query(UserRole)
-            .join(Role)
-            .filter(
-                Role.description == "ROLE_LEADER", Role.project_id == curr_project.id
-            )
-            .first()
-        )
-        UserRole.query.filter(UserRole.user_id != current_leader.user_id).delete()
+    # Tìm và xóa role của tất cả trừ leader hiện tại
+    current_leader = (
+        db.session.query(UserRole)
+        .join(Role)
+        .filter(Role.description == "ROLE_LEADER", Role.project_id == curr_project.id)
+        .first()
+    )
+    UserRole.query.filter(UserRole.user_id != current_leader.user_id).delete()
 
-        # Thêm ROLE cho thành viên mới
-        for id in members_id:
-            if id != current_leader.user_id:
-                new_member = UserRole(
-                    user_id=id,
-                    role_id=db.session.query(Role.id)
-                    .filter(
-                        Role.description == "ROLE_MEMBER",
-                        Role.project_id == curr_project.id,
-                    )
-                    .scalar(),
-                    created_at=datetime.now(timezone.utc),
-                    updated_at=datetime.now(timezone.utc),
+    # Thêm ROLE cho thành viên mới
+    for id in members_id:
+        if id != current_leader.user_id:
+            new_member = UserRole(
+                user_id=id,
+                role_id=db.session.query(Role.id)
+                .filter(
+                    Role.description == "ROLE_MEMBER",
+                    Role.project_id == curr_project.id,
                 )
-                db.session.add(new_member)
+                .scalar(),
+                created_at=datetime.now(timezone.utc),
+                updated_at=datetime.now(timezone.utc),
+            )
+            db.session.add(new_member)
 
-        curr_project.updated_at = datetime.now(timezone.utc)
-        db.session.commit()
-        data = make_data_to_respone(curr_project)
-        return _response(200, "Cập nhật thành công", data)
-    except Exception as e:
-        db.session.rollback()
-        return _response(500, "Lỗi server: " + str(e))
+    curr_project.updated_at = datetime.now(timezone.utc)
+    db.session.commit()
+    data = make_data_to_respone(curr_project)
+    return _response(200, "Cập nhật thành công", data)

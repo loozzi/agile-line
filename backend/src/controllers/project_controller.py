@@ -136,10 +136,11 @@ def edit_project(permalink):
         return project_service.edit_leader(leader_id, permalink)
     elif target == "members":
         members_id = request.form.get("members_id", default="").strip()
-        if not members_id:
-            return _response(400, "Vui lòng nhập đủ thông tin")
-        try:
-            members_id = eval(members_id)
-        except Exception:
-            return _response(400, "Danh sách thành viên không hợp lệ")
+        if members_id != "":
+            try:
+                members_id = eval(members_id)
+            except Exception:
+                return _response(400, "Danh sách thành viên không hợp lệ")
+        else:
+            members_id = []
         return project_service.edit_members(members_id, permalink)
