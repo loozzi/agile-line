@@ -317,13 +317,18 @@ def show_labels_in_workspace(permalink):
     list_label = Label.query.filter_by(
                     workspace_id=current_workspace.id).all()
     list_label_dict = []
-    data_response = list_label_dict
+    data_response_label = {
+        "labels":[],
+        "total": 0,
+    }
+    count_label = 0
     if len(list_label) > 0:
         for i in list_label:
             label_dict = to_dict(i)
             del label_dict["workspace_id"]
             list_label_dict.append(label_dict)
-        data_response = make_data_to_response_page(
-                            list_label_dict)
+            count_label += 1
+        data_response_label["labels"] = list_label_dict
+        data_response_label["total"] = count_label
     return _response(200, "Tìm kiếm thành công",
-                     data=data_response)
+                     data=data_response_label)
