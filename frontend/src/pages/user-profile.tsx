@@ -303,10 +303,10 @@ export const UserProfilePage = () => {
                 label='Tên'
               />
             </Pane>
-            <Pane>
-              <Label style={{ fontWeight: 600 }}>Thêm mô tả</Label>
+            <div data-color-mode='light'>
+              <Label>Thêm mô tả</Label>
               <MDEditor height={200} value={updateInfoFormik.values.description} onChange={onChangeDescription} />
-            </Pane>
+            </div>
             <Pane marginTop={majorScale(4)}>
               <Button
                 alignSelf='flex-start'

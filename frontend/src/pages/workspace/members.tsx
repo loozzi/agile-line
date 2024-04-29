@@ -55,12 +55,11 @@ export const WorkspaceMemberPage = () => {
     getMembers()
   }, [getParams])
 
-  // TODO: Implement UI
-  // TODO: Implement logic
-  // TODO: Implement styles
-  // TODO: Add member by email or username
   return (
     <Pane>
+      <Pane marginBottom={majorScale(4)} paddingBottom={majorScale(4)} borderBottom='1px solid #ccc'>
+        <h1>Quản lý thành viên</h1>
+      </Pane>
       <Pane marginBottom={majorScale(4)}>
         {!!members && (
           <ListMemberComp

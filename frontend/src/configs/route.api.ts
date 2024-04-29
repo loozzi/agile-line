@@ -11,6 +11,7 @@ const workspace = {
   createWorkspace: '/workspace/',
   editWorkspace: '/workspace/',
   members: '/workspace/:permalink/members',
+  labels: '/workspace/:permalink/labels',
   deleteWorkspace: '/workspace/'
 }
 
@@ -19,11 +20,24 @@ const user = {
   getUserByUsername: '/user/:username',
   editUser: '/user/',
   changePassword: '/user/password',
-  changeEmail: '/user/email'
+  changeEmail: '/user/email',
+  search: '/user/search'
+}
+
+const project = {
+  create: '/project/'
+}
+
+const label = {
+  create: '/label/',
+  update: '/label/',
+  delete: '/label/'
 }
 
 export default {
   auth,
   workspace,
-  user
+  user,
+  project,
+  label
 }

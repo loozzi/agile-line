@@ -1,3 +1,5 @@
+import { PaginationParams } from './utils'
+
 export interface User {
   id: number
   username: string
@@ -5,6 +7,7 @@ export interface User {
   first_name: string | null
   last_name: string | null
   avatar: string | null
+  [key: string]: any
 }
 
 export interface UserDetail extends User {
@@ -33,4 +36,9 @@ export interface UserUpdateEmailPayload extends UserUpdatePayload {
 
 export interface UserUpdatePasswordPayload extends UserUpdatePayload {
   new_password: string
+}
+
+export interface UserSearchParams extends PaginationParams {
+  keyword?: string
+  workspace_id?: number
 }

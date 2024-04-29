@@ -2,6 +2,7 @@ from flask import Blueprint, request
 from src.services import issue_service
 from src.utils import _response
 from src.middlewares import token_required, request_pagination
+from src.enums import IssueStatus
 
 issue = Blueprint("issue", __name__)
 
@@ -92,3 +93,24 @@ def edit_issue():
     return issue_service.edit_issue(issue_id, name, status, label, priority,
                                     assignee_id, assignor_id, testor_id,
                                     milestone_id)
+
+
+@issue.route("/<string:permalink>", methods=["PUT"])
+@token_required
+def edit_status_issue(permalink):
+    status = request.form.get("status", default="")
+    list_status = [IssueStatus.INPROGRESS.value, IssueStatus.BACKLOG.value,
+                   IssueStatus.CANCELLED.value, IssueStatus.DONE.value,
+                   IssueStatus.DUPLICATE.value, IssueStatus.TODO.value]
+    if status not in list_status:
+        return _response(status=400, message="status không hợp lệ")
+    return issue_service.edit_status_issue(status, permalink)
+
+
+@issue.route("/", methods=["DELETE"])
+@token_required
+def delete_issue():
+    id = request.args.get("id","")
+    if id == "":
+        return _response(status=400, message="Vui lòng chọn issue cần xóa")
+    return issue_service.delete_issue(id)

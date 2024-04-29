@@ -5,7 +5,11 @@ from src.models import Workspace, WorkspaceUser, Project
 from src.models import UserRole, Role, User, Issue
 from src.utils import _response, to_dict, gen_permalink
 from src.utils import make_data_to_response_page, is_workspace_user
+<<<<<<< HEAD
 from src.enums import WorkspaceRole, ProjectStatus
+=======
+from src.enums import WorkspaceRole, ProjectStatus, ProjectDefaultRole
+>>>>>>> ea0d7d9f3b295ec1f51df55fa7cd00fc85863255
 from sqlalchemy import and_, or_
 from flask import request
 
@@ -28,18 +32,18 @@ def show_project_in_workspace(permalink, issue_kw, leader_kw, member_kw, status)
         .filter(
             and_(
                 User.username.like(f"%{leader_kw}%"),
-                Role.description == "ROLE_LEADER",
+                Role.description == ProjectDefaultRole.LEADER.value,
             )
             if leader_kw
             else True
         )
         .filter(User.username.like(f"%{member_kw}%") if member_kw else True)
-        .filter(Project.status == status)
+        .filter(Project.status == status if status else True)
         .all()
     )
     project_list_dict = [to_dict(row) for row in project_list]
     for project in project_list_dict:
-        project["status"] = str(project["status"])
+        project["status"] = project["status"].value
     project_list_pagination = make_data_to_response_page(project_list_dict)
     return _response(200, message="Retrieve Success", data=project_list_pagination)
 
@@ -55,7 +59,7 @@ def display_project(permalink):
     del return_project["created_at"]
     project_leader_role = (
         Role.query.filter_by(project_id=project.id)
-        .filter_by(description="ROLE_LEADER")
+        .filter_by(description=ProjectDefaultRole.LEADER.value)
         .first()
     )
     project_leader = UserRole.query.filter_by(role_id=project_leader_role.id).first()
@@ -70,7 +74,7 @@ def display_project(permalink):
     return_project["leader"] = leader_user
     project_member_role = (
         Role.query.filter_by(project_id=project.id)
-        .filter_by(description="ROLE_MEMBER")
+        .filter_by(description=ProjectDefaultRole.MEMBER.value)
         .first()
     )
     list_member = []
@@ -86,7 +90,7 @@ def display_project(permalink):
         member_user["role"] = project_member_role.name
         list_member.append(member_user)
     return_project["members"] = list_member
-    return_project["status"] = str(return_project["status"])
+    return_project["status"] = return_project["status"].value
     return _response(200, message="Retrieve Success", data=return_project)
 
 
@@ -103,7 +107,7 @@ def create_project(
 ):
     curr_user = request.user
     workspace = Workspace.query.filter_by(id=workspace_id).first()
-    if workspace is None:
+    if Workspace.query.filter_by(id=workspace_id).first() is None:
         return _response(400, "Không tìm thấy workspace")
     if not is_workspace_user(curr_user, workspace):
         return _response(403, "Bạn không nằm trong workspace này")
@@ -115,9 +119,13 @@ def create_project(
         return _response(403, "Không có quyền khởi tạo project")
     if User.query.filter_by(id=leader_id).first() is None:
         return _response(400, "Không tìm thấy leader được thêm vào")
-    for user_id in member_id:
-        user = User.query.filter_by(id=user_id).first()
-        if user is None:
+    if not isinstance(member_id, int):
+        for user_id in member_id:
+            user = User.query.filter_by(id=user_id).first()
+            if user is None:
+                return _response(400, "Không tìm thấy member được thêm vào")
+    else:
+        if User.query.filter_by(id=member_id).first() is None:
             return _response(400, "Không tìm thấy member được thêm vào")
     new_project = Project(
         workspace_id=workspace_id,
@@ -137,7 +145,7 @@ def create_project(
     db.session.flush()
     new_project_leader_role = Role(
         name="leader",
-        description="ROLE_LEADER",
+        description=ProjectDefaultRole.LEADER.value,
         project_id=new_project.id,
         created_at=datetime.now(timezone.utc),
         updated_at=datetime.now(timezone.utc),
@@ -154,7 +162,7 @@ def create_project(
     db.session.flush()
     new_project_member_role = Role(
         name="member",
-        description="ROLE_MEMBER",
+        description=ProjectDefaultRole.MEMBER.value,
         project_id=new_project.id,
         created_at=datetime.now(timezone.utc),
         updated_at=datetime.now(timezone.utc),
@@ -162,8 +170,47 @@ def create_project(
     db.session.add(new_project_member_role)
     db.session.flush()
     member_list = []
-    for user_id in member_id:
-        new_member = to_dict(User.query.filter_by(id=user_id).first())
+    if not isinstance(member_id, int):
+        if leader_id not in member_id:
+            leader_member = UserRole(
+                user_id=leader_id,
+                role_id=new_project_member_role.id,
+                created_at=datetime.now(timezone.utc),
+                updated_at=datetime.now(timezone.utc),
+            )
+            db.session.add(leader_member)
+            db.session.flush()
+    else:
+        if leader_id != member_id:
+            leader_member = UserRole(
+                user_id=leader_id,
+                role_id=new_project_member_role.id,
+                created_at=datetime.now(timezone.utc),
+                updated_at=datetime.now(timezone.utc),
+            )
+            db.session.add(leader_member)
+            db.session.flush()
+    if not isinstance(member_id, int):
+        for user_id in member_id:
+            new_member = to_dict(User.query.filter_by(id=user_id).first())
+            del new_member["password"]
+            del new_member["email"]
+            del new_member["phone_number"]
+            del new_member["description"]
+            del new_member["created_at"]
+            del new_member["updated_at"]
+            new_member["roles"] = "member"
+            member_list.append(new_member)
+            member = UserRole(
+                user_id=user_id,
+                role_id=new_project_member_role.id,
+                created_at=datetime.now(timezone.utc),
+                updated_at=datetime.now(timezone.utc),
+            )
+            db.session.add(member)
+            db.session.flush()
+    else:
+        new_member = to_dict(User.query.filter_by(id=member_id).first())
         del new_member["password"]
         del new_member["email"]
         del new_member["phone_number"]
@@ -173,16 +220,15 @@ def create_project(
         new_member["roles"] = "member"
         member_list.append(new_member)
         member = UserRole(
-            user_id=user_id,
+            user_id=member_id,
             role_id=new_project_member_role.id,
             created_at=datetime.now(timezone.utc),
             updated_at=datetime.now(timezone.utc),
         )
         db.session.add(member)
         db.session.flush()
-    db.session.commit()
     return_project = to_dict(new_project)
-    return_project["status"] = str(return_project["status"])
+    return_project["status"] = return_project["status"].value
     new_leader = to_dict(User.query.filter_by(id=leader_id).first())
     del new_leader["password"]
     del new_leader["email"]

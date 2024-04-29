@@ -1,5 +1,5 @@
 from flask import Blueprint, request
-from src.middlewares import token_required
+from src.middlewares import token_required, request_pagination
 from src.services import user_service
 from src.utils import _response
 
@@ -69,3 +69,13 @@ def edit_info():
 @token_required
 def get_info():
     return user_service.get_info(request.user)
+
+
+@user.route("/search", methods=["GET"])
+@request_pagination
+def search_user():
+    keyword = request.args.get("keyword", default="")
+    workspace_id = request.args.get("workspace_id", default="")
+    if workspace_id == "":
+        return _response(400, "Vui lòng chọn workspace")
+    return user_service.search_user(keyword, workspace_id)
