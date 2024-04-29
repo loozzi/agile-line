@@ -80,3 +80,32 @@ def create_project():
         leader_id,
         members_id,
     )
+
+
+@project.route("/<string:permalink>/role", methods=["GET"])
+@token_required
+@request_pagination
+def show_role_in_project(permalink):
+    return project_service.show_role_in_project(permalink)
+
+
+@project.route("/<string:permalink>/role", methods=["POST"])
+@token_required
+def create_role_in_project(permalink):
+    name = request.form.get("name", "").strip()
+    description = request.form.get("description", "").strip()
+    if not name or not description:
+        return _response(400, "Vui lòng điền đầy đủ thông tin")
+    return project_service.create_role_in_project(permalink, name, description)
+
+
+@project.route("/<string:permalink>/role", methods=["PUT"])
+@token_required
+def edit_role_in_project(permalink):
+    try:
+        id = int(request.form.get("id", "").strip())
+    except TypeError:
+        return _response(400, "id đưa vào không phải dạng int")
+    name = request.form.get("name", "").strip()
+    description = request.form.get("description", "").strip()
+    return project_service.edit_role_in_project(permalink, id, name, description)

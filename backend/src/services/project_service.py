@@ -47,7 +47,7 @@ def show_project_in_workspace(permalink, issue_kw, leader_kw, member_kw, status)
 def display_project(permalink):
     project = Project.query.filter_by(permalink=permalink).first()
     if project is None:
-        return _response(400, "Không tìm thấy project")
+        return _response(404, "Không tìm thấy project")
     return_project = to_dict(project)
     del return_project["workspace_id"]
     del return_project["is_removed"]
@@ -104,7 +104,7 @@ def create_project(
     curr_user = request.user
     workspace = Workspace.query.filter_by(id=workspace_id).first()
     if Workspace.query.filter_by(id=workspace_id).first() is None:
-        return _response(400, "Không tìm thấy workspace")
+        return _response(404, "Không tìm thấy workspace")
     if not is_workspace_user(curr_user, workspace):
         return _response(403, "Bạn không nằm trong workspace này")
     user_workspace_role = WorkspaceUser.query.filter_by(user_id=curr_user.id).first()
@@ -115,15 +115,15 @@ def create_project(
         return _response(403, "Không có quyền khởi tạo project")
 
     if User.query.filter_by(id=leader_id).first() is None:
-        return _response(400, "Không tìm thấy leader được thêm vào")
+        return _response(404, "Không tìm thấy leader được thêm vào")
     if not isinstance(member_id, int):
         for user_id in member_id:
             user = User.query.filter_by(id=user_id).first()
             if user is None:
-                return _response(400, "Không tìm thấy member được thêm vào")
+                return _response(404, "Không tìm thấy member được thêm vào")
     else:
         if User.query.filter_by(id=member_id).first() is None:
-            return _response(400, "Không tìm thấy member được thêm vào")
+            return _response(404, "Không tìm thấy member được thêm vào")
     new_project = Project(
         workspace_id=workspace_id,
         name=name,
@@ -241,3 +241,93 @@ def create_project(
     del return_project["created_at"]
     db.session.commit()
     return _response(200, message="Tạo project thành công", data=return_project)
+
+
+def show_role_in_project(permalink):
+    curr_user = request.user
+    project = Project.query.filter_by(permalink=permalink).first()
+    if project is None:
+        return _response(404, "Không tìm thấy project")
+    workspace = Workspace.query.filter_by(id=project.workspace_id).first()
+    if not is_workspace_user(curr_user, workspace):
+        return _response(403, "Không có quyền truy cập vào project")
+    role_list = Role.query.filter_by(project_id=project.id).all()
+    role_list_dict = [to_dict(role) for role in role_list]
+    for role in role_list_dict:
+        del role["project_id"]
+    role_list_pagination = make_data_to_response_page(role_list_dict)
+    return _response(200, "Hiển thị thành công", role_list_pagination)
+
+
+def create_role_in_project(permalink, name, description):
+    curr_user = request.user
+    project = Project.query.filter_by(permalink=permalink).first()
+    project_user = (
+        UserRole.query.join(Role, Role.id == UserRole.role_id)
+        .filter_by(project_id=project.id)
+        .filter_by(user_id=curr_user.id)
+        .all()
+    )
+    if project_user is None:
+        return _response(403, "Không có quyền truy cập vào project")
+    if [
+        p_user.description == ProjectDefaultRole.LEADER.value for p_user in project_user
+    ] is None:
+        return _response(403, "Không có quyền tạo role")
+    if (
+        description == ProjectDefaultRole.LEADER.value
+        or description == ProjectDefaultRole.MEMBER.value
+    ):
+        return _response(403, "Không được tạo role trùng với role gốc")
+    if Role.query.filter_by(project_id=project.id).filter_by(name=name).first():
+        return _response(400, "Role đã tồn tại")
+    new_role = Role(
+        name=name,
+        description=description,
+        project_id=project.id,
+        created_at=datetime.now(timezone.utc),
+        updated_at=datetime.now(timezone.utc),
+    )
+    db.session.add(new_role)
+    db.session.flush()
+    return_role = to_dict(new_role)
+    db.session.commit()
+    return _response(200, "Tạo role thành công", return_role)
+
+
+def edit_role_in_project(permalink: str, id: int, name: str, description: str):
+    curr_user = request.user
+    project = Project.query.filter_by(permalink=permalink).first()
+    project_user = (
+        UserRole.query.join(Role, Role.id == UserRole.role_id)
+        .filter_by(project_id=project.id)
+        .filter_by(user_id=curr_user.id)
+        .all()
+    )
+    if project_user is None:
+        return _response(403, "Không có quyền truy cập vào project")
+    if [
+        p_user.description == ProjectDefaultRole.LEADER.value for p_user in project_user
+    ] is None:
+        return _response(403, "Không có quyền chỉnh sửa role")
+    if not Role.query.filter_by(project=project).filter_by(id=id).first():
+        return _response(404, "Không tìm thấy role")
+    if Role.query.filter_by(project=project).filter_by(name=name).first():
+        return _response(400, "Trùng tên với role khác")
+    if Role.query.filter_by(project=project).filter_by(description=description).first():
+        return _response(400, "Trùng description với role khác")
+    edit_role = Role.query.filter_by(id=id).first()
+    if (
+        edit_role.description == ProjectDefaultRole.LEADER.value
+        or edit_role.description == ProjectDefaultRole.MEMBER.value
+    ):
+        return _response(403, "Không có quyền chỉnh sửa role gốc")
+    if edit_role.name != name:
+        edit_role.name = name
+    if edit_role.description != description:
+        edit_role.description = description
+    edit_role.updated_at = datetime.now(timezone.utc)
+    return_role = to_dict(edit_role)
+    del return_role["project_id"]
+    db.session.commit()
+    return _response(200, "Chỉnh sửa thành công", return_role)
