@@ -152,7 +152,7 @@ def create_issue(project_id, name, description, status, label,
     )
     db.session.add(new_issue)
     db.session.flush()
-    label = Label.query.filter_by(title=label).first()
+    label = Label.query.filter_by(id=label).first()
     if label is None:
         return _response(400, "Nhãn không tồn tại")
     issue_label = IssueLabel(

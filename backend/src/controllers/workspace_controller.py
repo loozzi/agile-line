@@ -114,7 +114,6 @@ def edit_role_members_in_workspace(permalink):
 
 @workspace.route("/<string:permalink>/labels", methods=["GET"])
 @token_required
-@request_pagination
 def show_labels_in_workspace(permalink):
     return workspace_service.show_labels_in_workspace(
             permalink)
