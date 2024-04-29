@@ -5,11 +5,7 @@ from src.models import Workspace, WorkspaceUser, Project
 from src.models import UserRole, Role, User, Issue
 from src.utils import _response, to_dict, gen_permalink
 from src.utils import make_data_to_response_page, is_workspace_user
-<<<<<<< HEAD
-from src.enums import WorkspaceRole, ProjectStatus
-=======
 from src.enums import WorkspaceRole, ProjectStatus, ProjectDefaultRole
->>>>>>> ea0d7d9f3b295ec1f51df55fa7cd00fc85863255
 from sqlalchemy import and_, or_
 from flask import request
 
