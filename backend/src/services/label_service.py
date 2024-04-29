@@ -2,7 +2,7 @@ from datetime import datetime, timezone
 
 from flask import request
 from src import db
-from src.models import Label, Workspace
+from src.models import Label, Workspace, IssueLabel
 from src.utils import _response, to_dict
 from src.services.issue_service import check_user_workspace
 
@@ -81,6 +81,11 @@ def delete_label(id):
     if check_user_workspace(current_label.workspace_id,
                             current_user.id) is False:
         return _response(403, "Không có quyền xóa label")
+    current_issue_label = IssueLabel.query.filter_by(
+                            label_id=id).first()
+    if current_issue_label is not None:
+        db.session.delete(current_issue_label)
+        db.session.flush()
     db.session.delete(current_label)
     db.session.commit()
     return _response(200, "Xóa label thành công")
