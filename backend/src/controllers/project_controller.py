@@ -89,3 +89,67 @@ def delete_project(permalink):
     if not password:
         return _response(400, "Vui lòng nhập mật khẩu")
     return project_service.delete_project(permalink)
+
+
+@project.route("/<string:permalink>", methods=["PUT"])
+@token_required
+def edit_project(permalink):
+    target = request.args.get("target", default="")
+    if target == "all":
+        name = request.form.get("name", "").strip()
+        description = request.form.get("description", "").strip()
+        icon = request.form.get("icon", "").strip()
+        start_date = request.form.get("start_date", default=None)
+        end_date = request.form.get("end_date", default=None)
+
+        # Tạo một dictionary để lưu thông tin cập nhật
+        update_info = {}
+
+        # Kiểm tra từng trường và thêm vào dictionary nếu không rỗng
+        if name is not None and name:
+            update_info["name"] = name
+        if description is not None and description:
+            update_info["description"] = description
+        if icon is not None and icon:
+            update_info["icon"] = icon
+        # Chuyển đổi start_date và end_date từ chuỗi sang datetime nếu không phải là None
+        date_format = "%Y-%m-%d %H:%M:%S"  # Thay đổi theo định dạng ngày tháng
+        if start_date:
+            try:
+                update_info["start_date"] = datetime.strptime(start_date, date_format)
+            except ValueError:
+                return _response(400, "Chuỗi ngày giờ không hợp lệ")
+
+        if end_date:
+            try:
+                update_info["end_date"] = datetime.strptime(end_date, date_format)
+            except ValueError:
+                return _response(400, "Chuỗi ngày giờ không hợp lệ")
+
+        return project_service.edit_project(update_info, permalink)
+    elif target == "status":
+        status = request.form.get("status", "").strip()
+        if not status:
+            return _response(400, "Vui lòng nhập đủ thông tin")
+        if status not in [status.value for status in ProjectStatus]:
+            return _response(400, "Trạng thái không hợp lệ")
+        return project_service.edit_status(status, permalink)
+    elif target == "leader":
+        leader_id = request.form.get("leader_id")
+        if not leader_id:
+            return _response(400, "Vui lòng nhập đủ thông tin")
+        try:
+            leader_id = int(leader_id)
+        except ValueError:
+            return _response(400, "Id không hợp lệ")
+        return project_service.edit_leader(leader_id, permalink)
+    elif target == "members":
+        members_id = request.form.get("members_id", default="").strip()
+        if members_id != "":
+            try:
+                members_id = eval(members_id)
+            except Exception:
+                return _response(400, "Danh sách thành viên không hợp lệ")
+        else:
+            members_id = []
+        return project_service.edit_members(members_id, permalink)
