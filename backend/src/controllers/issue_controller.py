@@ -9,7 +9,7 @@ issue = Blueprint("issue", __name__)
 
 @issue.route("/", methods=["POST"])
 @token_required
-def create_issue():
+def create_issue(): # controller
     project_id = request.form.get("project_id", "").strip()
     if project_id == "":
         return _response(400, "Vui lòng chọn dự án")
@@ -21,8 +21,13 @@ def create_issue():
     if status == "":
         return _response(400, "Vui lòng chọn trạng thái issue")
     label = request.form.get("label", "").strip()
-    if label == "":
-        return _response(400, "Vui lòng chọn nhãn issue")
+    if label != "":
+        try:
+            label = eval(label)
+        except Exception:
+            return _response(400, message="Danh sách label không hợp lệ")
+    else:
+        label = []
     priority = request.form.get("priority", "").strip()
     if priority == "":
         return _response(400, "Vui lòng chọn mức độ ưu tiên")

@@ -76,10 +76,13 @@ def create_resource_and_response(list_resource, issue):
     return data_response
 
 
-def make_data_response_issue(issue, list_resource, project):
-    label = db.session.query(Label, IssueLabel).join(
+def make_data_response_issue(issue, list_resource, project): #service
+    labels = db.session.query(Label, IssueLabel).join(
                 Label, Label.id == IssueLabel.label_id
-                ).filter(IssueLabel.issue_id == issue.id).first()
+                ).filter(IssueLabel.issue_id == issue.id).all()
+    list_labels = []
+    for i in labels:
+        list_labels.append(i[0].title)
     data_response = {}
     data_response["project"] = {
         "id": project.id,
@@ -90,10 +93,10 @@ def make_data_response_issue(issue, list_resource, project):
     data_response["id"] = issue.id
     data_response["name"] = issue.name
     data_response["status"] = issue.status.value
-    if label is None:
-        data_response["label"] = ""
+    if len(list_labels) == 0:
+        data_response["label"] = []
     else:
-        data_response["label"] = label[0].title
+        data_response["label"] = list_labels
     data_response["priority"] = issue.priority.value
     data_response["assignee_id"] = issue.assignee_id
     data_response["assignor_id"] = issue.assignor_id
@@ -152,17 +155,22 @@ def create_issue(project_id, name, description, status, label,
     )
     db.session.add(new_issue)
     db.session.flush()
-    label = Label.query.filter_by(id=label).first()
-    if label is None:
-        return _response(400, "Nhãn không tồn tại")
-    issue_label = IssueLabel(
-        issue_id=new_issue.id,
-        label_id=label.id,
-        created_at=datetime.now(timezone.utc),
-        updated_at=datetime.now(timezone.utc)
-    )
-    db.session.add(issue_label)
-    db.session.flush()
+    list_label = []
+    for i in label:
+        label_i = Label.query.filter_by(id=i).first()
+        if label_i is None:
+            return _response(404, "Một số label không tồn tại")
+        list_label.append(label_i)
+    for i in list_label:
+        issue_label = IssueLabel(
+                        issue_id=new_issue.id,
+                        label_id=i.id,
+                        created_at=datetime.now(timezone.utc),
+                        updated_at=datetime.now(timezone.utc)
+                    )
+        db.session.add(issue_label)
+        db.session.flush()
+    db.session.commit()
     new_activity = Activity(
         user_id=current_user.id,
         issue_id=new_issue.id,
