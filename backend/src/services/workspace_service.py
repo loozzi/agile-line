@@ -2,12 +2,18 @@ from datetime import datetime, timezone
 
 from flask import request
 from sqlalchemy import update
-from src import db
+from src import bcrypt, db
 from src.enums import WorkspaceRole
 from src.models import (
+    Activity,
+    Issue,
+    IssueLabel,
     Label,
+    Milestone,
     OtpVerification,
     Project,
+    References,
+    Resources,
     Role,
     User,
     UserRole,
@@ -316,10 +322,88 @@ def show_labels_in_workspace(permalink):
             return _response(400, "Workspace private")
     list_label = Label.query.filter_by(workspace_id=current_workspace.id).all()
     list_label_dict = []
-
     if len(list_label) > 0:
         for i in list_label:
             label_dict = to_dict(i)
             del label_dict["workspace_id"]
             list_label_dict.append(label_dict)
     return _response(200, "Tìm kiếm thành công", data=list_label_dict)
+
+
+def delete_workspace(permalink, password):
+    current_user = request.user
+    current_workspace = Workspace.query.filter_by(permalink=permalink).first()
+    if current_workspace is None:
+        return _response(404, "Không tìm thấy workspace")
+    if is_workspace_user(current_user, current_workspace) is False:
+        return _response(403, "Không có quyền truy cập")
+    current_workspace_user = (
+        WorkspaceUser.query.filter(WorkspaceUser.user_id == current_user.id)
+        .filter(WorkspaceUser.workspace_id == current_workspace.id)
+        .first()
+    )
+    if current_workspace_user.role != WorkspaceRole.ADMIN:
+        return _response(403, "Không có quyền xóa workspace")
+    if bcrypt.check_password_hash(current_user.password, password) is False:
+        return _response(401, "Mật khẩu không chính xác")
+    # xóa project
+    list_project_workspace = Project.query.filter_by(
+        workspace_id=current_workspace.id
+    ).all()
+    for i in list_project_workspace:
+        # xóa milestone
+        list_milestone = Milestone.query.filter_by(project_id=i.id).all()
+        for j in list_milestone:
+            db.session.delete(j)
+            db.session.flush()
+        # xóa role và user role
+        list_role = Role.query.filter_by(project_id=i.id).all()
+        for j in list_role:
+            list_user_role = UserRole.query.filter_by(role_id=j.id).all()
+            for k in list_user_role:
+                db.session.delete(k)
+                db.session.flush()
+            db.session.delete(j)
+            db.session.flush()
+        # xóa reference
+        list_reference = References.query.filter_by(project_id=i.id).all()
+        for j in list_reference:
+            db.session.delete(j)
+            db.session.flush()
+        # xóa issue
+        list_issue = Issue.query.filter_by(project_id=i.id).all()
+        for j in list_issue:
+            # xóa issue_label
+            list_issue_label = IssueLabel.query.filter_by(issue_id=j.id).all()
+            for k in list_issue_label:
+                db.session.delete(k)
+                db.session.flush()
+            # xóa resources
+            list_resource = Resources.query.filter_by(issue_id=j.id).all()
+            for k in list_resource:
+                db.session.delete(k)
+                db.session.flush()
+            # xóa activity
+            list_activity = Activity.query.filter_by(issue_id=j.id).all()
+            for k in list_activity:
+                db.session.delete(k)
+                db.session.flush()
+            db.session.delete(j)
+            db.session.flush()
+    # xóa label
+    list_label = Label.query.filter_by(workspace_id=current_workspace.id).all()
+    for i in list_label:
+        db.session.delete(i)
+        db.session.flush()
+    # xóa liên kết từ user tới workspace
+    workspace_user = WorkspaceUser.query.filter_by(
+        workspace_id=current_workspace.id
+    ).all()
+    for i in workspace_user:
+        db.session.delete(i)
+        db.session.flush()
+    db.session.delete(current_workspace)
+    db.session.flush()
+    db.session.delete(current_workspace_user)
+    db.session.commit()
+    return _response(200, "Xóa workspace thành công")

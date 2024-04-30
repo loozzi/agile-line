@@ -98,7 +98,7 @@ export const CreateIssueDialog = (props: CreateIssueDialogProps) => {
     initialValues: inititalValues,
     onSubmit: (values) => {
       issueService.create(values).then((data) => {
-        if (data.status === 201) {
+        if (data.status === 200) {
           toaster.success(data.message)
           onCreateSuccess(data.data)
         } else {
