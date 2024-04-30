@@ -432,7 +432,12 @@ def edit_members(members_id, permalink):
         .filter(Role.description == "ROLE_LEADER", Role.project_id == curr_project.id)
         .first()
     )
-    UserRole.query.filter(UserRole.user_id != current_leader.user_id).delete()
+    all_members_role = UserRole.query.join(Role).filter(
+        UserRole.user_id != current_leader.user_id, Role.project_id == curr_project.id
+    )
+    # Xóa các role của tất cả các thành viên trừ leader hiện tại
+    for userrole in all_members_role:
+        db.session.delete(userrole)
 
     # Thêm ROLE cho thành viên mới
     for id in members_id:
