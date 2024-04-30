@@ -29,6 +29,7 @@ import { Workspace, WorkspaceParams } from '~/models/workspace'
 import { CollapseComp } from '../collapse/collapse'
 import { WorkspaceCreate } from '../workspace/create'
 import { NavbarButtonComp } from './navbar-btn'
+import { CreateIssueDialog } from '~/pages/issue/create-issue'
 
 interface NavbarCompProps extends PaneProps {}
 
@@ -175,13 +176,8 @@ export const NavbarComp = (props: NavbarCompProps) => {
           onClick={() => handleRedirect(routes.auth.logout)}
         />
       </Pane>
-      <Dialog
-        isShown={isShownCreate}
-        title='Tạo workspace'
-        onCloseComplete={() => setShownCreate(false)}
-        hasFooter={false}
-      >
-        <WorkspaceCreate onCreateSuccess={onCreateSuccess} onClose={() => setShownCreate(false)} />
+      <Dialog isShown={isShownCreate} title='Tạo issue' onCloseComplete={() => setShownCreate(false)} hasFooter={false}>
+        <CreateIssueDialog onCreateSuccess={onCreateSuccess} closeDialog={() => setShownCreate(false)} />
       </Dialog>
     </Pane>
   )

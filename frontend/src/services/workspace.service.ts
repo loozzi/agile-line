@@ -11,6 +11,7 @@ import {
   WorkspaceUpdatePayload
 } from '~/models/workspace'
 import client from './axios.service'
+import { ProjectResponse } from '~/models/project'
 
 const getWorkspaces = async (params: WorkspaceSearchParams): Promise<IResponse<PaginationResponse<Workspace>>> => {
   return await client.get(routeApi.workspace.getWorkspaces, {
@@ -66,6 +67,12 @@ const deleteWorkspace = async (params: WorkspaceParams): Promise<IResponse<undef
   return await client.delete(routeApi.workspace.deleteWorkspace + params.permalink)
 }
 
+const allProjects = async (params: WorkspaceParams): Promise<IResponse<PaginationResponse<ProjectResponse>>> => {
+  return await client.get(routeApi.workspace.projects.replace(':permalink', params.permalink), {
+    params: params
+  })
+}
+
 export default {
   getWorkspaces,
   getWorkspace,
@@ -75,5 +82,6 @@ export default {
   changeRoleMember,
   removeMember,
   addMembers,
-  deleteWorkspace
+  deleteWorkspace,
+  allProjects
 }

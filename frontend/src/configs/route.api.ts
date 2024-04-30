@@ -11,6 +11,7 @@ const workspace = {
   createWorkspace: '/workspace/',
   editWorkspace: '/workspace/',
   members: '/workspace/:permalink/members',
+  projects: '/workspace/:permalink/project',
   labels: '/workspace/:permalink/labels',
   deleteWorkspace: '/workspace/'
 }
@@ -25,7 +26,8 @@ const user = {
 }
 
 const project = {
-  create: '/project/'
+  create: '/project/',
+  get: '/project/:permalink'
 }
 
 const label = {

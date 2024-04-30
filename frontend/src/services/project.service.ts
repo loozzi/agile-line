@@ -7,6 +7,11 @@ const createProject = async (payload: ProjectCreatePayload): Promise<IResponse<P
   return await client.post(routeApi.project.create, { ...payload, members_id: `[${payload.members_id.toString()}]` })
 }
 
+const get = async (permalink: string): Promise<IResponse<ProjectResponse>> => {
+  return await client.get(routeApi.project.get.replace(':permalink', permalink))
+}
+
 export default {
-  createProject
+  createProject,
+  get
 }

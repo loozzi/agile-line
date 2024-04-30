@@ -8,7 +8,7 @@ export interface ProjectMinimize {
   roles: string[]
 }
 
-export type ProjectStatus = 'backlog' | 'planned' | 'inprogress' | 'completed' | 'canceled' | 'paused'
+export type ProjectStatus = 'backlog' | 'planned' | 'inprogress' | 'completed' | 'cancelled' | 'paused'
 
 export interface ProjectResponse {
   id: number
