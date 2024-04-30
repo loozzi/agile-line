@@ -53,6 +53,7 @@ export const NavbarComp = (props: NavbarCompProps) => {
 
   const onCreateSuccess = (item: Workspace): void => {
     setShownCreate(false)
+    item
   }
 
   const handleOpenModalWorkspace = () => {

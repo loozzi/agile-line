@@ -1,4 +1,4 @@
-import { Button, Menu, Pane, SearchInput, SelectMenu } from 'evergreen-ui'
+import { SelectMenu } from 'evergreen-ui'
 import { ReactNode, useEffect, useState } from 'react'
 import { LabelResponse } from '~/models/label'
 import { getContrastColor } from '~/utils'
