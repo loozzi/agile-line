@@ -80,3 +80,12 @@ def create_project():
         leader_id,
         members_id,
     )
+
+
+@project.route("/<string:permalink>/delete", methods=["PUT"])
+@token_required
+def delete_project(permalink):
+    password = request.form.get("password", "").strip()
+    if not password:
+        return _response(400, "Vui lòng nhập mật khẩu")
+    return project_service.delete_project(permalink)

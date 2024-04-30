@@ -1,5 +1,7 @@
 from datetime import datetime, timezone, timedelta
 
+import bcrypt
+
 from src import db
 from src.models import Workspace, WorkspaceUser, Project
 from src.models import UserRole, Role, User, Issue
@@ -241,3 +243,26 @@ def create_project(
     del return_project["created_at"]
     db.session.commit()
     return _response(200, message="Tạo project thành công", data=return_project)
+
+
+def delete_project(password, permalink):
+    curr_project = Project.query.filter_by(permalink=permalink).first()
+    if curr_project is None:
+        return _response(404, "Không tìm thấy dữ liệu")
+    user = request.user
+
+    # Kiểm tra người dùng có quyền không
+
+    # Kiểm tra mật khẩu
+    if not bcrypt.check_password_hash(user.password, password):
+        return _response(400, "Sai mật khẩu")
+
+    # Xóa tất cả Role của member
+    UserRole.query.join(Role).filter(Role.project_id == curr_project.id).delete()
+    # Xóa tất cả Role trong Project
+    Role.query.filter_by(project_id=curr_project.id).delete()
+    # Xóa Project khỏi Workspace
+    db.session.delete(curr_project)
+
+    db.session.commit()
+    return _response(200, "Xóa Project thành công")
