@@ -40,6 +40,7 @@ import { LabelResponse } from '~/models/label'
 import { ProjectResponse } from '~/models/project'
 import { User } from '~/models/user'
 import { WorkspaceParams } from '~/models/workspace'
+import issueService from '~/services/issue.service'
 import labelService from '~/services/label.service'
 import projectService from '~/services/project.service'
 import workspaceService from '~/services/workspace.service'
@@ -50,7 +51,7 @@ interface CreateIssueDialogProps {
 }
 
 export const CreateIssueDialog = (props: CreateIssueDialogProps) => {
-  const { closeDialog } = props
+  const { closeDialog, onCreateSuccess } = props
   const params = useParams()
   const currentUser = useAppSelector(selectUser)
 
@@ -96,7 +97,14 @@ export const CreateIssueDialog = (props: CreateIssueDialogProps) => {
   const payload = useFormik({
     initialValues: inititalValues,
     onSubmit: (values) => {
-      console.log(values)
+      issueService.create(values).then((data) => {
+        if (data.status === 201) {
+          toaster.success(data.message)
+          onCreateSuccess(data.data)
+        } else {
+          toaster.danger(data.message)
+        }
+      })
     }
   })
 
@@ -109,6 +117,7 @@ export const CreateIssueDialog = (props: CreateIssueDialogProps) => {
     if (prj) {
       projectService.get(prj.permalink).then((data) => {
         setProject(data.data)
+        payload.setFieldValue('project_id', data.data?.id || 0)
       })
     }
   }

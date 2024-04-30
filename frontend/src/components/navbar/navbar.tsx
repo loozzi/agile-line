@@ -26,10 +26,9 @@ import routes from '~/configs/routes'
 import { selectUser } from '~/hooks/auth/auth.slice'
 import { GET_WORKSPACE, selectCurrentWorkspace } from '~/hooks/workspace/workspace.slice'
 import { Workspace, WorkspaceParams } from '~/models/workspace'
-import { CollapseComp } from '../collapse/collapse'
-import { WorkspaceCreate } from '../workspace/create'
-import { NavbarButtonComp } from './navbar-btn'
 import { CreateIssueDialog } from '~/pages/issue/create-issue'
+import { CollapseComp } from '../collapse/collapse'
+import { NavbarButtonComp } from './navbar-btn'
 
 interface NavbarCompProps extends PaneProps {}
 
@@ -53,7 +52,7 @@ export const NavbarComp = (props: NavbarCompProps) => {
   const [isShownCreate, setShownCreate] = useState<boolean>(false)
 
   const onCreateSuccess = (item: Workspace): void => {
-    history.push(`/${item.permalink}`)
+    setShownCreate(false)
   }
 
   const handleOpenModalWorkspace = () => {

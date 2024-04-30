@@ -36,10 +36,20 @@ const label = {
   delete: '/label/'
 }
 
+const issue = {
+  create: '/issue/',
+  getAll: '/issue/',
+  get: '/issue/:permalink',
+  update: '/issue/',
+  updateStatus: '/issue/:permalink',
+  delete: '/issue/:permalink'
+}
+
 export default {
   auth,
   workspace,
   user,
   project,
-  label
+  label,
+  issue
 }
