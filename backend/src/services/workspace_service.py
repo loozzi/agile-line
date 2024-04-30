@@ -1,20 +1,36 @@
 from datetime import datetime, timezone
 
-from src import db
-from src.models import Workspace, WorkspaceUser, User, Project, Label
-from src.models import UserRole, Role, OtpVerification
-from src.utils import _response, to_dict, gen_permalink
-from src.utils import make_data_to_response_page, is_workspace_user
-from src.enums import WorkspaceRole
-from sqlalchemy import update
 from flask import request
+from sqlalchemy import update
+from src import db
+from src.enums import WorkspaceRole
+from src.models import (
+    Label,
+    OtpVerification,
+    Project,
+    Role,
+    User,
+    UserRole,
+    Workspace,
+    WorkspaceUser,
+)
+from src.utils import (
+    _response,
+    gen_permalink,
+    is_workspace_user,
+    make_data_to_response_page,
+    to_dict,
+)
 
 
 def make_data_return_roles(project, user_id):
-    roles_tuple = db.session.query(Role, UserRole).join(
-                    UserRole, UserRole.role_id == Role.id).filter(
-                        Role.project_id == project.id).filter(
-                            UserRole.user_id == user_id).all()
+    roles_tuple = (
+        db.session.query(Role, UserRole)
+        .join(UserRole, UserRole.role_id == Role.id)
+        .filter(Role.project_id == project.id)
+        .filter(UserRole.user_id == user_id)
+        .all()
+    )
     list_role = []
     for i in roles_tuple:
         list_role.append(i[0].name)
@@ -40,8 +56,7 @@ def make_data_return_project(user_id, workspace_id):
         project_user_dict["name"] = project_user.name
         project_user_dict["icon"] = project_user.icon
         project_user_dict["status"] = project_user.status.value
-        project_user_dict["roles"] = make_data_return_roles(
-                                        project_user, user_id)
+        project_user_dict["roles"] = make_data_return_roles(project_user, user_id)
         list_project.append(project_user_dict)
     return list_project
 
@@ -63,16 +78,14 @@ def make_data_to_response_project(dict_user, role_workspace, workspaceId):
 def show_workspace(keyword):
     current_user = request.user
     workspace_list = (
-        Workspace.query.join(WorkspaceUser,
-                             Workspace.id == WorkspaceUser.workspace_id)
+        Workspace.query.join(WorkspaceUser, Workspace.id == WorkspaceUser.workspace_id)
         .filter(WorkspaceUser.user_id == current_user.id)
         .filter(Workspace.title.like(f"%{keyword}%") if keyword else True)
         .all()
     )
     workspace_list_dict = [to_dict(row) for row in workspace_list]
     workspace_list_pagination = make_data_to_response_page(workspace_list_dict)
-    return _response(200, message="Tìm kiếm thành công",
-                     data=workspace_list_pagination)
+    return _response(200, message="Tìm kiếm thành công", data=workspace_list_pagination)
 
 
 def create_workspace(new_title, logo, description, is_private):
@@ -111,19 +124,14 @@ def access_workspace(permalink):
         curr_workspace.is_private is True
         and is_workspace_user(user, curr_workspace) is True
     ) or curr_workspace.is_private is False:
-        return_workspace = Workspace.query.filter_by(
-                            id=curr_workspace.id).first()
-        return _response(200, "Truy cập thành công",
-                         data=to_dict(return_workspace))
+        return_workspace = Workspace.query.filter_by(id=curr_workspace.id).first()
+        return _response(200, "Truy cập thành công", data=to_dict(return_workspace))
     else:
-        return _response(403,
-                         "Workspace private")
+        return _response(403, "Workspace private")
 
 
-def edit_workspace(permalink, title, logo,
-                   description, new_permalink, is_private):
-    curr_workspace = Workspace.query.filter_by(
-                        permalink=permalink).first()
+def edit_workspace(permalink, title, logo, description, new_permalink, is_private):
+    curr_workspace = Workspace.query.filter_by(permalink=permalink).first()
     if curr_workspace is None:
         return _response(404, "Không tìm thấy dữ liệu")
     user = request.user
@@ -168,8 +176,7 @@ def edit_workspace(permalink, title, logo,
 
 
 def show_workspace_members(member_keyword, role_workspace, permalink):
-    workspace_to_find_user = Workspace.query.filter_by(
-                                permalink=permalink).first()
+    workspace_to_find_user = Workspace.query.filter_by(permalink=permalink).first()
     if workspace_to_find_user is None:
         return _response(404, "Không tìm thấy dữ liệu")
     user_join_workspaceUser_tuple = []
@@ -203,8 +210,7 @@ def show_workspace_members(member_keyword, role_workspace, permalink):
         )
         list_response.append(data_user)
     user_list_pagination = make_data_to_response_page(list_response)
-    return _response(200, message="Tìm kiếm thành công",
-                     data=user_list_pagination)
+    return _response(200, message="Tìm kiếm thành công", data=user_list_pagination)
 
 
 def add_members_to_workspace(permalink, list_id_members):
@@ -223,14 +229,11 @@ def add_members_to_workspace(permalink, list_id_members):
     for id_user in list_id_members:
         user = User.query.filter_by(id=id_user).first()
         if user is None:
-            return _response(400,
-                             message="Một số thành viên không tồn tại")
-        check_user_verify = OtpVerification.query.filter_by(
-                                user_id=id_user).first()
+            return _response(400, message="Một số thành viên không tồn tại")
+        check_user_verify = OtpVerification.query.filter_by(user_id=id_user).first()
         if check_user_verify.verified is False:
             return _response(400, message="Một số thành viên chưa xác thực")
-        worksp_user = WorkspaceUser.query.filter_by(
-                        user_id=id_user).first()
+        worksp_user = WorkspaceUser.query.filter_by(user_id=id_user).first()
         if worksp_user:
             continue
         new_user = WorkspaceUser(
@@ -243,13 +246,11 @@ def add_members_to_workspace(permalink, list_id_members):
         db.session.add(new_user)
         db.session.commit()
         list_new_mems.append(
-            make_data_to_response_project(to_dict(user),
-                                          "MEMBER", current_workspace.id)
+            make_data_to_response_project(to_dict(user), "MEMBER", current_workspace.id)
         )
     user_list_pagination = make_data_to_response_page(list_new_mems)
     return _response(
-        200, message="Thêm thành viên thành công",
-        data=user_list_pagination
+        200, message="Thêm thành viên thành công", data=user_list_pagination
     )
 
 
@@ -307,28 +308,18 @@ def edit_role_members_in_workspace(permalink, edit_user_id, new_role):
 
 def show_labels_in_workspace(permalink):
     current_user = request.user
-    current_workspace = Workspace.query.filter_by(
-                            permalink=permalink).first()
+    current_workspace = Workspace.query.filter_by(permalink=permalink).first()
     if current_workspace is None:
         return _response(404, "Không tìm thấy workspace")
     if current_workspace.is_private is True:
         if is_workspace_user(current_user, current_workspace) is False:
             return _response(400, "Workspace private")
-    list_label = Label.query.filter_by(
-                    workspace_id=current_workspace.id).all()
+    list_label = Label.query.filter_by(workspace_id=current_workspace.id).all()
     list_label_dict = []
-    data_response_label = {
-        "labels":[],
-        "total": 0,
-    }
-    count_label = 0
+
     if len(list_label) > 0:
         for i in list_label:
             label_dict = to_dict(i)
             del label_dict["workspace_id"]
             list_label_dict.append(label_dict)
-            count_label += 1
-        data_response_label["labels"] = list_label_dict
-        data_response_label["total"] = count_label
-    return _response(200, "Tìm kiếm thành công",
-                     data=data_response_label)
+    return _response(200, "Tìm kiếm thành công", data=list_label_dict)
