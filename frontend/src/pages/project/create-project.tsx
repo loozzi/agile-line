@@ -18,7 +18,7 @@ import {
 } from '~/assets/icons'
 import imgs from '~/assets/imgs'
 import { ImagePickerComp } from '~/components/image_picker/image_picker'
-import { PopupSearchMember } from '~/components/popup_search_member'
+import { PopupSearchLeader } from '~/components/popup_search_leader'
 import { PopupSelectedMember } from '~/components/popup_selected_member'
 import { selectUser } from '~/hooks/auth/auth.slice'
 import { selectCurrentWorkspace } from '~/hooks/workspace/workspace.slice'
@@ -244,7 +244,7 @@ export const CreateProjectDialog = (props: CreateProjectDialogProps) => {
         </Popover>
         <Popover
           content={
-            <PopupSearchMember permalink={params.permalink || ''} selectLeader={selectLeader} currentLeader={leader} />
+            <PopupSearchLeader permalink={params.permalink || ''} selectLeader={selectLeader} currentLeader={leader} />
           }
         >
           <Button

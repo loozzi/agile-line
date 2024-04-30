@@ -4,13 +4,13 @@ import { Member, WorkspaceGetMembersParams } from '~/models/member'
 import { Leader } from '~/pages/project/create-project'
 import workspaceService from '~/services/workspace.service'
 
-interface PopupSearchMemberProps extends PaneProps {
+interface PopupSearchLeaderProps extends PaneProps {
   permalink: string
   currentLeader: Leader
   selectLeader: (leader: Leader) => void
 }
 
-export const PopupSearchMember = (props: PopupSearchMemberProps) => {
+export const PopupSearchLeader = (props: PopupSearchLeaderProps) => {
   const { permalink, currentLeader, selectLeader, ...paneProps } = props
   const [search, setSearch] = useState<string>('')
   const [members, setMembers] = useState<Member[]>([])
