@@ -23,3 +23,19 @@ export function reformatDate(dateString: string) {
     year: 'numeric'
   })
 }
+
+export const compareDates = (date1: string, date2: string) => {
+  const dateObj1 = new Date(date1)
+  const dateObj2 = new Date(date2)
+
+  const time1 = dateObj1.getTime()
+  const time2 = dateObj2.getTime()
+
+  if (time1 < time2) {
+    return -1 // date1 is earlier
+  } else if (time1 > time2) {
+    return 1 // date1 is later
+  } else {
+    return 0 // dates are equal
+  }
+}

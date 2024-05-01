@@ -1,4 +1,4 @@
-import { ProjectCreatePayload, ProjectResponse, ProjectStatus } from '~/models/project'
+import { ProjectCreatePayload, ProjectResponse, ProjectStatus, ProjectUpdatePayload } from '~/models/project'
 import client from './axios.service'
 import routeApi from '~/configs/route.api'
 import { IResponse } from '~/models/IResponse'
@@ -23,8 +23,17 @@ const updateStatus = async (permalink: string, status: ProjectStatus): Promise<I
   )
 }
 
+const update = async (permalink: string, payload: ProjectUpdatePayload): Promise<IResponse<ProjectResponse>> => {
+  return await client.put(routeApi.project.update.replace(':permalink', permalink), payload, {
+    params: {
+      target: 'all'
+    }
+  })
+}
+
 export default {
   createProject,
   get,
-  updateStatus
+  updateStatus,
+  update
 }
