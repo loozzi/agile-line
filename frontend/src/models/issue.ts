@@ -1,3 +1,5 @@
+import { PaginationParams } from './utils'
+
 export type IssueStatus = 'backlog' | 'todo' | 'inprogress' | 'done' | 'duplicate' | 'cancelled'
 
 export type IssuePriority = 'low' | 'medium' | 'high' | 'urgent' | 'nopriority'
@@ -16,6 +18,13 @@ export interface IssueCreatePayload {
   resources?: string[] | string
 }
 
+export interface ResourceResponse {
+  id: number
+  link: string
+  created_at?: string
+  updated_at?: string
+}
+
 export interface IssueResponse {
   id: number
   project: {
@@ -25,20 +34,23 @@ export interface IssueResponse {
     icon: string
   }
   name: string
-  status: string
+  status: IssueStatus
   label: string[]
-  priority: string
+  priority: IssuePriority
   assignee_id: number
   assignor_id: number
-  testor_id: number
-  milestone_id: number
+  testor_id?: number
+  milestone_id?: number
   permalink: string
-  resources: [
-    {
-      id: number
-      link: string
-    }
-  ]
-  created_at: string
-  updated_at: string
+  resources: ResourceResponse[]
+  created_at?: string
+  updated_at?: string
+}
+
+export interface IssueParams extends PaginationParams {
+  username?: string
+  project_id?: number
+  keyword?: string
+  status?: IssueStatus
+  label?: string[] | string
 }
