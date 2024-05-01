@@ -15,6 +15,7 @@ import { UserProfilePage } from './pages/user-profile'
 import { PrivateLayout } from './pages/private'
 import { ProjectPage } from './pages/project/project'
 import { ManageLabelPage } from './pages/workspace/manage-labels'
+import { IssuePage } from './pages/issue/issue'
 
 function App() {
   const location = useLocation()
@@ -35,6 +36,7 @@ function App() {
           <Route path={routes.workspace.members.page} element={<WorkspaceMemberPage />} />
           <Route path={routes.workspace.projects.page} element={<ProjectPage />} />
           <Route path={routes.workspace.labels.page} element={<ManageLabelPage />} />
+          <Route path={routes.workspace.issues.page} element={<IssuePage />} />
         </Route>
         <Route path='/' element={<PrivateLayout />}>
           <Route path={routes.profile.page} element={<UserProfilePage />} />

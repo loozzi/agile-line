@@ -153,7 +153,7 @@ export const NavbarComp = (props: NavbarCompProps) => {
           <NavbarButtonComp
             beforeIcon={<PropertyIcon size={majorScale(2)} />}
             label='My issues'
-            onClick={handleOpenModalWorkspace}
+            onClick={() => handleRedirect(`/${params.permalink}/${routes.workspace.issues.slug}`)}
           />
         </Pane>
         {navBarConfig.map((config, index) => (
