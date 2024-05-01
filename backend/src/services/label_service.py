@@ -30,11 +30,6 @@ def create_label(title, color, workspace_id, description):
     db.session.commit()
     data_response = {
         "id": new_label.id,
-        "workspace": {
-            "id": current_workspace.id,
-            "permalink": current_workspace.permalink,
-            "title": current_workspace.title,
-        },
         "color": new_label.color,
         "title": new_label.title,
         "description": new_label.description,
