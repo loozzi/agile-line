@@ -27,7 +27,8 @@ const user = {
 
 const project = {
   create: '/project/',
-  get: '/project/:permalink'
+  get: '/project/:permalink',
+  update: '/project/:permalink'
 }
 
 const label = {

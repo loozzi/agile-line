@@ -79,18 +79,18 @@ export const NavbarComp = (props: NavbarCompProps) => {
           onClick: handleOpenModalWorkspace
         },
         {
-          label: 'Projects',
+          label: 'Danh sách dự án',
           beforeIcon: <ProjectsIcon />,
           onClick: () => handleRedirect(`/${params.permalink}/${routes.workspace.projects.slug}`)
         }
       ]
     },
     {
-      label: 'Favourites',
+      label: 'Truy cập nhanh',
       children: []
     },
     {
-      label: 'Projects',
+      label: 'Dự án',
       children: []
     },
     {
