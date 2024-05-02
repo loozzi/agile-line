@@ -82,14 +82,19 @@ def make_data_response_issue(issue, list_resource, project): #service
                 ).filter(IssueLabel.issue_id == issue.id).all()
     list_labels = []
     for i in labels:
-        list_labels.append(i[0].title)
+        label = to_dict(i[0])
+        del label["workspace_id"]
+        list_labels.append(label)
     data_response = {}
-    data_response["project"] = {
-        "id": project.id,
-        "name": project.name,
-        "permalink": project.permalink,
-        "icon": project.icon,
-    }
+    if project is None:
+        data_response["project"] = {}
+    else:
+        data_response["project"] = {
+            "id": project.id,
+            "name": project.name,
+            "permalink": project.permalink,
+            "icon": project.icon,
+        }
     data_response["id"] = issue.id
     data_response["name"] = issue.name
     data_response["status"] = issue.status.value
@@ -189,51 +194,157 @@ def create_issue(project_id, name, description, status, label,
                      data=data_response)
 
 
-def get_issue_user(user_name, project_id, keyword, status, label_list):
+def get_issue_user(user_name, project_id, keyword, status, label_list, workspace_id):
+    if workspace_id == "":
+        return _response(400, "Vui lòng chọn workspace")
     current_project = Project.query.filter_by(id=project_id).first()
-    if current_project is None:
-        return _response(400, "project không tồn tại")
     user_to_get_issue = User.query.filter_by(username=user_name).first()
-    if user_to_get_issue is None:
-        return _response(400, "user không tồn tại")
     issue_user_tuple = ()
-    if status == "" and label_list == []:
-        issue_user_tuple = db.session.query(Issue, IssueLabel, Label).join(
-            IssueLabel, IssueLabel.issue_id == Issue.id).join(
-                Label, Label.id == IssueLabel.label_id).filter(
-                    Issue.assignee_id == user_to_get_issue.id).filter(
-                        Issue.name.like(f"%{keyword}%")).all()
-    elif status == "" and label_list != []:
-        issue_user_tuple = db.session.query(Issue, IssueLabel, Label).join(
-            IssueLabel, IssueLabel.issue_id == Issue.id).join(
-                Label, Label.id == IssueLabel.label_id).filter(
-                    Issue.assignee_id == user_to_get_issue.id).filter(
+    if user_to_get_issue is not None and current_project is None:
+        if status == "" and label_list == []:
+            issue_user_tuple = db.session.query(Issue, Project, Workspace).join(
+                Project, Project.id == Issue.project_id).join(
+                    Workspace, Workspace.id == Project.workspace_id).filter(
+                        Issue.assignee_id == user_to_get_issue.id).filter(
+                            Issue.name.like(f"%{keyword}%")).filter(
+                                Workspace.id == workspace_id).all()
+        elif status == "" and label_list != []:
+            issue_user_tuple = db.session.query(Issue, IssueLabel, Label).join(
+                IssueLabel, IssueLabel.issue_id == Issue.id).join(
+                    Label, Label.id == IssueLabel.label_id).filter(
+                        Issue.assignee_id == user_to_get_issue.id).filter(
+                            Issue.name.like(f"%{keyword}%")).filter(
+                                Label.title.in_(label_list)).filter(
+                                    Label.workspace_id == workspace_id).all()
+        elif status != "" and label_list == []:
+            issue_user_tuple = db.session.query(Issue, Project, Workspace).join(
+                Project, Project.id == Issue.project_id).join(
+                    Workspace, Workspace.id == Project.workspace_id).filter(
+                        Issue.assignee_id == user_to_get_issue.id).filter(
+                            Issue.name.like(f"%{keyword}%")).filter(
+                                Workspace.id == workspace_id).filter(
+                                    Issue.status == status).all()
+        else:
+            issue_user_tuple = db.session.query(Issue, IssueLabel, Label).join(
+                IssueLabel, IssueLabel.issue_id == Issue.id).join(
+                    Label, Label.id == IssueLabel.label_id).filter(
+                        Issue.assignee_id == user_to_get_issue.id).filter(
+                            Issue.name.like(f"%{keyword}%")).filter(
+                                Issue.status == status).filter(
+                                    Label.title.in_(label_list)).filter(
+                                        Label.workspace_id == workspace_id).all()
+    elif user_to_get_issue is None and current_project is not None:
+        if status == "" and label_list == []:
+            issue_user_tuple = db.session.query(Issue, Project, Workspace).join(
+                Project, Project.id == Issue.project_id).join(
+                    Workspace, Workspace.id == Project.workspace_id).filter(
+                            Issue.name.like(f"%{keyword}%")).filter(
+                                Workspace.id == workspace_id).filter(
+                                    Project.id == current_project.id).all()
+        elif status == "" and label_list != []:
+            issue_user_tuple = db.session.query(Issue, IssueLabel, Label).join(
+                IssueLabel, IssueLabel.issue_id == Issue.id).join(
+                    Label, Label.id == IssueLabel.label_id).filter(
+                            Issue.name.like(f"%{keyword}%")).filter(
+                                Issue.project_id  == current_project.id).filter(
+                                    Label.title.in_(label_list)).filter(
+                                        Label.workspace_id == workspace_id).all()
+        elif status != "" and label_list == []:
+            issue_user_tuple = db.session.query(Issue, Project, Workspace).join(
+                Project, Project.id == Issue.project_id).join(
+                    Workspace, Workspace.id == Project.workspace_id).filter(
                         Issue.name.like(f"%{keyword}%")).filter(
-                            Label.title.in_(label_list)).all()
-    elif status != "" and label_list == []:
-        issue_user_tuple = db.session.query(Issue, IssueLabel, Label).join(
-            IssueLabel, IssueLabel.issue_id == Issue.id).join(
-                Label, Label.id == IssueLabel.label_id).filter(
-                    Issue.assignee_id == user_to_get_issue.id).filter(
-                        Issue.name.like(f"%{keyword}%")).filter(
-                            Issue.status == status).all()
+                            Workspace.id == workspace_id).filter(
+                                Project.id == current_project.id).filter(
+                                    Issue.status == status).all()
+        else:
+            issue_user_tuple = db.session.query(Issue, IssueLabel, Label).join(
+                IssueLabel, IssueLabel.issue_id == Issue.id).join(
+                    Label, Label.id == IssueLabel.label_id).filter(
+                            Issue.name.like(f"%{keyword}%")).filter(
+                                Issue.project_id  == current_project.id).filter(
+                                    Issue.status == status).filter(
+                                        Label.title.in_(label_list)).filter(
+                                            Label.workspace_id == workspace_id).all()
+    elif user_to_get_issue is not None and current_project is not None:
+        if status == "" and label_list == []:
+            issue_user_tuple = db.session.query(Issue, Project, Workspace).join(
+                Project, Project.id == Issue.project_id).join(
+                    Workspace, Workspace.id == Project.workspace_id).filter(
+                        Issue.assignee_id == user_to_get_issue.id).filter(
+                            Issue.name.like(f"%{keyword}%")).filter(
+                                Workspace.id == workspace_id).filter(
+                                    Project.id == current_project.id).all()
+        elif status == "" and label_list != []:
+            issue_user_tuple = db.session.query(Issue, IssueLabel, Label).join(
+                IssueLabel, IssueLabel.issue_id == Issue.id).join(
+                    Label, Label.id == IssueLabel.label_id).filter(
+                        Issue.assignee_id == user_to_get_issue.id).filter(
+                            Issue.name.like(f"%{keyword}%")).filter(
+                                Issue.project_id == current_project.id).filter(
+                                    Label.title.in_(label_list)).filter(
+                                        Label.workspace_id == workspace_id).all()
+        elif status != "" and label_list == []:
+            issue_user_tuple = db.session.query(Issue, Project, Workspace).join(
+                Project, Project.id == Issue.project_id).join(
+                    Workspace, Workspace.id == Project.workspace_id).filter(
+                        Issue.assignee_id == user_to_get_issue.id).filter(
+                            Issue.name.like(f"%{keyword}%")).filter(
+                                Workspace.id == workspace_id).filter(
+                                    Project.id == current_project.id).filter(
+                                        Issue.status == status).all()
+        else:
+            issue_user_tuple = db.session.query(Issue, IssueLabel, Label).join(
+                IssueLabel, IssueLabel.issue_id == Issue.id).join(
+                    Label, Label.id == IssueLabel.label_id).filter(
+                        Issue.assignee_id == user_to_get_issue.id).filter(
+                            Issue.name.like(f"%{keyword}%")).filter(
+                                Issue.project_id == current_project.id).filter(
+                                    Issue.status == status).filter(
+                                        Label.title.in_(label_list)).filter(
+                                            Label.workspace_id == workspace_id).all()
     else:
-        issue_user_tuple = db.session.query(Issue, IssueLabel, Label).join(
-            IssueLabel, IssueLabel.issue_id == Issue.id).join(
-                Label, Label.id == IssueLabel.label_id).filter(
-                    Issue.assignee_id == user_to_get_issue.id).filter(
-                        Issue.name.like(f"%{keyword}%")).filter(
-                            Issue.status == status).filter(
-                                            Label.title.in_(label_list)).all()
+        if status == "" and label_list == []:
+            issue_user_tuple = db.session.query(Issue, Project, Workspace).join(
+                Project, Project.id == Issue.project_id).join(
+                    Workspace, Workspace.id == Project.workspace_id).filter(
+                            Issue.name.like(f"%{keyword}%")).filter(
+                                Workspace.id == workspace_id).all()
+        elif status == "" and label_list != []:
+            issue_user_tuple = db.session.query(Issue, IssueLabel, Label).join(
+                IssueLabel, IssueLabel.issue_id == Issue.id).join(
+                    Label, Label.id == IssueLabel.label_id).filter(
+                            Issue.name.like(f"%{keyword}%")).filter(
+                                Label.title.in_(label_list)).filter(
+                                    Label.workspace_id == workspace_id).all()
+        elif status != "" and label_list == []:
+            issue_user_tuple = db.session.query(Issue, Project, Workspace).join(
+                Project, Project.id == Issue.project_id).join(
+                    Workspace, Workspace.id == Project.workspace_id).filter(
+                            Issue.name.like(f"%{keyword}%")).filter(
+                                Workspace.id == workspace_id).filter(
+                                    Issue.status == status).all()
+        else:
+            issue_user_tuple = db.session.query(Issue, IssueLabel, Label).join(
+                IssueLabel, IssueLabel.issue_id == Issue.id).join(
+                    Label, Label.id == IssueLabel.label_id).filter(
+                            Issue.name.like(f"%{keyword}%")).filter(
+                                Issue.status == status).filter(
+                                    Label.title.in_(label_list)).filter(
+                                        Label.workspace_id == workspace_id).all()
     if len(issue_user_tuple) == 0:
         return _response(status=404, message="Không tìm thấy dữ liệu")
-    list_response = []
+    issue_user_set = set()
     for i in issue_user_tuple:
+        issue_user_set.add(i[0].id)
+    list_issue = Issue.query.filter(Issue.id.in_(issue_user_set)).all()
+    list_response = []
+    for i in list_issue:
         list_resource_i = []
-        resources_i = Resources.query.filter_by(issue_id=i[0].id).all()
+        resources_i = Resources.query.filter_by(issue_id=i.id).all()
         for j in resources_i:
             list_resource_i.append(j.link)
-        list_response.append(make_data_response_issue(i[0],
+        list_response.append(make_data_response_issue(i,
                              list_resource_i, current_project))
     return _response(status=200,
                      message="Lấy issue thành công",
