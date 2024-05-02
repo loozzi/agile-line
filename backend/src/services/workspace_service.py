@@ -237,6 +237,8 @@ def add_members_to_workspace(permalink, list_id_members):
         if user is None:
             return _response(400, message="Một số thành viên không tồn tại")
         check_user_verify = OtpVerification.query.filter_by(user_id=id_user).first()
+        if check_user_verify is None:
+            return _response(400, message="Một số thành viên chưa xác thực")
         if check_user_verify.verified is False:
             return _response(400, message="Một số thành viên chưa xác thực")
         worksp_user = WorkspaceUser.query.filter_by(user_id=id_user).first()
