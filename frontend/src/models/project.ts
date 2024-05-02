@@ -39,3 +39,12 @@ export interface ProjectCreatePayload {
   leader_id: number
   members_id: number[] | string
 }
+
+export interface ProjectUpdatePayload {
+  name: string
+  description: string
+  icon: string
+  start_date: string
+  end_date: string
+  status: ProjectStatus
+}
