@@ -31,9 +31,22 @@ const update = async (permalink: string, payload: ProjectUpdatePayload): Promise
   })
 }
 
+const updateMembers = async (permalink: string, members_id: number[]): Promise<IResponse<ProjectResponse>> => {
+  return await client.put(
+    routeApi.project.update.replace(':permalink', permalink),
+    { members_id: `[${members_id.toString()}]` },
+    {
+      params: {
+        target: 'members'
+      }
+    }
+  )
+}
+
 export default {
   createProject,
   get,
   updateStatus,
-  update
+  update,
+  updateMembers
 }

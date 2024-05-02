@@ -3,13 +3,11 @@ import {
   Button,
   DeleteIcon,
   EditIcon,
-  Image,
   Label,
   Menu,
   Pane,
   Popover,
   SavedIcon,
-  Table,
   TagIcon,
   TextInputField,
   majorScale,
@@ -27,6 +25,7 @@ import {
   PausedIcon,
   PlannedIcon
 } from '~/assets/icons'
+import { EditMemberComp } from '~/components/edit-member'
 import { ImagePickerComp } from '~/components/image_picker/image_picker'
 import { ProjectResponse, ProjectUpdatePayload } from '~/models/project'
 import projectService from '~/services/project.service'
@@ -91,6 +90,10 @@ export const EditProjectSideSheet = (props: EditProjectProps) => {
 
   const onChangeDescription = (value?: string) => {
     payload.setFieldValue('description', value)
+  }
+
+  const onUpdateMemberSuccess = (data: ProjectResponse) => {
+    setProjectDetail(data)
   }
 
   useEffect(() => {
@@ -273,48 +276,14 @@ export const EditProjectSideSheet = (props: EditProjectProps) => {
             onChange={onChangeDescription}
           />
         </div>
-        <Pane marginTop={majorScale(2)}>
-          <Label>Danh sách thành viên</Label>
-          <Table>
-            <Table.Head>
-              <Table.TextHeaderCell flexBasis={majorScale(8)} flexShrink={0} flexGrow={0}>
-                STT
-              </Table.TextHeaderCell>
-              <Table.TextHeaderCell>Username</Table.TextHeaderCell>
-              <Table.TextHeaderCell>Tên</Table.TextHeaderCell>
-              <Table.TextHeaderCell>Vai trò</Table.TextHeaderCell>
-              {/* {enableEdit && <Table.TextHeaderCell>Thao tác</Table.TextHeaderCell>} */}
-            </Table.Head>
-            <Table.Body>
-              {projectDetail?.members.map((member, index) => (
-                <Table.Row key={member.id}>
-                  <Table.TextCell flexBasis={majorScale(8)} flexShrink={0} flexGrow={0}>
-                    {index + 1}
-                  </Table.TextCell>
-                  <Table.TextCell>
-                    <Pane display='flex' alignItems='center'>
-                      <Image
-                        src={member.avatar || ''}
-                        height={majorScale(4)}
-                        width={majorScale(4)}
-                        borderRadius={majorScale(2)}
-                        marginRight={majorScale(1)}
-                      />
-                      {member.username}
-                    </Pane>
-                  </Table.TextCell>
-                  <Table.TextCell>{`${member.first_name} ${member.last_name}`}</Table.TextCell>
-                  <Table.TextCell>{member.roles.join(', ')}</Table.TextCell>
-                  {/* {enableEdit && (
-                    <Table.TextCell>
-                      <IconButton icon={<TrashIcon />} />
-                    </Table.TextCell>
-                  )} */}
-                </Table.Row>
-              ))}
-            </Table.Body>
-          </Table>
-        </Pane>
+        {projectDetail?.members && (
+          <EditMemberComp
+            permalink={projectDetail.permalink}
+            members={projectDetail.members}
+            onUpdateSuccess={onUpdateMemberSuccess}
+            marginTop={majorScale(3)}
+          />
+        )}
       </Pane>
     </Pane>
   )
