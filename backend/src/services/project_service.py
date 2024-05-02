@@ -263,15 +263,17 @@ def create_role_in_project(permalink, name, description):
     curr_user = request.user
     project = Project.query.filter_by(permalink=permalink).first()
     project_user = (
-        UserRole.query.join(Role, Role.id == UserRole.role_id)
+        db.session.query(UserRole, Role)
+        .join(Role, Role.id == UserRole.role_id)
         .filter_by(project_id=project.id)
-        .filter_by(user_id=curr_user.id)
+        .filter(UserRole.user_id == curr_user.id)
         .all()
     )
     if project_user is None:
         return _response(403, "Không có quyền truy cập vào project")
     if [
-        p_user.description == ProjectDefaultRole.LEADER.value for p_user in project_user
+        p_user.Role.description == ProjectDefaultRole.LEADER.value
+        for p_user in project_user
     ] is None:
         return _response(403, "Không có quyền tạo role")
     if (
@@ -295,26 +297,32 @@ def create_role_in_project(permalink, name, description):
     return _response(200, "Tạo role thành công", return_role)
 
 
-def edit_role_in_project(permalink: str, id: int, name: str, description: str):
+def edit_role_in_project(permalink, id, name, description):
     curr_user = request.user
     project = Project.query.filter_by(permalink=permalink).first()
     project_user = (
-        UserRole.query.join(Role, Role.id == UserRole.role_id)
+        db.session.query(UserRole, Role)
+        .join(Role, Role.id == UserRole.role_id)
         .filter_by(project_id=project.id)
-        .filter_by(user_id=curr_user.id)
+        .filter(UserRole.user_id == curr_user.id)
         .all()
     )
     if project_user is None:
         return _response(403, "Không có quyền truy cập vào project")
     if [
-        p_user.description == ProjectDefaultRole.LEADER.value for p_user in project_user
+        p_user.Role.description == ProjectDefaultRole.LEADER.value
+        for p_user in project_user
     ] is None:
         return _response(403, "Không có quyền chỉnh sửa role")
-    if not Role.query.filter_by(project=project).filter_by(id=id).first():
+    if not Role.query.filter_by(project_id=project.id).filter_by(id=id).first():
         return _response(404, "Không tìm thấy role")
-    if Role.query.filter_by(project=project).filter_by(name=name).first():
+    if Role.query.filter_by(project_id=project.id).filter_by(name=name).first():
         return _response(400, "Trùng tên với role khác")
-    if Role.query.filter_by(project=project).filter_by(description=description).first():
+    if (
+        Role.query.filter_by(project_id=project.id)
+        .filter_by(description=description)
+        .first()
+    ):
         return _response(400, "Trùng description với role khác")
     edit_role = Role.query.filter_by(id=id).first()
     if (
@@ -326,6 +334,7 @@ def edit_role_in_project(permalink: str, id: int, name: str, description: str):
         edit_role.name = name
     if edit_role.description != description:
         edit_role.description = description
+
     edit_role.updated_at = datetime.now(timezone.utc)
     return_role = to_dict(edit_role)
     del return_role["project_id"]
