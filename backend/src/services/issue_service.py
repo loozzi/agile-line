@@ -445,12 +445,24 @@ def get_detail_issue(permalink):
     resources = Resources.query.filter_by(issue_id=current_issue.id).all()
     for i in resources:
         list_resource.append(i.link)
-    activity = Activity.query.filter_by(issue_id=current_issue.id).all()
-    activity = activity[-1]
-    update_activity = to_dict(activity)
-    del update_activity["issue_id"]
+    activities = Activity.query.filter_by(issue_id=current_issue.id).all()
+    parsed_activities = []
+
+    user_ids = [activity.user_id for activity in activities]
+
+    unique_user_ids = list(set(user_ids))
+    users = User.query.filter(User.id.in_(unique_user_ids)).all()
+
+    for activity in activities:
+        user = next((user for user in users if user.id == activity.user_id), None)
+        parsed_activity = to_dict(activity)
+        del parsed_activity["issue_id"]
+        del parsed_activity["user_id"]
+        parsed_activity["user"] = data_user_response(user)
+        parsed_activities.append(parsed_activity)
+
     response = make_data_response_issue(current_issue, list_resource)
-    response["activities"] = update_activity
+    response["activities"] = parsed_activities
     return _response(status=200, message="Lấy issue thành công", data=response)
 
 
