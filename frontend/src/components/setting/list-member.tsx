@@ -1,8 +1,8 @@
 import {
+  Avatar,
   Button,
   Combobox,
   Dialog,
-  Image,
   Pagination,
   Pane,
   PaneProps,
@@ -31,22 +31,24 @@ export const ListMemberComp = (props: ListMemberCompProps) => {
   const { members, handleChangePage, filterByUsername, filterByRole, ...paneProps } = props
   const params = useParams()
 
-  const [userIdSelected, setUserIdSelected] = useState<number | null>(null)
-  const [roleSelected, setRoleSelected] = useState<WorkspaceRole | null>(null)
-  const [isShownRemove, setShownRemove] = useState<boolean>(false)
-  const [isShownChangeRole, setShownChangeRole] = useState<boolean>(false)
+  const [roleSelected, setRoleSelected] = useState<
+    { curRole: WorkspaceRole; nextRole: WorkspaceRole; user_id: number } | undefined
+  >(undefined)
+  const [removeUserId, setRemoveId] = useState<number | undefined>(undefined)
 
   const handleChangeRole = (role: WorkspaceRole, user_id: number) => {
-    setRoleSelected(role)
-    setUserIdSelected(user_id)
-    setShownChangeRole(true)
+    setRoleSelected({
+      curRole: members.items.filter((m) => m.id === user_id)[0].role,
+      nextRole: role,
+      user_id: user_id
+    })
   }
 
   const confirmChangeRole = () => {
     const _params: WorkspaceParams = { permalink: params.permalink || '' }
     const payload: WorkspaceSetRolePayload = {
-      user_id: userIdSelected || 0,
-      role: roleSelected || 'member'
+      user_id: roleSelected?.user_id || 0,
+      role: roleSelected?.nextRole || 'member'
     }
     workspaceService.changeRoleMember(_params, payload).then((data) => {
       if (data.status === 200) {
@@ -57,15 +59,10 @@ export const ListMemberComp = (props: ListMemberCompProps) => {
     })
   }
 
-  const handleRemoveMember = (user_id: number) => {
-    setUserIdSelected(user_id)
-    setShownRemove(true)
-  }
-
   const confirmRemoveMember = () => {
     const _params: WorkspaceRemoveMemberParams = {
       permalink: params.permalink || '',
-      user_id: userIdSelected || 0
+      user_id: removeUserId || 0
     }
     workspaceService.removeMember(_params).then((data) => {
       if (data.status === 200) {
@@ -106,13 +103,7 @@ export const ListMemberComp = (props: ListMemberCompProps) => {
               <Table.TextCell>
                 <Popover content={({ close }) => <UserPopover close={close} member={member} />}>
                   <Pane display='flex' alignItems='center' cursor='pointer'>
-                    <Image
-                      src={member.avatar}
-                      width={40}
-                      height={40}
-                      marginRight={majorScale(2)}
-                      borderRadius={majorScale(15)}
-                    />
+                    <Avatar src={member.avatar} marginRight={majorScale(2)} />
                     {member.username}
                   </Pane>
                 </Popover>
@@ -128,7 +119,7 @@ export const ListMemberComp = (props: ListMemberCompProps) => {
                 />
               </Table.TextCell>
               <Table.TextCell>
-                <Button intent='danger' iconBefore={<TrashIcon />} onClick={() => handleRemoveMember(member.id)}>
+                <Button intent='danger' iconBefore={<TrashIcon />} onClick={() => setRemoveId(member.id)}>
                   Xóa
                 </Button>
               </Table.TextCell>
@@ -147,20 +138,25 @@ export const ListMemberComp = (props: ListMemberCompProps) => {
         onPreviousPage={() => handleChangePage(members?.pagination.current_page - 1)}
       />
       <Dialog
-        isShown={isShownRemove || isShownChangeRole}
+        isShown={!!removeUserId || !!roleSelected}
         onConfirm={() => {
-          if (isShownRemove) return confirmRemoveMember()
+          if (!!removeUserId) return confirmRemoveMember()
           else return confirmChangeRole()
         }}
         onCloseComplete={() => {
-          setShownRemove(false)
-          setShownChangeRole(false)
+          if (!!roleSelected) {
+            // Find a way to fix this
+            window.location.reload()
+          }
+          setRemoveId(undefined)
+          setRoleSelected(undefined)
         }}
-        title={isShownRemove ? 'Xác nhận xóa member' : 'Xác nhận thay đổi role'}
-        intent={isShownRemove ? 'danger' : 'none'}
-        confirmLabel='Xác nhận'
+        title={!!removeUserId ? 'Xác nhận xóa member' : 'Xác nhận thay đổi role'}
+        intent={!!removeUserId ? 'danger' : 'none'}
+        confirmLabel={!!removeUserId ? 'Xóa' : 'Xác nhận'}
+        cancelLabel='Hủy bỏ'
       >
-        {isShownRemove ? (
+        {!!removeUserId ? (
           <p>Bạn có chắc chắn muốn xóa member này khỏi workspace?</p>
         ) : (
           <p>Bạn có chắc chắn muốn thay đổi role của member này?</p>

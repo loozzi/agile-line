@@ -117,7 +117,7 @@ export const WorkspaceSettingPage = () => {
         } else {
           toaster.success('Update workspace successfully')
           if (currentWorkspace?.permalink !== values.permalink) {
-            window.location.href = `/${values.permalink}/settings`
+            window.location.href = `/${data.data?.permalink}/settings`
           }
         }
       })
@@ -239,7 +239,8 @@ export const WorkspaceSettingPage = () => {
         title='Xác nhận xóa workspace'
         intent='danger'
         isShown={isShownConfirmDelete}
-        confirmLabel='Xác nhận'
+        confirmLabel='Xóa'
+        cancelLabel='Hủy bỏ'
         onConfirm={confirmDeleteWorkspace}
         onCloseComplete={() => {
           setShownConfirmDelete(false)

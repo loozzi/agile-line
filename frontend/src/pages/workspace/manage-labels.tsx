@@ -48,8 +48,8 @@ export const ManageLabelPage = () => {
 
   useEffect(() => {
     labelService.getAll({ permalink: params.permalink || '' }).then((data) => {
-      if (data.data?.items) {
-        setLabels(data.data?.items)
+      if (data.status === 200) {
+        setLabels(data.data || [])
       }
     })
   }, [count])
@@ -126,6 +126,7 @@ export const ManageLabelPage = () => {
         title='Xác nhận xóa nhãn'
         onCancel={() => setRemoveId(undefined)}
         confirmLabel='Xóa'
+        intent='danger'
         cancelLabel='Hủy bỏ'
       >
         Mọi dữ liệu liên quan sẽ bị mất. Bạn có chắc chắn muốn xóa nhãn này không?

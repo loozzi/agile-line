@@ -11,3 +11,51 @@ export function getContrastColor(hexColor: string) {
   const threshold = 0.5
   return l >= threshold ? '#000000' : '#ffffff'
 }
+
+export function reformatDate(dateString: string) {
+  // Create a Date object by parsing the input string
+  const date = new Date(dateString)
+
+  // Use the toLocaleDateString method with desired format options
+  return date.toLocaleDateString('en-GB', {
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric'
+  })
+}
+
+export const compareDates = (date1: string, date2: string) => {
+  const dateObj1 = new Date(date1)
+  const dateObj2 = new Date(date2)
+
+  const time1 = dateObj1.getTime()
+  const time2 = dateObj2.getTime()
+
+  if (time1 < time2) {
+    return -1 // date1 is earlier
+  } else if (time1 > time2) {
+    return 1 // date1 is later
+  } else {
+    return 0 // dates are equal
+  }
+}
+
+export function convertTimestamp(dateString: string) {
+  var originalTime = new Date(dateString).getTime()
+  var currentTime = new Date().getTime()
+
+  var differenceInSeconds = Math.floor((currentTime - originalTime) / 1000)
+
+  if (differenceInSeconds < 60) {
+    return 'vài giây trước'
+  } else if (differenceInSeconds < 3600) {
+    var minutes = Math.floor(differenceInSeconds / 60)
+    return minutes + ' phút trước'
+  } else if (differenceInSeconds < 86400) {
+    var hours = Math.floor(differenceInSeconds / 3600)
+    return hours + ' giờ trước'
+  } else {
+    var days = Math.floor(differenceInSeconds / 86400)
+    return days + ' ngày trước'
+  }
+}

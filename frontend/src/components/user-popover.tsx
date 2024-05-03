@@ -1,4 +1,16 @@
-import { Badge, Button, IconButton, Image, Label, Pane, TagIcon, TrashIcon, majorScale, toaster } from 'evergreen-ui'
+import {
+  Avatar,
+  Badge,
+  Button,
+  IconButton,
+  Image,
+  Label,
+  Pane,
+  TagIcon,
+  TrashIcon,
+  majorScale,
+  toaster
+} from 'evergreen-ui'
 import { useParams } from 'react-router'
 import { history } from '~/configs/history'
 import { Member, WorkspaceRemoveMemberParams } from '~/models/member'
@@ -57,13 +69,7 @@ export const UserPopover = (props: UserPopoverProps) => {
         {member?.project.map((project) => (
           <Pane key={project.id} display='flex' alignItems='center' marginTop={majorScale(1)}>
             {!!project.icon ? (
-              <Image
-                src={project.icon}
-                width={majorScale(4)}
-                height={majorScale(4)}
-                borderRadius={majorScale(1)}
-                marginRight={majorScale(1)}
-              />
+              <Avatar src={project.icon} marginRight={majorScale(1)} />
             ) : (
               <TagIcon color='green' size={majorScale(4)} marginRight={majorScale(1)} />
             )}

@@ -28,6 +28,11 @@ export default {
     labels: {
       page: '/:permalink/labels',
       slug: 'labels'
+    },
+    issues: {
+      page: '/:permalink/issues',
+      slug: 'issues',
+      detail: '/:permalink/issues/:issuePermalink'
     }
   },
   profile: { page: '/user/:username', slug: 'user' }
