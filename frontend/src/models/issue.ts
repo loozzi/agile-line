@@ -1,3 +1,5 @@
+import { LabelResponse } from './label'
+import { User } from './user'
 import { PaginationParams } from './utils'
 
 export type IssueStatus = 'backlog' | 'todo' | 'inprogress' | 'done' | 'duplicate' | 'cancelled'
@@ -35,10 +37,10 @@ export interface IssueResponse {
   }
   name: string
   status: IssueStatus
-  label: string[]
+  label: LabelResponse[]
   priority: IssuePriority
-  assignee_id: number
-  assignor_id: number
+  assignee: User
+  assignor: User
   testor_id?: number
   milestone_id?: number
   permalink: string
@@ -53,4 +55,5 @@ export interface IssueParams extends PaginationParams {
   keyword?: string
   status?: IssueStatus
   label?: string[] | string
+  workspace_id: number
 }
