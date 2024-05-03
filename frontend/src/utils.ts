@@ -39,3 +39,23 @@ export const compareDates = (date1: string, date2: string) => {
     return 0 // dates are equal
   }
 }
+
+export function convertTimestamp(dateString: string) {
+  var originalTime = new Date(dateString).getTime()
+  var currentTime = new Date().getTime()
+
+  var differenceInSeconds = Math.floor((currentTime - originalTime) / 1000)
+
+  if (differenceInSeconds < 60) {
+    return 'vài giây trước'
+  } else if (differenceInSeconds < 3600) {
+    var minutes = Math.floor(differenceInSeconds / 60)
+    return minutes + ' phút trước'
+  } else if (differenceInSeconds < 86400) {
+    var hours = Math.floor(differenceInSeconds / 3600)
+    return hours + ' giờ trước'
+  } else {
+    var days = Math.floor(differenceInSeconds / 86400)
+    return days + ' ngày trước'
+  }
+}

@@ -1,4 +1,4 @@
-import { BanCircleIcon, Image, Menu, Pane, PaneProps, SearchInput, TickIcon, majorScale, toaster } from 'evergreen-ui'
+import { Avatar, BanCircleIcon, Menu, Pane, PaneProps, SearchInput, TickIcon, majorScale, toaster } from 'evergreen-ui'
 import { useEffect, useState } from 'react'
 import { Member, WorkspaceGetMembersParams } from '~/models/member'
 import { Leader } from '~/pages/project/create-project'
@@ -45,13 +45,7 @@ export const PopupSearchLeader = (props: PopupSearchLeaderProps) => {
             icon={currentLeader?.user_id === member.id ? TickIcon : BanCircleIcon}
           >
             <Pane display='flex'>
-              <Image
-                src={member.avatar}
-                marginRight={majorScale(1)}
-                width={majorScale(3)}
-                height={majorScale(3)}
-                borderRadius={majorScale(2)}
-              />
+              <Avatar src={member.avatar} marginRight={majorScale(1)} />
               {member.first_name + ' ' + member.last_name} ({member.username})
             </Pane>
           </Menu.Item>

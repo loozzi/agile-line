@@ -1,11 +1,11 @@
 import {
+  Avatar,
   Badge,
   Button,
   ChevronRightIcon,
   Dialog,
   EditIcon,
   IconButton,
-  Image,
   Pagination,
   Pane,
   PlusIcon,
@@ -83,26 +83,24 @@ export const ProjectPage = () => {
       <Pane paddingY={majorScale(2)}>
         <Table>
           <Table.Head>
-            <Table.TextHeaderCell>ID</Table.TextHeaderCell>
+            <Table.TextHeaderCell flexBasis={majorScale(8)} flexShrink={0} flexGrow={0}>
+              ID
+            </Table.TextHeaderCell>
             <Table.TextHeaderCell>Dự án</Table.TextHeaderCell>
             <Table.TextHeaderCell>Trạng thái</Table.TextHeaderCell>
             <Table.TextHeaderCell>Ngày bắt đầu</Table.TextHeaderCell>
             <Table.TextHeaderCell>Ngày kết thúc</Table.TextHeaderCell>
-            <Table.TextHeaderCell>Chỉnh sửa</Table.TextHeaderCell>
+            <Table.TextHeaderCell>Hành động</Table.TextHeaderCell>
           </Table.Head>
           <Table.Body>
             {projects.map((project) => (
               <Table.Row key={project.id}>
-                <Table.TextCell>{project.id}</Table.TextCell>
+                <Table.TextCell flexBasis={majorScale(8)} flexShrink={0} flexGrow={0}>
+                  {project.id}
+                </Table.TextCell>
                 <Table.TextCell>
                   <Pane display='flex' alignItems='center'>
-                    <Image
-                      src={project.icon}
-                      width={majorScale(4)}
-                      height={majorScale(4)}
-                      borderRadius={majorScale(2)}
-                      marginRight={majorScale(1)}
-                    />
+                    <Avatar src={project.icon} marginRight={majorScale(1)} />
                     <span>{project.name}</span>
                   </Pane>
                 </Table.TextCell>
@@ -155,13 +153,7 @@ export const ProjectPage = () => {
               cursor='pointer'
               onClick={() => setShowCreateProjectDialog(false)}
             >
-              <Image
-                src={currentWorkspace?.logo}
-                width={majorScale(3)}
-                height={majorScale(3)}
-                borderRadius={majorScale(1)}
-                marginRight={majorScale(1)}
-              />
+              <Avatar src={currentWorkspace?.logo} marginRight={majorScale(1)} />
               {currentWorkspace?.title}
             </Pane>
             <ChevronRightIcon />

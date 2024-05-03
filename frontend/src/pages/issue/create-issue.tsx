@@ -1,8 +1,8 @@
 import MDEditor from '@uiw/react-md-editor'
 import {
+  Avatar,
   Button,
   IconButton,
-  Image,
   Label,
   LinkIcon,
   Menu,
@@ -244,19 +244,7 @@ export const CreateIssueDialog = (props: CreateIssueDialogProps) => {
         <Popover content={<PopupSearchMember members={project?.members || []} onChooseMember={onChooseMember} />}>
           <Button
             type='button'
-            iconBefore={
-              !!assignee ? (
-                <Image
-                  src={assignee.avatar || ''}
-                  marginRight={majorScale(1)}
-                  width={majorScale(3)}
-                  height={majorScale(3)}
-                  borderRadius={majorScale(2)}
-                />
-              ) : (
-                <UserIcon />
-              )
-            }
+            iconBefore={!!assignee ? <Avatar src={assignee.avatar || ''} marginRight={majorScale(1)} /> : <UserIcon />}
             marginBottom={majorScale(1)}
             marginRight={majorScale(1)}
           >

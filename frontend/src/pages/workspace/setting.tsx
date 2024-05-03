@@ -117,7 +117,7 @@ export const WorkspaceSettingPage = () => {
         } else {
           toaster.success('Update workspace successfully')
           if (currentWorkspace?.permalink !== values.permalink) {
-            window.location.href = `/${values.permalink}/settings`
+            window.location.href = `/${data.data?.permalink}/settings`
           }
         }
       })
