@@ -32,7 +32,7 @@ export default {
     issues: {
       page: '/:permalink/issues',
       slug: 'issues',
-      detail: '/:permalink/issues/:issueId'
+      detail: '/:permalink/issues/:issuePermalink'
     }
   },
   profile: { page: '/user/:username', slug: 'user' }

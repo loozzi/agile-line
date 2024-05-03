@@ -27,18 +27,32 @@ export interface ResourceResponse {
   updated_at?: string
 }
 
+interface Project {
+  id: number
+  permalink: string
+  name: string
+  icon: string
+}
+
+export interface ActivityResponse {
+  id: number
+  is_edited: boolean
+  action: string
+  description?: string
+  created_at: string
+  updated_at: string
+  user: User
+}
+
 export interface IssueResponse {
   id: number
-  project: {
-    id: number
-    permalink: string
-    name: string
-    icon: string
-  }
+  project: Project
   name: string
   status: IssueStatus
   label: LabelResponse[]
   priority: IssuePriority
+  activities?: ActivityResponse[]
+  description?: string
   assignee: User
   assignor: User
   testor_id?: number
