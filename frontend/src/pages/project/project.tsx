@@ -11,6 +11,8 @@ import {
   PlusIcon,
   SelectField,
   SideSheet,
+  StarEmptyIcon,
+  StarIcon,
   Table,
   Tooltip,
   majorScale,
@@ -38,6 +40,7 @@ export const ProjectPage = () => {
   const [projects, setProjects] = useState<ProjectResponse[]>([])
   const [pagination, setPagination] = useState<IPagiantion>({ total_item: 0, total_page: 0, current_page: 0, count: 0 })
   const [page, setPage] = useState(1)
+  const [favouriteProjects, setFavouriteProjects] = useState<ProjectResponse[]>([])
 
   const [selectedProject, setSelectedProject] = useState<ProjectResponse | undefined>(undefined)
 
@@ -60,6 +63,18 @@ export const ProjectPage = () => {
     })
   }
 
+  const toggleFavourite = (project: ProjectResponse) => {
+    const index = favouriteProjects.findIndex((f) => f.id === project.id)
+    let newFavs = [...favouriteProjects]
+    if (index === -1) {
+      newFavs = [...favouriteProjects, project]
+    } else {
+      newFavs = favouriteProjects.filter((f) => f.id !== project.id)
+    }
+    setFavouriteProjects(newFavs)
+    localStorage.setItem('favourites', JSON.stringify(newFavs))
+  }
+
   useEffect(() => {
     if (currentWorkspace)
       workspaceService.allProjects({ permalink: currentWorkspace?.permalink || '', page: page }).then((data) => {
@@ -67,6 +82,14 @@ export const ProjectPage = () => {
         setPagination(data.data!.pagination as IPagiantion)
       })
   }, [currentWorkspace, page])
+
+  useEffect(() => {
+    const fav = localStorage.getItem('favourites')
+    if (fav) {
+      const favs = JSON.parse(fav) as ProjectResponse[]
+      setFavouriteProjects(favs)
+    }
+  }, [])
 
   return (
     <Pane>
@@ -84,7 +107,7 @@ export const ProjectPage = () => {
         <Table>
           <Table.Head>
             <Table.TextHeaderCell flexBasis={majorScale(8)} flexShrink={0} flexGrow={0}>
-              ID
+              Ghim
             </Table.TextHeaderCell>
             <Table.TextHeaderCell>Dự án</Table.TextHeaderCell>
             <Table.TextHeaderCell>Trạng thái</Table.TextHeaderCell>
@@ -96,7 +119,11 @@ export const ProjectPage = () => {
             {projects.map((project) => (
               <Table.Row key={project.id}>
                 <Table.TextCell flexBasis={majorScale(8)} flexShrink={0} flexGrow={0}>
-                  {project.id}
+                  <IconButton
+                    icon={favouriteProjects.some((f) => f.id === project.id) ? StarIcon : StarEmptyIcon}
+                    appearance='minimal'
+                    onClick={() => toggleFavourite(project)}
+                  />
                 </Table.TextCell>
                 <Table.TextCell>
                   <Pane display='flex' alignItems='center'>
