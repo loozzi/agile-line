@@ -1,11 +1,11 @@
 import {
+  Avatar,
   Badge,
   Button,
   ChevronRightIcon,
   Dialog,
   EditIcon,
   IconButton,
-  Image,
   Pagination,
   Pane,
   PlusIcon,
@@ -96,13 +96,7 @@ export const ProjectPage = () => {
                 <Table.TextCell>{project.id}</Table.TextCell>
                 <Table.TextCell>
                   <Pane display='flex' alignItems='center'>
-                    <Image
-                      src={project.icon}
-                      width={majorScale(4)}
-                      height={majorScale(4)}
-                      borderRadius={majorScale(2)}
-                      marginRight={majorScale(1)}
-                    />
+                    <Avatar src={project.icon} marginRight={majorScale(1)} />
                     <span>{project.name}</span>
                   </Pane>
                 </Table.TextCell>
@@ -155,13 +149,7 @@ export const ProjectPage = () => {
               cursor='pointer'
               onClick={() => setShowCreateProjectDialog(false)}
             >
-              <Image
-                src={currentWorkspace?.logo}
-                width={majorScale(3)}
-                height={majorScale(3)}
-                borderRadius={majorScale(1)}
-                marginRight={majorScale(1)}
-              />
+              <Avatar src={currentWorkspace?.logo} marginRight={majorScale(1)} />
               {currentWorkspace?.title}
             </Pane>
             <ChevronRightIcon />

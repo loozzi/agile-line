@@ -1,5 +1,5 @@
 import MDEditor from '@uiw/react-md-editor'
-import { Button, Image, Label, Menu, Pane, Popover, TagIcon, TextInputField, majorScale, toaster } from 'evergreen-ui'
+import { Avatar, Button, Label, Menu, Pane, Popover, TagIcon, TextInputField, majorScale, toaster } from 'evergreen-ui'
 import { useFormik } from 'formik'
 import { useEffect, useMemo, useState } from 'react'
 import { useParams } from 'react-router'
@@ -234,9 +234,7 @@ export const CreateProjectDialog = (props: CreateProjectDialogProps) => {
         >
           <Button
             type='button'
-            iconBefore={
-              <Image src={leader.avatar} width={majorScale(3)} height={majorScale(3)} borderRadius={majorScale(2)} />
-            }
+            iconBefore={<Avatar src={leader.avatar} />}
             marginBottom={majorScale(1)}
             marginRight={majorScale(1)}
           >

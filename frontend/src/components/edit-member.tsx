@@ -5,7 +5,6 @@ import {
   Dialog,
   EditIcon,
   IconButton,
-  Image,
   Label,
   MinusIcon,
   Pagination,
@@ -146,13 +145,7 @@ export const EditMemberComp = (props: EditMemberProps) => {
               </Table.TextCell>
               <Table.TextCell>
                 <Pane display='flex' alignItems='center'>
-                  <Image
-                    src={member.avatar || ''}
-                    height={majorScale(4)}
-                    width={majorScale(4)}
-                    borderRadius={majorScale(2)}
-                    marginRight={majorScale(1)}
-                  />
+                  <Avatar src={member.avatar || ''} marginRight={majorScale(1)} />
                   {member.username}
                 </Pane>
               </Table.TextCell>
@@ -176,7 +169,10 @@ export const EditMemberComp = (props: EditMemberProps) => {
         isShown={addMemberDialog}
         hasFooter={false}
         hasHeader={false}
-        onCloseComplete={() => setAddMemberDialog(false)}
+        onCloseComplete={() => {
+          setAddMemberDialog(false)
+          setNewMembers([])
+        }}
       >
         <Pane display='flex' marginTop={majorScale(1)} justifyContent='space-between'>
           <Pane flex={1} marginRight={majorScale(1)} display='flex' flexDirection='column'>

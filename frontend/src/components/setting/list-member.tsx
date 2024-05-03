@@ -1,8 +1,8 @@
 import {
+  Avatar,
   Button,
   Combobox,
   Dialog,
-  Image,
   Pagination,
   Pane,
   PaneProps,
@@ -103,13 +103,7 @@ export const ListMemberComp = (props: ListMemberCompProps) => {
               <Table.TextCell>
                 <Popover content={({ close }) => <UserPopover close={close} member={member} />}>
                   <Pane display='flex' alignItems='center' cursor='pointer'>
-                    <Image
-                      src={member.avatar}
-                      width={40}
-                      height={40}
-                      marginRight={majorScale(2)}
-                      borderRadius={majorScale(15)}
-                    />
+                    <Avatar src={member.avatar} marginRight={majorScale(2)} />
                     {member.username}
                   </Pane>
                 </Popover>
