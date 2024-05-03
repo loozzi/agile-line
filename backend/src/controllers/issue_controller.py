@@ -9,7 +9,7 @@ issue = Blueprint("issue", __name__)
 
 @issue.route("/", methods=["POST"])
 @token_required
-def create_issue(): # controller
+def create_issue():  # controller
     project_id = request.form.get("project_id", "").strip()
     if project_id == "":
         return _response(400, "Vui lòng chọn dự án")
@@ -67,7 +67,8 @@ def get_user_issue():
     else:
         label = []
     return issue_service.get_issue_user(user_name_in_project,
-                                        project_id, keyword, status, label, workspace_id)
+                                        project_id, keyword,
+                                        status, label, workspace_id)
 
 
 @issue.route("/<string:permalink>", methods=["GET"])
@@ -96,9 +97,10 @@ def edit_issue():
     assignor_id = request.form.get("assignor_id", "").strip()
     testor_id = request.form.get("testor_id", "").strip()
     milestone_id = request.form.get("milestone_id", "").strip()
+    description = request.form.get("description", "").strip()
     return issue_service.edit_issue(issue_id, name, status, label, priority,
                                     assignee_id, assignor_id, testor_id,
-                                    milestone_id)
+                                    milestone_id, description)
 
 
 @issue.route("/<string:permalink>", methods=["PUT"])
@@ -116,7 +118,7 @@ def edit_status_issue(permalink):
 @issue.route("/", methods=["DELETE"])
 @token_required
 def delete_issue():
-    id = request.args.get("id","")
+    id = request.args.get("id", "")
     if id == "":
         return _response(status=400, message="Vui lòng chọn issue cần xóa")
     return issue_service.delete_issue(id)
