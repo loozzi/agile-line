@@ -147,11 +147,11 @@ export const IssuePage = () => {
           <Table.Head>
             <Table.TextHeaderCell flexBasis={majorScale(8)} flexShrink={0} flexGrow={0}></Table.TextHeaderCell>
             <Table.TextHeaderCell flexBasis={majorScale(64)} flexShrink={0} flexGrow={0}>
-              Issue
+              Tên công việc
             </Table.TextHeaderCell>
             <Table.TextHeaderCell>Dự án</Table.TextHeaderCell>
-            <Table.TextHeaderCell>Mức độ</Table.TextHeaderCell>
-            <Table.TextHeaderCell>Giao cho</Table.TextHeaderCell>
+            <Table.TextHeaderCell>Độ ưu tiên</Table.TextHeaderCell>
+            <Table.TextHeaderCell>Người phụ trách</Table.TextHeaderCell>
           </Table.Head>
           {issues?.items.map((issue) => (
             <Table.Row>

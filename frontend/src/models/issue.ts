@@ -63,6 +63,18 @@ export interface IssueResponse {
   updated_at?: string
 }
 
+export interface IssueUpdatePayload {
+  id: number
+  name: string
+  status: IssueStatus
+  label: string[]
+  priority: IssuePriority
+  assignee_id: number
+  assignor_id: number
+  testor_id?: number
+  milestone_id?: number
+}
+
 export interface IssueParams extends PaginationParams {
   username?: string
   project_id?: number
