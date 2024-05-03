@@ -32,6 +32,16 @@ def create_response_activity(current_issue, current_user):
     return activities
 
 
+def data_user_response(user):
+    user = to_dict(user)
+    del user["password"]
+    del user["phone_number"]
+    del user["description"]
+    del user["created_at"]
+    del user["updated_at"]
+    return user
+
+
 def check_user_project(project_id, user_id):
     item_project = db.session.query(Project, Role, UserRole, User).join(
                     Project, Project.id == Role.project_id).join(
@@ -76,7 +86,7 @@ def create_resource_and_response(list_resource, issue):
     return data_response
 
 
-def make_data_response_issue(issue, list_resource, project): #service
+def make_data_response_issue(issue, list_resource): #service
     labels = db.session.query(Label, IssueLabel).join(
                 Label, Label.id == IssueLabel.label_id
                 ).filter(IssueLabel.issue_id == issue.id).all()
@@ -86,15 +96,13 @@ def make_data_response_issue(issue, list_resource, project): #service
         del label["workspace_id"]
         list_labels.append(label)
     data_response = {}
-    if project is None:
-        data_response["project"] = {}
-    else:
-        data_response["project"] = {
-            "id": project.id,
-            "name": project.name,
-            "permalink": project.permalink,
-            "icon": project.icon,
-        }
+    project = Project.query.filter_by(id=issue.project_id).first()
+    data_response["project"] = {
+        "id": project.id,
+        "name": project.name,
+        "permalink": project.permalink,
+        "icon": project.icon,
+    }
     data_response["id"] = issue.id
     data_response["name"] = issue.name
     data_response["status"] = issue.status.value
@@ -103,9 +111,12 @@ def make_data_response_issue(issue, list_resource, project): #service
     else:
         data_response["label"] = list_labels
     data_response["priority"] = issue.priority.value
-    data_response["assignee_id"] = issue.assignee_id
-    data_response["assignor_id"] = issue.assignor_id
-    data_response["testor_id"] = issue.testor_id
+    asignee = User.query.filter_by(id=issue.assignee_id).first()
+    data_response["assignee"] = data_user_response(asignee)
+    assignor = User.query.filter_by(id=issue.assignor_id).first()
+    data_response["assignor"] = data_user_response(assignor)
+    testor = User.query.filter_by(id=issue.testor_id).first()
+    data_response["testor"] = data_user_response(testor)
     data_response["milestone_id"] = issue.milestone_id
     data_response["permalink"] = issue.permalink
     data_response["created_at"] = issue.created_at
@@ -186,8 +197,7 @@ def create_issue(project_id, name, description, status, label,
     )
     db.session.add(new_activity)
     db.session.commit()
-    data_response = make_data_response_issue(new_issue, list_resource,
-                                                   current_project)
+    data_response = make_data_response_issue(new_issue, list_resource)
     db.session.commit()
     return _response(status=200,
                      message="Tạo issue thành công",
@@ -345,7 +355,10 @@ def get_issue_user(user_name, project_id, keyword, status, label_list, workspace
         for j in resources_i:
             list_resource_i.append(j.link)
         list_response.append(make_data_response_issue(i,
-                             list_resource_i, current_project))
+                             list_resource_i))
+    list_response = sorted(list_response,
+                           key=lambda x: x["created_at"],
+                           reverse=True)
     return _response(status=200,
                      message="Lấy issue thành công",
                      data=make_data_to_response_page(list_response))
@@ -353,8 +366,6 @@ def get_issue_user(user_name, project_id, keyword, status, label_list, workspace
 
 def get_detail_issue(permalink):
     current_issue = Issue.query.filter_by(permalink=permalink).first()
-    current_project = Project.query.filter_by(
-                        id=current_issue.project_id).first()
     list_resource = []
     resources = Resources.query.filter_by(
                     issue_id=current_issue.id).all()
@@ -365,7 +376,7 @@ def get_detail_issue(permalink):
     update_activity = to_dict(activity)
     del update_activity["issue_id"]
     response = make_data_response_issue(
-                    current_issue, list_resource, current_project)
+                    current_issue, list_resource)
     response["activities"] = update_activity
     return _response(status=200, message="Lấy issue thành công", data=response)
 
@@ -442,8 +453,7 @@ def edit_issue(issue_id, new_name, new_status, new_labels,
     for i in resources:
         list_resource.append(i.link)
     data_response = make_data_response_issue(current_issue,
-                                             list_resource,
-                                             current_project)
+                                             list_resource)
     update_activity = create_response_activity(current_issue, request.user)
     data_response["activities"] = update_activity
     return _response(status=200,
@@ -465,11 +475,8 @@ def edit_status_issue(status, permalink):
     resources = Resources.query.filter(
                     Resources.issue_id == current_issue.id).all()
     list_resource = [i.link for i in resources]
-    current_project = Project.query.filter(
-                    Project.id == current_issue.project_id).first()
     data_response = make_data_response_issue(current_issue,
-                                             list_resource,
-                                             current_project)
+                                             list_resource)
     data_response["activity"] = create_response_activity(current_issue, current_user)
     return _response(status=200,
                      message="Chỉnh sửa status thành công",
