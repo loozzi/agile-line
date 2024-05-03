@@ -106,7 +106,7 @@ def create_resource_and_response(list_resource, issue):
     return data_response
 
 
-def make_data_response_issue(issue, list_resource):  # service
+def make_data_response_issue(issue, list_resource):
     labels = (
         db.session.query(Label, IssueLabel)
         .join(Label, Label.id == IssueLabel.label_id)
@@ -476,7 +476,9 @@ def get_detail_issue(permalink):
     return _response(status=200, message="Lấy issue thành công", data=response)
 
 
-def edit_label_issue(issue_id, list_label):
+def edit_label_issue(list_label, permalink):  # label
+    current_user = request.user
+    issue = Issue.query.filter_by(permalink=permalink).first()
     list_new_label_id = []
     if list_label != []:
         for i in list_label:
@@ -487,14 +489,14 @@ def edit_label_issue(issue_id, list_label):
             list_new_label_id.append(label.id)
     # xóa kết nối đến labels cũ
     issue_labels = IssueLabel.query.filter(
-        IssueLabel.issue_id == issue_id).all()
+        IssueLabel.issue_id == issue.id).all()
     for i in issue_labels:
         db.session.delete(i)
         db.session.flush()
     # thêm kết nối đến labels mới
     for i in list_new_label_id:
         new_issue_label = IssueLabel(
-            issue_id=issue_id,
+            issue_id=issue.id,
             label_id=i,
             created_at=datetime.now(timezone.utc),
             updated_at=datetime.now(timezone.utc),
@@ -502,92 +504,89 @@ def edit_label_issue(issue_id, list_label):
         db.session.add(new_issue_label)
         db.session.flush()
     db.session.commit()
+    resources = Resources.query.filter(
+                Resources.issue_id == issue.id
+                ).all()
+    list_resource = [i.link for i in resources]
+    data_response = make_data_response_issue(issue, list_resource)
+    data_response["activity"] = create_response_activity(
+                                issue,
+                                current_user)
+    return _response(
+        status=200,
+        message="Chỉnh sửa label thành công",
+        data=data_response
+    )
 
 
-def edit_priority_issue(issue, priority):
+def edit_priority_issue(priority, permalink):  # priority
+    current_user = request.user
+    issue = Issue.query.filter_by(permalink=permalink).first()
     if priority != "":
         issue.priority = priority
     db.session.commit()
+    resources = Resources.query.filter(
+                Resources.issue_id == issue.id
+                ).all()
+    list_resource = [i.link for i in resources]
+    data_response = make_data_response_issue(issue, list_resource)
+    data_response["activity"] = create_response_activity(
+                                issue,
+                                current_user)
+    return _response(
+        status=200,
+        message="chỉnh sửa mức độ ưu tiên thành công",
+        data=data_response
+    )
 
 
-def edit_assignee_issue(issue, assignee_id):
+def edit_assignee_issue(assignee_id, permalink):  # assignee
+    current_user = request.user
+    issue = Issue.query.filter_by(permalink=permalink).first()
     if assignee_id != "":
         issue.assignee_id = assignee_id
     db.session.commit()
+    resources = Resources.query.filter(
+                Resources.issue_id == issue.id
+                ).all()
+    list_resource = [i.link for i in resources]
+    data_response = make_data_response_issue(issue, list_resource)
+    data_response["activity"] = create_response_activity(
+                                issue,
+                                current_user)
+    return _response(
+        status=200,
+        message="Chỉnh sửa người phụ trách thành công",
+        data=data_response
+    )
 
 
-def edit_testor_issue(issue, testor_id):
-    if testor_id != "":
-        issue.testor_id = testor_id
-    db.session.commit()
-
-
-def edit_name_description_issue(issue, new_name, new_description):
+def edit_name_description_issue(new_name,
+                                new_description,
+                                permalink):  # name, description
+    current_user = request.user
+    issue = Issue.query.filter_by(permalink=permalink).first()
     if new_name != "":
         issue.name = new_name
     if new_description != "":
         issue.description = new_description
     db.session.commit()
-
-
-def edit_issue(
-    issue_id,
-    new_name,
-    new_status,
-    new_labels,
-    new_priority,
-    new_assignee_id,
-    new_assignor_id,
-    new_testor,
-    new_milestone_id,
-    new_description,
-):
-    current_issue = Issue.query.filter_by(id=issue_id).first()
-    if current_issue is None:
-        return _response(404, "issue không tồn tại")
-    current_project = Project.query.filter_by(
-                        id=current_issue.project_id
-                        ).first()
-    if check_user_project(current_project.id, request.user.id) is False:
-        return _response(403, "Không có quyền chỉnh sửa issue")
-    # xử lý asign
-    if User.query.filter_by(id=new_assignee_id).first() is None:
-        new_assignee_id = current_issue.assignee_id
-    if User.query.filter_by(id=new_assignor_id).first() is None:
-        new_assignor_id = current_issue.assignor_id
-    if User.query.filter_by(id=new_testor).first() is None:
-        new_testor = current_issue.testor_id
-    edit_label_issue(issue_id, new_labels)
-    # chỉnh sửa thông tin issue
-    edit_name_description_issue(current_issue, new_name, new_description)
-    if new_status != "":
-        current_issue.status = new_status
-        db.session.flush()
-    edit_priority_issue(current_issue, new_priority)
-    edit_assignee_issue(current_issue, new_assignee_id)
-    if new_assignor_id != "":
-        current_issue.assignor_id = new_assignor_id
-        db.session.flush()
-    edit_testor_issue(current_issue, new_testor)
-    new_milestone = Milestone.query.filter_by(id=new_milestone_id).first()
-    if new_milestone is None:
-        new_milestone_id = None
-    current_issue.milestone_id = new_milestone_id
-    db.session.commit()
-    #
-    resources = Resources.query.filter_by(issue_id=current_issue.id).all()
-    list_resource = []
-    for i in resources:
-        list_resource.append(i.link)
-    data_response = make_data_response_issue(current_issue, list_resource)
-    update_activity = create_response_activity(current_issue, request.user)
-    data_response["activities"] = update_activity
+    resources = Resources.query.filter(
+                Resources.issue_id == issue.id
+                ).all()
+    list_resource = [i.link for i in resources]
+    data_response = make_data_response_issue(issue, list_resource)
+    data_response["activity"] = create_response_activity(
+                                issue,
+                                current_user)
     return _response(
-        status=200, message="Chỉnh sửa issue thành công", data=data_response
+        status=200,
+        message="Chỉnh sửa tên và mô tả issue thành công",
+        data=data_response
     )
 
 
-def edit_status_issue(status, permalink):
+def edit_status_issue(status, permalink):  # status
     current_user = request.user
     current_issue = Issue.query.filter_by(permalink=permalink).first()
     if current_issue is None:
