@@ -107,7 +107,7 @@ export const WorkspaceAddMemberComp = (props: WorkspaceAddMemberCompProps) => {
                     </Pane>
                   </Table.TextCell>
                   <Table.TextCell>{user.email}</Table.TextCell>
-                  <Table.TextCell>{`${user.first_name} ${user.last_name}`}</Table.TextCell>
+                  <Table.TextCell>{`${user.first_name ? user.first_name + ' ' + user.last_name : `Chưa cập nhật`}`}</Table.TextCell>
                   <Table.TextCell>
                     <IconButton
                       icon={<PlusIcon />}
@@ -148,7 +148,7 @@ export const WorkspaceAddMemberComp = (props: WorkspaceAddMemberCompProps) => {
                   </Pane>
                 </Table.TextCell>
                 <Table.TextCell>{user.email}</Table.TextCell>
-                <Table.TextCell>{`${user.first_name} ${user.last_name}`}</Table.TextCell>
+                <Table.TextCell>{`${user.first_name ? user.first_name + ' ' + user.last_name : `Chưa cập nhật`}`}</Table.TextCell>
                 <Table.TextCell>
                   <IconButton icon={<MinusIcon />} intent='danger' onClick={() => handleRemoveMember(user)} />
                 </Table.TextCell>

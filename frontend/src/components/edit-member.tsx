@@ -25,6 +25,7 @@ import { User } from '~/models/user'
 import { Pagination as IPagination } from '~/models/utils'
 import projectService from '~/services/project.service'
 import workspaceService from '~/services/workspace.service'
+import { transLabel } from '~/utils'
 
 interface EditMemberProps extends PaneProps {
   members: User[]
@@ -149,8 +150,8 @@ export const EditMemberComp = (props: EditMemberProps) => {
                   {member.username}
                 </Pane>
               </Table.TextCell>
-              <Table.TextCell>{`${member.first_name} ${member.last_name}`}</Table.TextCell>
-              <Table.TextCell>{member.roles.join(', ')}</Table.TextCell>
+              <Table.TextCell>{`${member.first_name ? member.first_name + ' ' + member.last_name : `Chưa cập nhật`}`}</Table.TextCell>
+              <Table.TextCell>{member.roles.map((e: string) => transLabel(e)).join(', ')}</Table.TextCell>
               {enableEdit && (
                 <Table.TextCell>
                   {editMemberList[index].selected ? (
@@ -192,7 +193,7 @@ export const EditMemberComp = (props: EditMemberProps) => {
                         {user.username}
                       </Pane>
                     </Table.TextCell>
-                    <Table.TextCell>{`${user.first_name} ${user.last_name}`}</Table.TextCell>
+                    <Table.TextCell>{`${user.first_name ? user.first_name + ' ' + user.last_name : `Chưa cập nhật`}`}</Table.TextCell>
                     <Table.TextCell>
                       <IconButton
                         icon={<PlusIcon />}
@@ -233,7 +234,7 @@ export const EditMemberComp = (props: EditMemberProps) => {
                       {user.username}
                     </Pane>
                   </Table.TextCell>
-                  <Table.TextCell>{`${user.first_name} ${user.last_name}`}</Table.TextCell>
+                  <Table.TextCell>{`${user.first_name ? user.first_name + ' ' + user.last_name : `Chưa cập nhật`}`}</Table.TextCell>
                   <Table.TextCell>
                     <IconButton icon={<MinusIcon />} intent='danger' onClick={() => handleRemoveMember(user)} />
                   </Table.TextCell>

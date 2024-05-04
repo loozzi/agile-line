@@ -184,7 +184,7 @@ export const ProjectPage = () => {
               {currentWorkspace?.title}
             </Pane>
             <ChevronRightIcon />
-            Tạo Project
+            Khởi tạo dự án
           </Pane>
         }
         onCloseComplete={() => setShowCreateProjectDialog(false)}

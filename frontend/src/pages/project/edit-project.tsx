@@ -29,7 +29,7 @@ import { EditMemberComp } from '~/components/edit-member'
 import { ImagePickerComp } from '~/components/image_picker/image_picker'
 import { ProjectResponse, ProjectUpdatePayload } from '~/models/project'
 import projectService from '~/services/project.service'
-import { compareDates, reformatDate } from '~/utils'
+import { compareDates, reformatDate, transLabel } from '~/utils'
 
 interface EditProjectProps {
   project: ProjectResponse
@@ -176,7 +176,7 @@ export const EditProjectSideSheet = (props: EditProjectProps) => {
                           onSelect={() => payload.setFieldValue('status', status.label)}
                           icon={status.icon}
                         >
-                          {status.label}
+                          {transLabel(status.label)}
                         </Menu.Item>
                       ))}
                     </Menu.Group>
@@ -193,7 +193,7 @@ export const EditProjectSideSheet = (props: EditProjectProps) => {
                   marginBottom={majorScale(1)}
                   marginRight={majorScale(1)}
                 >
-                  {payload.values.status}
+                  {transLabel(payload.values.status)}
                 </Button>
               </Popover>
             ) : (
@@ -202,7 +202,7 @@ export const EditProjectSideSheet = (props: EditProjectProps) => {
                   textTransform: 'capitalize'
                 }}
               >
-                {projectDetail?.status}
+                {transLabel(projectDetail?.status || '')}
               </span>
             )}
           </Pane>
@@ -262,8 +262,15 @@ export const EditProjectSideSheet = (props: EditProjectProps) => {
             )}
           </Pane>
           <Pane display='flex' justifyContent='space-between' marginBottom={enableEdit ? 0 : majorScale(2)}>
-            <Label>Leader</Label>
-            <span>{`${projectDetail?.leader.first_name} ${projectDetail?.leader.last_name} (${projectDetail?.leader.username})`}</span>
+            <Label>Trưởng nhóm</Label>
+            <span>
+              {projectDetail?.leader.first_name
+                ? projectDetail?.leader.first_name +
+                  ' ' +
+                  projectDetail?.leader.last_name +
+                  `(${projectDetail?.leader.username})`
+                : `(${projectDetail?.leader.username})`}
+            </span>
           </Pane>
         </Pane>
 

@@ -202,7 +202,12 @@ export const NavbarComp = (props: NavbarCompProps) => {
           onClick={() => handleRedirect(routes.auth.logout)}
         />
       </Pane>
-      <Dialog isShown={isShownCreate} title='Tạo issue' onCloseComplete={() => setShownCreate(false)} hasFooter={false}>
+      <Dialog
+        isShown={isShownCreate}
+        title='Tạo công việc'
+        onCloseComplete={() => setShownCreate(false)}
+        hasFooter={false}
+      >
         <CreateIssueDialog onCreateSuccess={onCreateSuccess} closeDialog={() => setShownCreate(false)} />
       </Dialog>
     </Pane>

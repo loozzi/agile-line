@@ -38,7 +38,7 @@ import { ProjectResponse } from '~/models/project'
 import { PaginationResponse } from '~/models/utils'
 import issueService from '~/services/issue.service'
 import workspaceService from '~/services/workspace.service'
-import { convertTimestamp, getContrastColor } from '~/utils'
+import { convertTimestamp, getContrastColor, transLabel } from '~/utils'
 
 export const IssuePage = () => {
   const params = useParams()
@@ -156,7 +156,7 @@ export const IssuePage = () => {
           {issues?.items.map((issue) => (
             <Table.Row>
               <Table.TextHeaderCell flexBasis={majorScale(4)} flexShrink={0} flexGrow={0}>
-                <Tooltip content='Trạng thái'>
+                <Tooltip content={transLabel(issue.status)}>
                   <Pane>
                     <Popover
                       content={
@@ -169,7 +169,7 @@ export const IssuePage = () => {
                                 onSelect={() => handleUpdateStatus(issue.permalink, status.label as IssueStatus)}
                                 icon={status.icon}
                               >
-                                {status.label}
+                                {transLabel(status.label)}
                               </Menu.Item>
                             ))}
                           </Menu.Group>
@@ -185,7 +185,7 @@ export const IssuePage = () => {
                         marginBottom={majorScale(1)}
                         marginRight={majorScale(1)}
                       >
-                        {issue.status}
+                        {transLabel(issue.status)}
                       </IconButton>
                     </Popover>
                   </Pane>

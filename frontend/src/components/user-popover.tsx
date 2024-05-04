@@ -55,7 +55,7 @@ export const UserPopover = (props: UserPopoverProps) => {
           >
             {member?.role}
           </Badge>
-          <Label>{`${member?.first_name} ${member?.last_name}`}</Label>
+          <Label>{`${member?.first_name ? member.first_name + ' ' + member.last_name : `Chưa cập nhật`}`}</Label>
           <Label>{member?.username}</Label>
         </Pane>
       </Pane>
