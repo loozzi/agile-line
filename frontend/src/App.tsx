@@ -7,16 +7,17 @@ import { LogoutPage } from './pages/auth/logout'
 import { RegisterPage } from './pages/auth/register'
 import { VerifyPage } from './pages/auth/verify'
 import { HomePage } from './pages/home'
-import { WorkspaceTemplate } from './pages/workspace/template'
-import { WorkspacePage } from './pages/workspace/workspace'
-import { WorkspaceSettingPage } from './pages/workspace/setting'
-import { WorkspaceMemberPage } from './pages/workspace/members'
-import { UserProfilePage } from './pages/user-profile'
-import { PrivateLayout } from './pages/private'
-import { ProjectPage } from './pages/project/project'
-import { ManageLabelPage } from './pages/workspace/manage-labels'
 import { IssuePage } from './pages/issue/issue'
 import { IssueDetailPage } from './pages/issue/issue-detail'
+import { PrivateLayout } from './pages/private'
+import ProjectDetailPage from './pages/project/detail'
+import { ProjectPage } from './pages/project/project'
+import { UserProfilePage } from './pages/user-profile'
+import { ManageLabelPage } from './pages/workspace/manage-labels'
+import { WorkspaceMemberPage } from './pages/workspace/members'
+import { WorkspaceSettingPage } from './pages/workspace/setting'
+import { WorkspaceTemplate } from './pages/workspace/template'
+import { WorkspacePage } from './pages/workspace/workspace'
 
 function App() {
   const location = useLocation()
@@ -36,6 +37,7 @@ function App() {
           <Route path={routes.workspace.setting.page} element={<WorkspaceSettingPage />} />
           <Route path={routes.workspace.members.page} element={<WorkspaceMemberPage />} />
           <Route path={routes.workspace.projects.page} element={<ProjectPage />} />
+          <Route path={routes.workspace.projects.detail} element={<ProjectDetailPage />} />
           <Route path={routes.workspace.labels.page} element={<ManageLabelPage />} />
           <Route path={routes.workspace.issues.page} element={<IssuePage />} />
           <Route path={routes.workspace.issues.detail} element={<IssueDetailPage />} />

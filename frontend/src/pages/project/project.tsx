@@ -28,6 +28,7 @@ import workspaceService from '~/services/workspace.service'
 import { reformatDate } from '~/utils'
 import { CreateProjectDialog } from './create-project'
 import { EditProjectSideSheet } from './edit-project'
+import { history } from '~/configs/history'
 
 export const ProjectPage = () => {
   const currentWorkspace = useAppSelector(selectCurrentWorkspace)
@@ -125,11 +126,16 @@ export const ProjectPage = () => {
                     onClick={() => toggleFavourite(project)}
                   />
                 </Table.TextCell>
-                <Table.TextCell>
-                  <Pane display='flex' alignItems='center'>
-                    <Avatar src={project.icon} marginRight={majorScale(1)} />
-                    <span>{project.name}</span>
-                  </Pane>
+                <Table.TextCell
+                  cursor='pointer'
+                  onClick={() => history.push(`/${currentWorkspace?.permalink}/projects/${project.permalink}`)}
+                >
+                  <Tooltip content='Xem chi tiết'>
+                    <Pane display='flex' alignItems='center'>
+                      <Avatar src={project.icon} marginRight={majorScale(1)} />
+                      <span>{project.name}</span>
+                    </Pane>
+                  </Tooltip>
                 </Table.TextCell>
                 <Table.TextCell>
                   <SelectField
