@@ -1,7 +1,7 @@
 from datetime import datetime, timedelta, timezone
 from flask import request
 from sqlalchemy import and_, or_
-from src import db
+from src import db, bcrypt
 from src.enums import ProjectDefaultRole, ProjectStatus, WorkspaceRole
 from src.models import Issue, Project, Role, User, UserRole, Workspace, WorkspaceUser
 from src.utils import (
