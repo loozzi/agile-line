@@ -88,7 +88,7 @@ def delete_project(permalink):
     password = request.form.get("password", "").strip()
     if not password:
         return _response(400, "Vui lòng nhập mật khẩu")
-    return project_service.delete_project(permalink)
+    return project_service.delete_project(password, permalink)
 
 
 @project.route("/<string:permalink>", methods=["PUT"])
