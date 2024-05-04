@@ -81,5 +81,5 @@ export interface IssueParams extends PaginationParams {
   keyword?: string
   status?: IssueStatus
   label?: string[] | string
-  workspace_id: number
+  workspace_id?: number
 }
