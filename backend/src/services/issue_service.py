@@ -166,7 +166,7 @@ def create_issue(
     current_user = request.user
     current_project = Project.query.filter_by(id=project_id).first()
     if current_project is None:
-        return _response(400, "project không tồn tại")
+        return _response(400, "Không tìm thấy dự án")
     current_workspace = Workspace.query.filter_by(
         id=current_project.workspace_id
     ).first()
@@ -175,7 +175,7 @@ def create_issue(
     if check_user_workspace(current_workspace.id, current_user.id) is False:
         return _response(403, "Không nằm trong workspace")
     if check_user_project(project_id, current_user.id) is False:
-        return _response(403, "Không nằm trong project")
+        return _response(403, "Không nằm trong dự án")
     if assignee_id == "":
         assignee_id = current_user.id
     if assignor_id == "":
@@ -207,7 +207,7 @@ def create_issue(
     for i in label:
         label_i = Label.query.filter_by(id=i).first()
         if label_i is None:
-            return _response(404, "Một số label không tồn tại")
+            return _response(404, "Một số nhãn không tồn tại")
         list_label.append(label_i)
     for i in list_label:
         issue_label = IssueLabel(
@@ -232,7 +232,7 @@ def create_issue(
     data_response = make_data_response_issue(new_issue, list_resource)
     db.session.commit()
     return _response(status=200,
-                     message="Tạo issue thành công",
+                     message="Tạo công việc thành công",
                      data=data_response)
 
 
@@ -441,7 +441,7 @@ def get_issue_user(user_name, project_id, keyword,
                            reverse=True)
     return _response(
         status=200,
-        message="Lấy issue thành công",
+        message="Truy vấn công việc thành công",
         data=make_data_to_response_page(list_response),
     )
 
@@ -473,7 +473,7 @@ def get_detail_issue(permalink):
 
     response = make_data_response_issue(current_issue, list_resource)
     response["activities"] = parsed_activities
-    return _response(status=200, message="Lấy issue thành công", data=response)
+    return _response(status=200, message="Truy vấn công việc thành công", data=response)
 
 
 def edit_label_issue(list_label, permalink):  # label
@@ -485,7 +485,7 @@ def edit_label_issue(list_label, permalink):  # label
             label = Label.query.filter_by(title=i).first()
             if label is None:
                 list_new_label_id = []
-                return _response(400, "Một số label không tồn tại")
+                return _response(400, "Một số nhãn không tồn tại")
             list_new_label_id.append(label.id)
     # xóa kết nối đến labels cũ
     issue_labels = IssueLabel.query.filter(
@@ -514,7 +514,7 @@ def edit_label_issue(list_label, permalink):  # label
                                 current_user)
     return _response(
         status=200,
-        message="Chỉnh sửa label thành công",
+        message="Chỉnh sửa nhãn thành công",
         data=data_response
     )
 
@@ -535,7 +535,7 @@ def edit_priority_issue(priority, permalink):  # priority
                                 current_user)
     return _response(
         status=200,
-        message="chỉnh sửa mức độ ưu tiên thành công",
+        message="Chỉnh sửa mức độ ưu tiên thành công",
         data=data_response
     )
 
@@ -581,7 +581,7 @@ def edit_name_description_issue(new_name,
                                 current_user)
     return _response(
         status=200,
-        message="Chỉnh sửa tên và mô tả issue thành công",
+        message="Chỉnh sửa thông tin công việc thành công",
         data=data_response
     )
 
@@ -590,9 +590,9 @@ def edit_status_issue(status, permalink):  # status
     current_user = request.user
     current_issue = Issue.query.filter_by(permalink=permalink).first()
     if current_issue is None:
-        return _response(status=404, message="Không tìm thấy issue")
+        return _response(status=404, message="Không tìm thấy công việc")
     if check_user_project(current_issue.project_id, current_user.id) is False:
-        return _response(status=403, message="Không có quyền chỉnh sửa issue")
+        return _response(status=403, message="Không có quyền chỉnh sửa công việc")
     current_issue.status = status
     db.session.commit()
     resources = Resources.query.filter(
@@ -603,7 +603,7 @@ def edit_status_issue(status, permalink):  # status
     data_response["activity"] = create_response_activity(
                                     current_issue, current_user)
     return _response(
-        status=200, message="Chỉnh sửa status thành công", data=data_response
+        status=200, message="Chỉnh sửa trạng thái thành công", data=data_response
     )
 
 
@@ -611,9 +611,9 @@ def delete_issue(id):
     current_user = request.user
     current_issue = Issue.query.filter_by(id=id).first()
     if current_issue is None:
-        return _response(status=404, message="Không tìm thấy issue")
+        return _response(status=404, message="Không tìm thấy công việc")
     if check_user_project(current_issue.project_id, current_user.id) is False:
-        return _response(status=403, message="Không có quyền xóa issue")
+        return _response(status=403, message="Không có quyền xóa công việc")
     db.session.delete(current_issue)
     db.session.commit()
-    return _response(status=200, message="Xóa issue thành công")
+    return _response(status=200, message="Xóa công việc thành công")
