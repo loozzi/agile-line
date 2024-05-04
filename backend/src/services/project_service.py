@@ -1,8 +1,7 @@
 from datetime import datetime, timedelta, timezone
-
 from flask import request
 from sqlalchemy import and_, or_
-from src import db
+from src import db, bcrypt
 from src.enums import ProjectDefaultRole, ProjectStatus, WorkspaceRole
 from src.models import Issue, Project, Role, User, UserRole, Workspace, WorkspaceUser
 from src.utils import (
@@ -523,3 +522,28 @@ def edit_members(members_id, permalink):
     db.session.commit()
     data = make_data_to_respone(curr_project)
     return _response(200, "Cập nhật thành công", data)
+
+
+def delete_project(password, permalink):
+    curr_project = Project.query.filter_by(permalink=permalink).first()
+    if curr_project is None:
+        return _response(404, "Không tìm thấy dữ liệu")
+    user = request.user
+
+    # Kiểm tra mật khẩu
+    if not bcrypt.check_password_hash(user.password, password):
+        return _response(400, "Sai mật khẩu")
+
+    # Kiểm tra người dùng có quyền không
+    # Kiểm tra người dùng có phải ADMIN của workspace hoặc có là leader của project không
+    user_workspace_role = WorkspaceUser.query.filter_by(user_id=user.id).first()
+    if not user_workspace_role.role == WorkspaceRole.ADMIN and not is_user_leader(
+        user.id, curr_project.id
+    ):
+        return _response(403, "Không có quyền xóa project")
+
+    # Xóa Project khỏi Workspace
+    db.session.delete(curr_project)
+
+    db.session.commit()
+    return _response(200, "Xóa Project thành công")
