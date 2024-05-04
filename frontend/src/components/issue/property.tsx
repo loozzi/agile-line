@@ -32,7 +32,7 @@ import { LabelResponse } from '~/models/label'
 import { ProjectResponse } from '~/models/project'
 import { User } from '~/models/user'
 import issueService from '~/services/issue.service'
-import { getContrastColor } from '~/utils'
+import { getContrastColor, transLabel } from '~/utils'
 import { PopupSearchMember } from '../popup_search_member'
 
 interface IssuePropertyCompProps {
@@ -119,7 +119,7 @@ export const IssuePropertyComp = (props: IssuePropertyCompProps) => {
                     }}
                     icon={status.icon}
                   >
-                    {status.label}
+                    {transLabel(status.label)}
                   </Menu.Item>
                 ))}
               </Menu.Group>
@@ -133,7 +133,7 @@ export const IssuePropertyComp = (props: IssuePropertyCompProps) => {
             textTransform='capitalize'
             iconAfter={<ChevronDownIcon />}
           >
-            {issue?.status}
+            {transLabel(issue?.status)}
           </Button>
         </Popover>
       </Pane>
@@ -152,7 +152,7 @@ export const IssuePropertyComp = (props: IssuePropertyCompProps) => {
                     }}
                     icon={priority.icon}
                   >
-                    {priority.label}
+                    {transLabel(priority.label)}
                   </Menu.Item>
                 ))}
               </Menu.Group>
@@ -166,7 +166,7 @@ export const IssuePropertyComp = (props: IssuePropertyCompProps) => {
             textTransform='capitalize'
             iconAfter={<ChevronDownIcon />}
           >
-            {issue?.priority}
+            {transLabel(issue?.priority)}
           </Button>
         </Popover>
       </Pane>
@@ -186,7 +186,9 @@ export const IssuePropertyComp = (props: IssuePropertyCompProps) => {
                 </Badge>
               </Tooltip>
             ))}
-            <IconButton appearance='minimal' icon={PlusIcon} />
+            <Tooltip content='Thêm'>
+              <IconButton appearance='minimal' icon={PlusIcon} />
+            </Tooltip>
           </Pane>
         </Pane>
       </Pane>

@@ -43,10 +43,15 @@ const updateMembers = async (permalink: string, members_id: number[]): Promise<I
   )
 }
 
+const deleteProject = async (permalink: string, password: string): Promise<IResponse<null>> => {
+  return await client.put(routeApi.project.delete.replace(':permalink', permalink), { data: { password } })
+}
+
 export default {
   createProject,
   get,
   updateStatus,
   update,
-  updateMembers
+  updateMembers,
+  deleteProject
 }

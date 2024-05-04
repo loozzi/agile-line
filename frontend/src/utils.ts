@@ -59,3 +59,48 @@ export function convertTimestamp(dateString: string) {
     return days + ' ngày trước'
   }
 }
+
+export function transLabel(label: string) {
+  switch (label) {
+    case 'Workspace':
+      return 'Không gian làm việc'
+    case 'backlog':
+      return 'Tồn đọng'
+    case 'todo':
+      return 'Cần làm'
+    case 'inprogress':
+      return 'Đang thực hiện'
+    case 'completed':
+      return 'Hoàn thành'
+    case 'canceled':
+      return 'Đã hủy'
+    case 'paused':
+      return 'Tạm dừng'
+    case 'planned':
+      return 'Đã kế hoạch'
+    case 'done':
+      return 'Đã hoàn thành'
+    case 'cancelled':
+      return 'Đã hủy'
+    case 'duplicate':
+      return 'Trùng lặp'
+    case 'nopriority':
+      return 'Không ưu tiên'
+    case 'low':
+      return 'Thấp'
+    case 'medium':
+      return 'Trung bình'
+    case 'high':
+      return 'Cao'
+    case 'urgent':
+      return 'Khẩn cấp'
+    case 'critical':
+      return 'Quan trọng'
+    case 'leader':
+      return 'Trưởng nhóm'
+    case 'member':
+      return 'Thành viên'
+    default:
+      return label
+  }
+}

@@ -1,12 +1,16 @@
-from datetime import datetime, timezone, timedelta
-from src import bcrypt, db
-from src.models import Workspace, WorkspaceUser, Project
-from src.models import UserRole, Role, User, Issue
-from src.utils import _response, to_dict, gen_permalink
-from src.utils import make_data_to_response_page, is_workspace_user
-from src.enums import WorkspaceRole, ProjectStatus, ProjectDefaultRole
-from sqlalchemy import and_, or_
+from datetime import datetime, timedelta, timezone
 from flask import request
+from sqlalchemy import and_, or_
+from src import db
+from src.enums import ProjectDefaultRole, ProjectStatus, WorkspaceRole
+from src.models import Issue, Project, Role, User, UserRole, Workspace, WorkspaceUser
+from src.utils import (
+    _response,
+    gen_permalink,
+    is_workspace_user,
+    make_data_to_response_page,
+    to_dict,
+)
 
 
 def show_project_in_workspace(permalink, issue_kw, leader_kw, member_kw, status):
@@ -44,49 +48,10 @@ def show_project_in_workspace(permalink, issue_kw, leader_kw, member_kw, status)
 
 
 def display_project(permalink):
-    project = Project.query.filter_by(permalink=permalink).first()
-    if project is None:
-        return _response(404, "Không tìm thấy project")
-    return_project = to_dict(project)
-    del return_project["workspace_id"]
-    del return_project["is_removed"]
-    del return_project["remove_date"]
-    del return_project["created_at"]
-    project_leader_role = (
-        Role.query.filter_by(project_id=project.id)
-        .filter_by(description=ProjectDefaultRole.LEADER.value)
-        .first()
-    )
-    project_leader = UserRole.query.filter_by(role_id=project_leader_role.id).first()
-    leader_user = to_dict(User.query.filter_by(id=project_leader.user_id).first())
-    del leader_user["password"]
-    del leader_user["email"]
-    del leader_user["phone_number"]
-    del leader_user["description"]
-    del leader_user["created_at"]
-    del leader_user["updated_at"]
-    leader_user["role"] = project_leader_role.name
-    return_project["leader"] = leader_user
-    project_member_role = (
-        Role.query.filter_by(project_id=project.id)
-        .filter_by(description=ProjectDefaultRole.MEMBER.value)
-        .first()
-    )
-    list_member = []
-    project_members = UserRole.query.filter_by(role_id=project_member_role.id).all()
-    for member in project_members:
-        member_user = to_dict(User.query.filter_by(id=member.user_id).first())
-        del member_user["password"]
-        del member_user["email"]
-        del member_user["phone_number"]
-        del member_user["description"]
-        del member_user["created_at"]
-        del member_user["updated_at"]
-        member_user["role"] = project_member_role.name
-        list_member.append(member_user)
-    return_project["members"] = list_member
-    return_project["status"] = return_project["status"].value
-    return _response(200, message="Retrieve Success", data=return_project)
+    curr_project = Project.query.filter_by(permalink=permalink).first()
+    if curr_project is None:
+        return _response(404, "Không tìm thấy dữ liệu")
+    return _response(200, "Truy vấn thành công", make_data_to_respone(curr_project))
 
 
 def create_project(
@@ -338,6 +303,7 @@ def edit_role_in_project(permalink, id, name, description):
     del return_role["project_id"]
     db.session.commit()
     return _response(200, "Chỉnh sửa thành công", return_role)
+
 
 def make_data_to_respone_user_in_project(user, project):
     data = to_dict(user)
