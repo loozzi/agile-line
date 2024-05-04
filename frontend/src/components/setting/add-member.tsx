@@ -1,4 +1,5 @@
 import {
+  Avatar,
   Button,
   IconButton,
   MinusIcon,
@@ -99,7 +100,12 @@ export const WorkspaceAddMemberComp = (props: WorkspaceAddMemberCompProps) => {
             <Table.Body>
               {searchData.map((user: User) => (
                 <Table.Row key={user.id}>
-                  <Table.TextCell>{user.username}</Table.TextCell>
+                  <Table.TextCell>
+                    <Pane display='flex' alignItems='center'>
+                      <Avatar src={user.avatar || ''} marginRight={majorScale(1)} />
+                      {user.username}
+                    </Pane>
+                  </Table.TextCell>
                   <Table.TextCell>{user.email}</Table.TextCell>
                   <Table.TextCell>{`${user.first_name} ${user.last_name}`}</Table.TextCell>
                   <Table.TextCell>
@@ -135,7 +141,12 @@ export const WorkspaceAddMemberComp = (props: WorkspaceAddMemberCompProps) => {
           <Table.Body>
             {newMembers.map((user: User) => (
               <Table.Row key={user.id}>
-                <Table.TextCell>{user.username}</Table.TextCell>
+                <Table.TextCell>
+                  <Pane display='flex' alignItems='center'>
+                    <Avatar src={user.avatar || ''} marginRight={majorScale(1)} />
+                    {user.username}
+                  </Pane>
+                </Table.TextCell>
                 <Table.TextCell>{user.email}</Table.TextCell>
                 <Table.TextCell>{`${user.first_name} ${user.last_name}`}</Table.TextCell>
                 <Table.TextCell>

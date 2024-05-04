@@ -117,3 +117,11 @@ def edit_role_members_in_workspace(permalink):
 def show_labels_in_workspace(permalink):
     return workspace_service.show_labels_in_workspace(
             permalink)
+
+
+@workspace.route("/<string:permalink>/delete", methods=["PUT"])
+@token_required
+def delete_workspace(permalink):
+    password = request.form.get("password", default="")
+    return workspace_service.delete_workspace(permalink,
+                                              password)

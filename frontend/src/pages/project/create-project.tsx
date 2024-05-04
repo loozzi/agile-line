@@ -1,5 +1,5 @@
 import MDEditor from '@uiw/react-md-editor'
-import { Button, Image, Label, Menu, Pane, Popover, TagIcon, TextInputField, majorScale, toaster } from 'evergreen-ui'
+import { Avatar, Button, Label, Menu, Pane, Popover, TagIcon, TextInputField, majorScale, toaster } from 'evergreen-ui'
 import { useFormik } from 'formik'
 import { useEffect, useMemo, useState } from 'react'
 import { useParams } from 'react-router'
@@ -18,12 +18,13 @@ import {
 } from '~/assets/icons'
 import imgs from '~/assets/imgs'
 import { ImagePickerComp } from '~/components/image_picker/image_picker'
-import { PopupSearchMember } from '~/components/popup_search_member'
+import { PopupSearchLeader } from '~/components/popup_search_leader'
 import { PopupSelectedMember } from '~/components/popup_selected_member'
 import { selectUser } from '~/hooks/auth/auth.slice'
 import { selectCurrentWorkspace } from '~/hooks/workspace/workspace.slice'
 import { ProjectCreatePayload } from '~/models/project'
 import projectService from '~/services/project.service'
+import { compareDates } from '~/utils'
 
 interface CreateProjectDialogProps {
   closeDialog: () => void
@@ -117,22 +118,6 @@ export const CreateProjectDialog = (props: CreateProjectDialogProps) => {
     payloadFormik.setFieldValue(`${type}_day`, parseInt(day))
     payloadFormik.setFieldValue(`${type}_month`, parseInt(month))
     payloadFormik.setFieldValue(`${type}_year`, parseInt(year))
-  }
-
-  const compareDates = (date1: string, date2: string) => {
-    const dateObj1 = new Date(date1)
-    const dateObj2 = new Date(date2)
-
-    const time1 = dateObj1.getTime()
-    const time2 = dateObj2.getTime()
-
-    if (time1 < time2) {
-      return -1 // date1 is earlier
-    } else if (time1 > time2) {
-      return 1 // date1 is later
-    } else {
-      return 0 // dates are equal
-    }
   }
 
   const selectLeader = (leader: Leader) => {
@@ -244,14 +229,12 @@ export const CreateProjectDialog = (props: CreateProjectDialogProps) => {
         </Popover>
         <Popover
           content={
-            <PopupSearchMember permalink={params.permalink || ''} selectLeader={selectLeader} currentLeader={leader} />
+            <PopupSearchLeader permalink={params.permalink || ''} selectLeader={selectLeader} currentLeader={leader} />
           }
         >
           <Button
             type='button'
-            iconBefore={
-              <Image src={leader.avatar} width={majorScale(3)} height={majorScale(3)} borderRadius={majorScale(2)} />
-            }
+            iconBefore={<Avatar src={leader.avatar} />}
             marginBottom={majorScale(1)}
             marginRight={majorScale(1)}
           >

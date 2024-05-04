@@ -2,7 +2,7 @@ from datetime import datetime, timezone
 
 from flask import request
 from src import bcrypt, db
-from src.models import User, Workspace
+from src.models import User, Workspace, OtpVerification
 from src.utils import _response, jwt_generate, to_dict
 from src.utils import make_data_to_response_page
 from sqlalchemy import or_
@@ -96,6 +96,9 @@ def search_user(keyword, workspace_id):
     data_response = []
     if list_user is not None:
         for user in list_user:
+            check_verified = OtpVerification.query.filter_by(user_id=user.id).first()
+            if check_verified is None:
+                continue
             user = to_dict(user)
             result = {
                 "id": user["id"],

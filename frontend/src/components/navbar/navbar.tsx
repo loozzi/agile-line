@@ -26,8 +26,8 @@ import routes from '~/configs/routes'
 import { selectUser } from '~/hooks/auth/auth.slice'
 import { GET_WORKSPACE, selectCurrentWorkspace } from '~/hooks/workspace/workspace.slice'
 import { Workspace, WorkspaceParams } from '~/models/workspace'
+import { CreateIssueDialog } from '~/pages/issue/create-issue'
 import { CollapseComp } from '../collapse/collapse'
-import { WorkspaceCreate } from '../workspace/create'
 import { NavbarButtonComp } from './navbar-btn'
 
 interface NavbarCompProps extends PaneProps {}
@@ -52,7 +52,8 @@ export const NavbarComp = (props: NavbarCompProps) => {
   const [isShownCreate, setShownCreate] = useState<boolean>(false)
 
   const onCreateSuccess = (item: Workspace): void => {
-    history.push(`/${item.permalink}`)
+    setShownCreate(false)
+    item
   }
 
   const handleOpenModalWorkspace = () => {
@@ -78,18 +79,18 @@ export const NavbarComp = (props: NavbarCompProps) => {
           onClick: handleOpenModalWorkspace
         },
         {
-          label: 'Projects',
+          label: 'Danh sách dự án',
           beforeIcon: <ProjectsIcon />,
           onClick: () => handleRedirect(`/${params.permalink}/${routes.workspace.projects.slug}`)
         }
       ]
     },
     {
-      label: 'Favourites',
+      label: 'Truy cập nhanh',
       children: []
     },
     {
-      label: 'Projects',
+      label: 'Dự án',
       children: []
     },
     {
@@ -152,7 +153,7 @@ export const NavbarComp = (props: NavbarCompProps) => {
           <NavbarButtonComp
             beforeIcon={<PropertyIcon size={majorScale(2)} />}
             label='My issues'
-            onClick={handleOpenModalWorkspace}
+            onClick={() => handleRedirect(`/${params.permalink}/${routes.workspace.issues.slug}`)}
           />
         </Pane>
         {navBarConfig.map((config, index) => (
@@ -175,13 +176,8 @@ export const NavbarComp = (props: NavbarCompProps) => {
           onClick={() => handleRedirect(routes.auth.logout)}
         />
       </Pane>
-      <Dialog
-        isShown={isShownCreate}
-        title='Tạo workspace'
-        onCloseComplete={() => setShownCreate(false)}
-        hasFooter={false}
-      >
-        <WorkspaceCreate onCreateSuccess={onCreateSuccess} onClose={() => setShownCreate(false)} />
+      <Dialog isShown={isShownCreate} title='Tạo issue' onCloseComplete={() => setShownCreate(false)} hasFooter={false}>
+        <CreateIssueDialog onCreateSuccess={onCreateSuccess} closeDialog={() => setShownCreate(false)} />
       </Dialog>
     </Pane>
   )
