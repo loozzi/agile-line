@@ -24,7 +24,7 @@ import { selectUser } from '~/hooks/auth/auth.slice'
 import { selectCurrentWorkspace } from '~/hooks/workspace/workspace.slice'
 import { ProjectCreatePayload } from '~/models/project'
 import projectService from '~/services/project.service'
-import { compareDates } from '~/utils'
+import { compareDates, transLabel } from '~/utils'
 
 interface CreateProjectDialogProps {
   closeDialog: () => void
@@ -207,7 +207,7 @@ export const CreateProjectDialog = (props: CreateProjectDialogProps) => {
                     onSelect={() => payloadFormik.setFieldValue('status', status.label)}
                     icon={status.icon}
                   >
-                    {status.label}
+                    {transLabel(status.label)}
                   </Menu.Item>
                 ))}
               </Menu.Group>
@@ -224,7 +224,7 @@ export const CreateProjectDialog = (props: CreateProjectDialogProps) => {
             marginBottom={majorScale(1)}
             marginRight={majorScale(1)}
           >
-            {payloadFormik.values.status}
+            {transLabel(payloadFormik.values.status)}
           </Button>
         </Popover>
         <Popover

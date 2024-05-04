@@ -165,7 +165,7 @@ export const WorkspaceSettingPage = () => {
 
   return (
     <Pane>
-      <h1>Cài đặtWorkspace</h1>
+      <h1>Chỉnh sửa Workspace</h1>
       {loading && <p>Loading...</p>}
       {!!currentWorkspace && (
         <Pane marginTop={majorScale(4)}>

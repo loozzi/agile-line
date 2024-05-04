@@ -1,6 +1,7 @@
 import { SelectMenu, SelectMenuProps } from 'evergreen-ui'
 import { useEffect, useState } from 'react'
 import { useParams } from 'react-router'
+import imgs from '~/assets/imgs'
 import { Member } from '~/models/member'
 import workspaceService from '~/services/workspace.service'
 
@@ -39,9 +40,9 @@ export const PopupSelectedMember = (props: PopupSelectedMemberProps) => {
       title='Chọn thành viên cho dự án'
       options={options.map((member) => ({
         ...member,
-        label: `${member.first_name} ${member.last_name} (${member.username})`,
+        label: `${member.first_name ? member.first_name + ' ' + member.last_name : ''} (${member.username})`,
         value: member.id,
-        icon: member.avatar
+        icon: member.avatar || imgs.blank_avatar
       }))}
       selected={selectedItemsState}
       onFilterChange={(value) => {
@@ -57,6 +58,7 @@ export const PopupSelectedMember = (props: PopupSelectedMemberProps) => {
         const selectedItems = selectedItemsState.filter((_item, i) => i !== deselectedItemIndex)
         setSelectedItems(selectedItems)
       }}
+      filterPlaceholder='Tìm kiếm thành viên...'
     >
       {children}
     </SelectMenu>

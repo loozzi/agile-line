@@ -16,7 +16,7 @@ export const PopupSearchMember = (props: PopupSearchMemberProps) => {
           <Menu.Item key={member.id} onSelect={() => onChooseMember(member)}>
             <Pane display='flex'>
               <Avatar src={member.avatar || ''} marginRight={majorScale(1)} />
-              {member.first_name + ' ' + member.last_name} ({member.username})
+              {`${member.first_name ? member.first_name + ' ' + member.last_name : ''} (${member.username})`}
             </Pane>
           </Menu.Item>
         ))}

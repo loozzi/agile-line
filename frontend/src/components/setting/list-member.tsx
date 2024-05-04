@@ -84,7 +84,7 @@ export const ListMemberComp = (props: ListMemberCompProps) => {
           {/* <Table.TextHeaderCell>Họ và tên</Table.TextHeaderCell> */}
           <Table.TextHeaderCell>
             <Pane display='flex' alignItems='center'>
-              Role
+              Quyền
               <Combobox
                 marginLeft={majorScale(2)}
                 width={majorScale(16)}
@@ -95,7 +95,7 @@ export const ListMemberComp = (props: ListMemberCompProps) => {
               />
             </Pane>
           </Table.TextHeaderCell>
-          <Table.TextHeaderCell>Actions</Table.TextHeaderCell>
+          <Table.TextHeaderCell>Hành động</Table.TextHeaderCell>
         </Table.Head>
         <Table.Body>
           {members?.items.map((member: Member) => (

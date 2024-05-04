@@ -4,7 +4,6 @@ import {
   Dialog,
   ExpandAllIcon,
   IconButton,
-  InboxIcon,
   LayersIcon,
   LogOutIcon,
   MapIcon,
@@ -15,7 +14,8 @@ import {
   StyleIcon,
   TagIcon,
   UserIcon,
-  majorScale
+  majorScale,
+  toaster
 } from 'evergreen-ui'
 import { useEffect, useState } from 'react'
 import { useParams } from 'react-router'
@@ -25,8 +25,10 @@ import { history } from '~/configs/history'
 import routes from '~/configs/routes'
 import { selectUser } from '~/hooks/auth/auth.slice'
 import { GET_WORKSPACE, selectCurrentWorkspace } from '~/hooks/workspace/workspace.slice'
+import { ProjectResponse } from '~/models/project'
 import { Workspace, WorkspaceParams } from '~/models/workspace'
 import { CreateIssueDialog } from '~/pages/issue/create-issue'
+import workspaceService from '~/services/workspace.service'
 import { CollapseComp } from '../collapse/collapse'
 import { NavbarButtonComp } from './navbar-btn'
 
@@ -42,6 +44,7 @@ interface NavbarButtonConfig {
 interface NavbarCollapseConfig {
   label: string
   children: NavbarButtonConfig[]
+  collapsed?: boolean
 }
 
 export const NavbarComp = (props: NavbarCompProps) => {
@@ -50,6 +53,8 @@ export const NavbarComp = (props: NavbarCompProps) => {
   const currentWorkspace = useAppSelector(selectCurrentWorkspace)
   const currentUser = useAppSelector(selectUser)
   const [isShownCreate, setShownCreate] = useState<boolean>(false)
+  const [projects, setProjects] = useState<ProjectResponse[]>([])
+  const [favProjects, setFavProjects] = useState<ProjectResponse[]>([])
 
   const onCreateSuccess = (item: Workspace): void => {
     setShownCreate(false)
@@ -69,14 +74,14 @@ export const NavbarComp = (props: NavbarCompProps) => {
       label: 'Workspace',
       children: [
         {
-          label: 'Views',
+          label: 'Tổng quan',
           beforeIcon: <LayersIcon />,
-          onClick: handleOpenModalWorkspace
+          onClick: () => handleRedirect(`/${params.permalink}`)
         },
         {
-          label: 'Roadmaps',
+          label: 'Lộ trình phát triển',
           beforeIcon: <MapIcon />,
-          onClick: handleOpenModalWorkspace
+          onClick: () => toaster.warning('Chức năng đang phát triển')
         },
         {
           label: 'Danh sách dự án',
@@ -87,11 +92,20 @@ export const NavbarComp = (props: NavbarCompProps) => {
     },
     {
       label: 'Truy cập nhanh',
-      children: []
+      children: favProjects.map((project) => ({
+        label: project.name,
+        beforeIcon: <Avatar src={project.icon} />,
+        onClick: () => handleRedirect(`/${params.permalink}/${routes.workspace.projects.slug}/${project.permalink}`)
+      }))
     },
     {
       label: 'Dự án',
-      children: []
+      children: projects.map((project) => ({
+        label: project.name,
+        beforeIcon: <Avatar src={project.icon} />,
+        onClick: () => handleRedirect(`/${params.permalink}/${routes.workspace.projects.slug}/${project.permalink}`)
+      })),
+      collapsed: true
     },
     {
       label: 'Cài đặt Workspace',
@@ -120,8 +134,20 @@ export const NavbarComp = (props: NavbarCompProps) => {
     if (permalink) {
       const payload: WorkspaceParams = { permalink: permalink }
       dispatch({ type: GET_WORKSPACE, payload: payload })
+      workspaceService.allProjects({ permalink: permalink }).then((data) => {
+        setProjects(data.data!.items as ProjectResponse[])
+      })
     }
   }, [params])
+
+  useEffect(() => {
+    const fav = localStorage.getItem('favourites')
+    const projectIds = projects.map((p) => p.id)
+    if (fav) {
+      const favs = JSON.parse(fav) as ProjectResponse[]
+      setFavProjects(favs.filter((f) => projectIds.includes(f.id)))
+    }
+  }, [projects])
 
   return (
     <Pane {...props} display='flex' flexDirection='column' justifyContent='space-between' padding={majorScale(2)}>
@@ -145,19 +171,19 @@ export const NavbarComp = (props: NavbarCompProps) => {
           <IconButton icon={<StyleIcon />} onClick={() => setShownCreate(true)} />
         </Pane>
         <Pane marginTop={majorScale(2)}>
-          <NavbarButtonComp
+          {/* <NavbarButtonComp
             beforeIcon={<InboxIcon size={majorScale(2)} />}
             label='Inbox'
             onClick={handleOpenModalWorkspace}
-          />
+          /> */}
           <NavbarButtonComp
             beforeIcon={<PropertyIcon size={majorScale(2)} />}
-            label='My issues'
+            label='Danh sách công việc'
             onClick={() => handleRedirect(`/${params.permalink}/${routes.workspace.issues.slug}`)}
           />
         </Pane>
         {navBarConfig.map((config, index) => (
-          <CollapseComp key={index} label={config.label} marginTop={majorScale(2)}>
+          <CollapseComp key={index} label={config.label} marginTop={majorScale(2)} collapsed={config.collapsed}>
             {config.children.map((button, index) => (
               <NavbarButtonComp key={index} {...button} />
             ))}
@@ -176,7 +202,12 @@ export const NavbarComp = (props: NavbarCompProps) => {
           onClick={() => handleRedirect(routes.auth.logout)}
         />
       </Pane>
-      <Dialog isShown={isShownCreate} title='Tạo issue' onCloseComplete={() => setShownCreate(false)} hasFooter={false}>
+      <Dialog
+        isShown={isShownCreate}
+        title='Tạo công việc'
+        onCloseComplete={() => setShownCreate(false)}
+        hasFooter={false}
+      >
         <CreateIssueDialog onCreateSuccess={onCreateSuccess} closeDialog={() => setShownCreate(false)} />
       </Dialog>
     </Pane>

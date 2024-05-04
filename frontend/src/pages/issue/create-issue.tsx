@@ -44,6 +44,7 @@ import issueService from '~/services/issue.service'
 import labelService from '~/services/label.service'
 import projectService from '~/services/project.service'
 import workspaceService from '~/services/workspace.service'
+import { transLabel } from '~/utils'
 
 interface CreateIssueDialogProps {
   closeDialog: () => void
@@ -156,7 +157,7 @@ export const CreateIssueDialog = (props: CreateIssueDialogProps) => {
       <Pane>
         <SelectField
           label='Chọn dự án'
-          description='Vui lòng chọn dự án trước khi tạo issue'
+          description='Vui lòng chọn dự án trước khi tạo công việc'
           onChange={(e) => onChooseProject(parseInt(e.target.value))}
         >
           {projects.map((project) => (
@@ -166,8 +167,8 @@ export const CreateIssueDialog = (props: CreateIssueDialogProps) => {
           ))}
         </SelectField>
         <TextInputField
-          label='Tên issue'
-          placeholder='Nhập tên issue'
+          label='Tên công việc'
+          placeholder='Nhập tên công việc'
           required
           name='name'
           inputHeight={majorScale(6)}
@@ -192,7 +193,7 @@ export const CreateIssueDialog = (props: CreateIssueDialogProps) => {
                     onSelect={() => payload.setFieldValue('status', status.label)}
                     icon={status.icon}
                   >
-                    {status.label}
+                    {transLabel(status.label)}
                   </Menu.Item>
                 ))}
               </Menu.Group>
@@ -207,7 +208,7 @@ export const CreateIssueDialog = (props: CreateIssueDialogProps) => {
             marginBottom={majorScale(1)}
             marginRight={majorScale(1)}
           >
-            {payload.values.status}
+            {transLabel(payload.values.status)}
           </Button>
         </Popover>
         <Popover
@@ -221,7 +222,7 @@ export const CreateIssueDialog = (props: CreateIssueDialogProps) => {
                     onSelect={() => payload.setFieldValue('priority', priority.label)}
                     icon={priority.icon}
                   >
-                    {priority.label}
+                    {transLabel(priority.label)}
                   </Menu.Item>
                 ))}
               </Menu.Group>
@@ -238,7 +239,7 @@ export const CreateIssueDialog = (props: CreateIssueDialogProps) => {
             marginBottom={majorScale(1)}
             marginRight={majorScale(1)}
           >
-            {payload.values.priority}
+            {transLabel(payload.values.priority)}
           </Button>
         </Popover>
         <Popover content={<PopupSearchMember members={project?.members || []} onChooseMember={onChooseMember} />}>
@@ -248,7 +249,7 @@ export const CreateIssueDialog = (props: CreateIssueDialogProps) => {
             marginBottom={majorScale(1)}
             marginRight={majorScale(1)}
           >
-            {!!assignee ? `${assignee.username}` : 'Assign to...'}
+            {!!assignee ? `${assignee.username}` : 'Giao cho...'}
           </Button>
         </Popover>
         <PopupSelectedLabels labels={labels} onChooseLabels={onChooseLabels}>
@@ -272,7 +273,7 @@ export const CreateIssueDialog = (props: CreateIssueDialogProps) => {
             Đóng
           </Button>
           <Button type='submit' appearance='primary'>
-            Tạo issue
+            Tạo công việc
           </Button>
         </Pane>
       </Pane>

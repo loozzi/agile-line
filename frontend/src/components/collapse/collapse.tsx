@@ -4,12 +4,13 @@ import './collapse.css'
 
 interface CollapseCompProps extends PaneProps {
   label: React.ReactNode
+  collapsed?: boolean
   children?: React.ReactNode
 }
 
 export const CollapseComp = (props: CollapseCompProps) => {
-  const { label, children, ...paneProps } = props
-  const [isCollapse, setIsCollapse] = useState<boolean>(true)
+  const { label, children, collapsed, ...paneProps } = props
+  const [isCollapse, setIsCollapse] = useState<boolean>(!collapsed)
 
   const handleCollapse = () => {
     setIsCollapse(!isCollapse)

@@ -46,7 +46,7 @@ export const PopupSearchLeader = (props: PopupSearchLeaderProps) => {
           >
             <Pane display='flex'>
               <Avatar src={member.avatar} marginRight={majorScale(1)} />
-              {member.first_name + ' ' + member.last_name} ({member.username})
+              {`${member.first_name ? member.first_name + ' ' + member.last_name : ''} (${member.username})`}
             </Pane>
           </Menu.Item>
         ))}

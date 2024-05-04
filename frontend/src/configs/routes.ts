@@ -23,7 +23,7 @@ export default {
     projects: {
       page: '/:permalink/projects',
       slug: 'projects',
-      detail: '/:permalink/projects/:projectId'
+      detail: '/:permalink/projects/:projectPermalink'
     },
     labels: {
       page: '/:permalink/labels',
