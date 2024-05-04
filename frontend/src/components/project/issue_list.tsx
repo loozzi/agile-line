@@ -206,6 +206,11 @@ export const ListIssueComp = (props: ListIssueCompProps) => {
             </Table.TextCell>
           </Table.Row>
         ))}
+        {!issues?.items.length && (
+          <Table.Row>
+            <Table.TextCell textAlign='center'>Không có công việc nào</Table.TextCell>
+          </Table.Row>
+        )}
       </Table>
       <Pagination
         marginTop={majorScale(2)}

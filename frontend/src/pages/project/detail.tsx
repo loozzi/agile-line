@@ -1,9 +1,11 @@
 import { Image, Pane, Tab, Tablist, majorScale } from 'evergreen-ui'
 import { useEffect, useState } from 'react'
 import { useParams } from 'react-router'
+import { EditMemberComp } from '~/components/edit-member'
 import { ListIssueComp } from '~/components/project/issue_list'
 import { ProjectResponse } from '~/models/project'
 import projectService from '~/services/project.service'
+import { EditProjectSideSheet } from './edit-project'
 
 const ProjectDetailPage = () => {
   const [project, setProject] = useState<ProjectResponse | undefined>(undefined)
@@ -59,8 +61,14 @@ const ProjectDetailPage = () => {
             role='tabpanel'
           >
             {tab === 'Công việc' && project && <ListIssueComp project_id={project.id} />}
-            {tab === 'Thành viên' && <p>Thành viên</p>}
-            {tab === 'Thông tin' && <p>Thông tin</p>}
+            {tab === 'Thành viên' && project && (
+              <EditMemberComp
+                members={project.members}
+                permalink={project.permalink}
+                onUpdateSuccess={(data) => setProject(data)}
+              />
+            )}
+            {tab === 'Thông tin' && project && <EditProjectSideSheet project={project} />}
           </Pane>
         ))}
       </Pane>

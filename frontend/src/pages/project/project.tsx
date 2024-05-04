@@ -201,7 +201,7 @@ export const ProjectPage = () => {
       </Dialog>
       {selectedProject && (
         <SideSheet isShown={!!selectedProject} onCloseComplete={() => setSelectedProject(undefined)}>
-          <EditProjectSideSheet project={selectedProject} />
+          <EditProjectSideSheet project={selectedProject} editMember={true} />
         </SideSheet>
       )}
     </Pane>

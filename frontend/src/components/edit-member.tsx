@@ -243,8 +243,18 @@ export const EditMemberComp = (props: EditMemberProps) => {
             </Table.Body>
           </Table>
         </Pane>
-        <Pane display='flex' justifyContent='flex-end'>
-          <Button appearance='primary' marginTop={majorScale(2)} onClick={handleUpdateListMember}>
+        <Pane display='flex' justifyContent='flex-end' marginTop={majorScale(2)}>
+          <Button
+            intent='danger'
+            onClick={() => {
+              setAddMemberDialog(false)
+              setNewMembers([])
+            }}
+            marginRight={majorScale(2)}
+          >
+            Hủy
+          </Button>
+          <Button appearance='primary' onClick={handleUpdateListMember}>
             Thêm thành viên
           </Button>
         </Pane>

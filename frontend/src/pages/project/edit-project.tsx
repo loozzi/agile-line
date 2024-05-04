@@ -11,6 +11,7 @@ import {
   TagIcon,
   TextInputField,
   majorScale,
+  Image,
   toaster
 } from 'evergreen-ui'
 import { useFormik } from 'formik'
@@ -33,10 +34,11 @@ import { compareDates, reformatDate, transLabel } from '~/utils'
 
 interface EditProjectProps {
   project: ProjectResponse
+  editMember?: boolean
 }
 
 export const EditProjectSideSheet = (props: EditProjectProps) => {
-  let { project } = props
+  let { project, editMember } = props
   const [projectDetail, setProjectDetail] = useState<ProjectResponse | undefined>(undefined)
   const [enableEdit, setEnableEdit] = useState<boolean>(false)
 
@@ -100,7 +102,7 @@ export const EditProjectSideSheet = (props: EditProjectProps) => {
     projectService.get(project.permalink).then((data) => {
       setProjectDetail(data.data)
     })
-  }, [])
+  }, [project])
 
   useEffect(() => {
     project = projectDetail || project
@@ -110,16 +112,27 @@ export const EditProjectSideSheet = (props: EditProjectProps) => {
     <Pane padding={majorScale(2)}>
       <Pane display='flex' justifyContent='space-between' borderBottom='1px #ccc solid' paddingBottom={majorScale(4)}>
         <Pane display='flex' alignItems='center'>
-          <ImagePickerComp
-            src={enableEdit ? payload.values.icon : projectDetail?.icon || ''}
-            width={majorScale(20)}
-            height={majorScale(20)}
-            borderRadius={majorScale(2)}
-            marginRight={majorScale(2)}
-            onChangeImage={(value) => payload.setFieldValue('icon', value)}
-          />
+          {enableEdit ? (
+            <ImagePickerComp
+              src={enableEdit ? payload.values.icon : projectDetail?.icon || ''}
+              width={majorScale(20)}
+              height={majorScale(20)}
+              borderRadius={majorScale(2)}
+              marginRight={majorScale(2)}
+              onChangeImage={(value) => payload.setFieldValue('icon', value)}
+            />
+          ) : (
+            <Image
+              src={projectDetail?.icon || ''}
+              width={majorScale(20)}
+              height={majorScale(20)}
+              borderRadius={majorScale(2)}
+              marginRight={majorScale(2)}
+            />
+          )}
           {enableEdit ? (
             <TextInputField
+              label='Tên dự án'
               placeholder='Tên dự án'
               inputHeight={majorScale(6)}
               value={payload.values.name}
@@ -283,7 +296,7 @@ export const EditProjectSideSheet = (props: EditProjectProps) => {
             onChange={onChangeDescription}
           />
         </div>
-        {projectDetail?.members && (
+        {editMember && projectDetail?.members && (
           <EditMemberComp
             permalink={projectDetail.permalink}
             members={projectDetail.members}
