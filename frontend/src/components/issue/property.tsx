@@ -3,7 +3,6 @@ import {
   Badge,
   Button,
   ChevronDownIcon,
-  Dialog,
   DuplicateIcon,
   IconButton,
   Label,
@@ -17,6 +16,7 @@ import {
   toaster
 } from 'evergreen-ui'
 import { useEffect, useState } from 'react'
+import { useParams } from 'react-router'
 import {
   AntennaBars1Icon,
   AntennaBars2Icon,
@@ -29,6 +29,7 @@ import {
   InprogressIcon,
   TodoIcon
 } from '~/assets/icons'
+import { history } from '~/configs/history'
 import { IssuePriority, IssueResponse, IssueStatus } from '~/models/issue'
 import { LabelResponse } from '~/models/label'
 import { ProjectResponse } from '~/models/project'
@@ -36,8 +37,6 @@ import { User } from '~/models/user'
 import issueService from '~/services/issue.service'
 import { getContrastColor, transLabel } from '~/utils'
 import { PopupSearchMember } from '../popup_search_member'
-import { history } from '~/configs/history'
-import { useParams } from 'react-router'
 
 interface IssuePropertyCompProps {
   issue: IssueResponse
@@ -111,7 +110,6 @@ export const IssuePropertyComp = (props: IssuePropertyCompProps) => {
       )
       .then((data) => {
         if (data.status === 200) {
-          toaster.success(data.message)
           onUpdateSuccess(data.data!)
         } else {
           toaster.danger(data.message)
