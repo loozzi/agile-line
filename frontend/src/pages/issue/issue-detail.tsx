@@ -39,9 +39,10 @@ export const IssueDetailPage = () => {
       limit: 100
     }
 
-    projectService.get(issue?.project.permalink || '').then((data) => {
-      setProject(data.data)
-    })
+    if (issue)
+      projectService.get(issue?.project.permalink || '').then((data) => {
+        setProject(data.data)
+      })
 
     labelService.getAll(_params).then((data) => {
       setLabels(data.data || [])

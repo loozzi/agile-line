@@ -3,6 +3,7 @@ import {
   Badge,
   Button,
   ChevronDownIcon,
+  Dialog,
   DuplicateIcon,
   IconButton,
   Label,
@@ -10,11 +11,12 @@ import {
   Pane,
   PlusIcon,
   Popover,
+  SelectMenu,
   Tooltip,
   majorScale,
   toaster
 } from 'evergreen-ui'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import {
   AntennaBars1Icon,
   AntennaBars2Icon,
@@ -34,6 +36,8 @@ import { User } from '~/models/user'
 import issueService from '~/services/issue.service'
 import { getContrastColor, transLabel } from '~/utils'
 import { PopupSearchMember } from '../popup_search_member'
+import { history } from '~/configs/history'
+import { useParams } from 'react-router'
 
 interface IssuePropertyCompProps {
   issue: IssueResponse
@@ -43,9 +47,11 @@ interface IssuePropertyCompProps {
 }
 
 export const IssuePropertyComp = (props: IssuePropertyCompProps) => {
-  const { issue, project, onUpdateSuccess } = props
+  const { issue, labels, project, onUpdateSuccess } = props
+  const params = useParams()
 
   const [assignee, setAssignee] = useState<User>(issue.assignee)
+  const [selectedLabels, setSelectedLabels] = useState<LabelResponse[]>(issue.label)
 
   const issueStatus = [
     { label: 'backlog', icon: <BacklogIcon /> },
@@ -66,6 +72,13 @@ export const IssuePropertyComp = (props: IssuePropertyCompProps) => {
 
   const onChooseMember = (member: User) => {
     setAssignee(member)
+    issueService.updateAssignee(issue.permalink, member.id).then((data) => {
+      if (data.status === 200) {
+        toaster.success(data.message)
+      } else {
+        toaster.danger(data.message)
+      }
+    })
   }
 
   const handleUpdateStatus = (status: IssueStatus) => {
@@ -80,8 +93,31 @@ export const IssuePropertyComp = (props: IssuePropertyCompProps) => {
   }
 
   const handleUpdatePriority = (priority: IssuePriority) => {
-    console.log(priority)
+    issueService.updatePriority(issue.permalink, priority).then((data) => {
+      if (data.status === 200) {
+        toaster.success(data.message)
+        onUpdateSuccess(data.data!)
+      } else {
+        toaster.danger(data.message)
+      }
+    })
   }
+
+  useEffect(() => {
+    issueService
+      .updateLabel(
+        issue.permalink,
+        selectedLabels.map((label) => label.id)
+      )
+      .then((data) => {
+        if (data.status === 200) {
+          toaster.success(data.message)
+          onUpdateSuccess(data.data!)
+        } else {
+          toaster.danger(data.message)
+        }
+      })
+  }, [selectedLabels])
 
   return (
     <Pane>
@@ -174,8 +210,8 @@ export const IssuePropertyComp = (props: IssuePropertyCompProps) => {
         <Pane display='flex' justifyContent='space-between' marginBottom={majorScale(1)} alignItems='center'>
           <Label display='block'>Nhãn</Label>
           <Pane maxWidth={majorScale(24)}>
-            {issue?.label.map((label) => (
-              <Tooltip content={label.description}>
+            {selectedLabels.map((label) => (
+              <Tooltip content={label.description} key={label.id}>
                 <Badge
                   key={label.id}
                   color={getContrastColor(label.color) as any}
@@ -186,16 +222,50 @@ export const IssuePropertyComp = (props: IssuePropertyCompProps) => {
                 </Badge>
               </Tooltip>
             ))}
-            <Tooltip content='Thêm'>
-              <IconButton appearance='minimal' icon={PlusIcon} />
-            </Tooltip>
+            <SelectMenu
+              isMultiSelect
+              options={labels.map((label) => ({
+                label: (
+                  <Badge
+                    key={label.id}
+                    color={getContrastColor(label.color) as any}
+                    backgroundColor={label.color}
+                    marginRight={majorScale(1)}
+                  >
+                    {label.title}
+                  </Badge>
+                ) as any,
+                value: label.id.toString()
+              }))}
+              selected={selectedLabels.map((label) => label.id.toString())}
+              onSelect={(item) => {
+                const selectedLabel = labels.filter((label) => label.id === parseInt(item.value as string))[0]
+                const selected = [...selectedLabels, selectedLabel]
+                setSelectedLabels(selected)
+              }}
+              onDeselect={(item) => {
+                const deselectedItemIndex = selectedLabels
+                  .map((label) => label.id.toString())
+                  .indexOf(item.value as string)
+                const selectedItems = selectedLabels.filter((_item, i) => i !== deselectedItemIndex)
+                setSelectedLabels(selectedItems)
+              }}
+            >
+              <Tooltip content='Thêm'>
+                <IconButton appearance='minimal' icon={PlusIcon} />
+              </Tooltip>
+            </SelectMenu>
           </Pane>
         </Pane>
       </Pane>
       <Pane marginTop={majorScale(4)}>
         <Pane display='flex' justifyContent='space-between' marginBottom={majorScale(1)} alignItems='center'>
           <Label display='block'>Dự án</Label>
-          <Button iconBefore={<Avatar src={issue?.project.icon} marginRight={majorScale(1)} />} appearance='minimal'>
+          <Button
+            iconBefore={<Avatar src={issue?.project.icon} marginRight={majorScale(1)} />}
+            appearance='minimal'
+            onClick={() => history.push(`/${params.permalink}/projects/${project.permalink}`)}
+          >
             {issue?.project.name}
           </Button>
         </Pane>

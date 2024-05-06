@@ -42,8 +42,11 @@ const issue = {
   create: '/issue/',
   getAll: '/issue/',
   get: '/issue/:permalink',
-  update: '/issue/',
-  updateStatus: '/issue/:permalink',
+  updateStatus: '/issue/:permalink/status',
+  updateAssignee: '/issue/:permalink/assignee',
+  updatePriority: '/issue/:permalink/priority',
+  updateLabel: '/issue/:permalink/label',
+  update: '/issue/:permalink/name',
   delete: '/issue/:permalink'
 }
 

@@ -1,6 +1,6 @@
 import routeApi from '~/configs/route.api'
 import { IResponse } from '~/models/IResponse'
-import { IssueCreatePayload, IssueParams, IssueResponse, IssueStatus } from '~/models/issue'
+import { IssueCreatePayload, IssueParams, IssuePriority, IssueResponse, IssueStatus } from '~/models/issue'
 import { PaginationResponse } from '~/models/utils'
 import client from './axios.service'
 
@@ -24,9 +24,30 @@ const updateStatus = async (permalink: string, status: IssueStatus): Promise<IRe
   })
 }
 
+const updateAssignee = async (permalink: string, id: number): Promise<IResponse<IssueResponse>> => {
+  return await client.put(routeApi.issue.updateAssignee.replace(':permalink', permalink), {
+    assignee_id: id
+  })
+}
+
+const updatePriority = async (permalink: string, priority: IssuePriority): Promise<IResponse<any>> => {
+  return await client.put(routeApi.issue.updatePriority.replace(':permalink', permalink), {
+    priority
+  })
+}
+
+const updateLabel = async (permalink: string, label_ids: number[]): Promise<IResponse<any>> => {
+  return await client.put(routeApi.issue.updateLabel.replace(':permalink', permalink), {
+    label: `[${label_ids.toString()}]`
+  })
+}
+
 export default {
   create,
   getAll,
   getDetail,
-  updateStatus
+  updateStatus,
+  updateAssignee,
+  updatePriority,
+  updateLabel
 }
