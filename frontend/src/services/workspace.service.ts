@@ -63,8 +63,10 @@ const addMembers = async (
   })
 }
 
-const deleteWorkspace = async (params: WorkspaceParams): Promise<IResponse<undefined>> => {
-  return await client.delete(routeApi.workspace.deleteWorkspace + params.permalink)
+const deleteWorkspace = async (params: WorkspaceParams, password: string): Promise<IResponse<undefined>> => {
+  return await client.put(routeApi.workspace.deleteWorkspace.replace(':permalink', params.permalink), {
+    password
+  })
 }
 
 const allProjects = async (params: WorkspaceParams): Promise<IResponse<PaginationResponse<ProjectResponse>>> => {
