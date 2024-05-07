@@ -1,6 +1,13 @@
 import routeApi from '~/configs/route.api'
 import { IResponse } from '~/models/IResponse'
-import { IssueCreatePayload, IssueParams, IssuePriority, IssueResponse, IssueStatus } from '~/models/issue'
+import {
+  IssueCreatePayload,
+  IssueParams,
+  IssuePriority,
+  IssueResponse,
+  IssueStatus,
+  IssueUpdatePayload
+} from '~/models/issue'
 import { PaginationResponse } from '~/models/utils'
 import client from './axios.service'
 
@@ -42,6 +49,10 @@ const updateLabel = async (permalink: string, label_ids: number[]): Promise<IRes
   })
 }
 
+const update = async (permalink: string, payload: IssueUpdatePayload): Promise<IResponse<IssueResponse>> => {
+  return await client.put(routeApi.issue.update.replace(':permalink', permalink), payload)
+}
+
 export default {
   create,
   getAll,
@@ -49,5 +60,6 @@ export default {
   updateStatus,
   updateAssignee,
   updatePriority,
-  updateLabel
+  updateLabel,
+  update
 }
