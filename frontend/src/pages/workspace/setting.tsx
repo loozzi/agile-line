@@ -49,6 +49,7 @@ export const WorkspaceSettingPage = () => {
   const dispatch = useAppDispatch()
   const [isShownConfirmDelete, setShownConfirmDelete] = useState<boolean>(false)
   const [confirmDeleteInput, setConfirmDeleteInput] = useState<string>('')
+  const [password, setPassword] = useState<string>('')
 
   const onChangeImage = (value: string | undefined): void => {
     const params: WorkspaceParams = {
@@ -104,7 +105,7 @@ export const WorkspaceSettingPage = () => {
       }
 
       if (JSON.stringify(values) === JSON.stringify(_currentWp)) {
-        toaster.warning('No change')
+        toaster.warning('Không có thay đổi')
         return
       }
       workspaceService.editWorkspace(params, payload).then((data) => {
@@ -113,9 +114,9 @@ export const WorkspaceSettingPage = () => {
           payload: params
         })
         if (data.status !== 200) {
-          toaster.warning('Update workspace failed')
+          toaster.warning(data.message)
         } else {
-          toaster.success('Update workspace successfully')
+          toaster.success(data.message)
           if (currentWorkspace?.permalink !== values.permalink) {
             window.location.href = `/${data.data?.permalink}/settings`
           }
@@ -140,7 +141,7 @@ export const WorkspaceSettingPage = () => {
 
   const confirmDeleteWorkspace = () => {
     if (confirmDeleteInput === `delete/${currentWorkspace?.permalink}`) {
-      workspaceService.deleteWorkspace({ permalink: currentWorkspace?.permalink || '' }).then((data) => {
+      workspaceService.deleteWorkspace({ permalink: currentWorkspace?.permalink || '' }, password).then((data) => {
         if (data.status === 200) {
           toaster.success(data.message)
           history.push(routes.workspace.root)
@@ -255,6 +256,14 @@ export const WorkspaceSettingPage = () => {
           onChange={(e: any) => setConfirmDeleteInput(e.target.value)}
           value={confirmDeleteInput}
           placeholder='Nhập thông tin'
+        />
+        <TextInputField
+          label='Nhập mật khẩu để xác nhận'
+          onChange={(e: any) => setPassword(e.target.value)}
+          value={password}
+          placeholder='Nhập mật khẩu'
+          type='password'
+          required
         />
       </Dialog>
     </Pane>

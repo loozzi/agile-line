@@ -133,7 +133,7 @@ def access_workspace(permalink):
         return_workspace = Workspace.query.filter_by(id=curr_workspace.id).first()
         return _response(200, "Truy cập thành công", data=to_dict(return_workspace))
     else:
-        return _response(403, "Workspace private")
+        return _response(403, "Workspace không công khai")
 
 
 def edit_workspace(permalink, title, logo, description, new_permalink, is_private):
@@ -142,7 +142,7 @@ def edit_workspace(permalink, title, logo, description, new_permalink, is_privat
         return _response(404, "Không tìm thấy dữ liệu")
     user = request.user
     if is_workspace_user(user, curr_workspace) is False:
-        return _response(403, "Workspace private")
+        return _response(403, "Workspace không công khai")
     if not title:
         title = curr_workspace.title
     if not logo:
