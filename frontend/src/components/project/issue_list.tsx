@@ -1,47 +1,48 @@
 import {
+  Avatar,
+  Badge,
+  DuplicateIcon,
+  Icon,
+  Label,
+  Pagination,
   Pane,
   Table,
-  majorScale,
-  Tooltip,
-  Popover,
-  Menu,
-  IconButton,
   TagIcon,
-  Label,
-  Badge,
-  Avatar,
-  Pagination,
-  DuplicateIcon,
-  toaster
+  Tooltip,
+  majorScale
 } from 'evergreen-ui'
 import { useEffect, useState } from 'react'
+import { useParams } from 'react-router'
 import { useAppSelector } from '~/app/hook'
 import {
-  BacklogIcon,
-  TodoIcon,
-  InprogressIcon,
-  CompletedIcon,
-  CanceledIcon,
   AntennaBars1Icon,
   AntennaBars2Icon,
   AntennaBars3Icon,
   AntennaBars4Icon,
-  AntennaBars5Icon
+  AntennaBars5Icon,
+  BacklogIcon,
+  CanceledIcon,
+  CompletedIcon,
+  InprogressIcon,
+  TodoIcon
 } from '~/assets/icons'
+import { history } from '~/configs/history'
 import { selectCurrentWorkspace } from '~/hooks/workspace/workspace.slice'
 import { IssueParams, IssueResponse, IssueStatus } from '~/models/issue'
 import { PaginationResponse } from '~/models/utils'
 import issueService from '~/services/issue.service'
-import { transLabel, getContrastColor, convertTimestamp } from '~/utils'
-import { history } from '~/configs/history'
-import { useParams } from 'react-router'
+import { convertTimestamp, getContrastColor, transLabel } from '~/utils'
 
 interface ListIssueCompProps {
   project_id: number
+  status?: IssueStatus
+  label?: string
+  keyword?: string
+  username?: string
 }
 
 export const ListIssueComp = (props: ListIssueCompProps) => {
-  const { project_id } = props
+  const { project_id, status, label, keyword, username } = props
   const currentWorkspace = useAppSelector(selectCurrentWorkspace)
   const params = useParams()
 
@@ -65,44 +66,21 @@ export const ListIssueComp = (props: ListIssueCompProps) => {
     { label: 'urgent', icon: <AntennaBars5Icon /> }
   ]
 
-  const handleUpdateStatus = (permalink: string, status: IssueStatus) => {
-    issueService.updateStatus(permalink, status).then((data) => {
-      if (data.status === 200) {
-        toaster.success(data.message)
-        setIssues((prev) => {
-          if (prev) {
-            return {
-              ...prev,
-              items: prev.items.map((issue) => {
-                if (issue.permalink === permalink) {
-                  return {
-                    ...issue,
-                    status: status
-                  }
-                }
-                return issue
-              })
-            }
-          }
-          return prev
-        })
-      } else {
-        toaster.danger(data.message)
-      }
-    })
-  }
-
   useEffect(() => {
     const _params: IssueParams = {
       project_id: project_id,
       workspace_id: currentWorkspace?.id || 0,
       limit: 20,
-      page: currentPage
+      page: currentPage,
+      status: status,
+      label: label,
+      keyword: keyword,
+      username: username
     }
     issueService.getAll(_params).then((data) => {
       setIssues(data?.data)
     })
-  }, [project_id, currentPage])
+  }, [project_id, currentPage, status, label, keyword, username])
 
   return (
     <Pane>
@@ -121,36 +99,14 @@ export const ListIssueComp = (props: ListIssueCompProps) => {
             <Table.TextHeaderCell flexBasis={majorScale(4)} flexShrink={0} flexGrow={0}>
               <Tooltip content={transLabel(issue.status)}>
                 <Pane>
-                  <Popover
-                    content={
-                      <Menu>
-                        <Menu.Group>
-                          {issueStatus.map((status) => (
-                            <Menu.Item
-                              key={status.label}
-                              textTransform='capitalize'
-                              onSelect={() => handleUpdateStatus(issue.permalink, status.label as IssueStatus)}
-                              icon={status.icon}
-                            >
-                              {transLabel(status.label)}
-                            </Menu.Item>
-                          ))}
-                        </Menu.Group>
-                        <Menu.Divider />
-                      </Menu>
-                    }
+                  <Icon
+                    icon={issueStatus.find((status) => status.label === issue.status)?.icon || <TagIcon />}
+                    textTransform='capitalize'
+                    marginBottom={majorScale(1)}
+                    marginRight={majorScale(1)}
                   >
-                    <IconButton
-                      type='button'
-                      appearance='minimal'
-                      icon={issueStatus.find((status) => status.label === issue.status)?.icon || <TagIcon />}
-                      textTransform='capitalize'
-                      marginBottom={majorScale(1)}
-                      marginRight={majorScale(1)}
-                    >
-                      {transLabel(issue.status)}
-                    </IconButton>
-                  </Popover>
+                    {transLabel(issue.status)}
+                  </Icon>
                 </Pane>
               </Tooltip>
             </Table.TextHeaderCell>
