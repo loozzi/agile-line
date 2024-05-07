@@ -179,7 +179,7 @@ export const ListIssueComp = (props: ListIssueCompProps) => {
                   </Pane>
                 </Pane>
                 <span>
-                  #{issue.id} mở {convertTimestamp(issue.created_at || '')} bởi {issue.assignor.username} • cập nhật{' '}
+                  mở {convertTimestamp(issue.created_at || '')} bởi {issue.assignor.username} • cập nhật{' '}
                   {convertTimestamp(issue.updated_at || '')}
                 </span>
               </Pane>
