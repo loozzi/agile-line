@@ -20,17 +20,17 @@ export const ImagePickerComp = (props: ImagePickerCompProps) => {
   }
 
   const onChange = useCallback(() => {
-    toaster.notify('Uploading image...', {
+    toaster.notify('Đang tải ảnh lên...', {
       id: 'upload-image'
     })
     imgurService.uploadImage(inputRef.current?.files![0] as File).then((data: IResponse<ImgurResponse>) => {
       if (data.status === 200) {
         onChangeImage!(data.data!.link)
-        toaster.success('Upload image successfully', {
+        toaster.success('Tải ảnh lên thành công', {
           id: 'upload-image'
         })
       } else {
-        toaster.danger('Upload image failed', {
+        toaster.danger('Tải ảnh lên thất bại', {
           id: 'upload-image'
         })
       }

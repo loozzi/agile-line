@@ -13,7 +13,7 @@ const workspace = {
   members: '/workspace/:permalink/members',
   projects: '/workspace/:permalink/project',
   labels: '/workspace/:permalink/labels',
-  deleteWorkspace: '/workspace/'
+  deleteWorkspace: '/workspace/:permalink/delete'
 }
 
 const user = {
