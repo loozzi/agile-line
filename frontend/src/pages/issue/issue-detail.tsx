@@ -11,6 +11,7 @@ import issueService from '~/services/issue.service'
 import labelService from '~/services/label.service'
 import projectService from '~/services/project.service'
 import { convertTimestamp } from '~/utils'
+import { IssueActivityComp } from './issue-activity'
 
 export const IssueDetailPage = () => {
   const params = useParams()
@@ -170,6 +171,7 @@ export const IssueDetailPage = () => {
             </Button>
           )}
         </div>
+        {!!issue && <IssueActivityComp issue_id={issue.id} />}
       </Pane>
       <Pane width={majorScale(32)}>
         <Pane display='flex' justifyContent='space-between' alignItems='center'>
