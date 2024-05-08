@@ -1,26 +1,12 @@
-from flask import Blueprint, request
-from src.services import project_service
-from src.utils import _response
-from src.middlewares import token_required, request_pagination
-from src.controllers import workspace
-from src.enums import ProjectStatus
 from datetime import datetime
 
+from flask import Blueprint, request
+from src.enums import ProjectStatus
+from src.middlewares import request_pagination, token_required
+from src.services import project_service
+from src.utils import _response
 
 project = Blueprint("project", __name__)
-
-
-@workspace.route("/<string:permalink>/project", methods=["GET"])
-@token_required
-@request_pagination
-def show_project_in_workspace(permalink):
-    issue_kw = request.args.get("issue_kw", "").strip()
-    leader_kw = request.args.get("leader_kw", "").strip()
-    member_kw = request.args.get("member_kw", "").strip()
-    status = request.args.get("status", "").strip()
-    return project_service.show_project_in_workspace(
-        permalink, issue_kw, leader_kw, member_kw, status
-    )
 
 
 @project.route("/<string:permalink>", methods=["GET"])
@@ -118,6 +104,7 @@ def edit_role_in_project(permalink):
     name = request.form.get("name", "").strip()
     description = request.form.get("description", "").strip()
     return project_service.edit_role_in_project(permalink, id, name, description)
+
 
 @project.route("/<string:permalink>", methods=["PUT"])
 @token_required
