@@ -2,7 +2,7 @@ from datetime import datetime, timezone
 
 from flask import request
 from src import db
-from src.models import Activity, Issue
+from src.models import Activity, Issue, User
 from src.utils import _response, to_dict
 
 
@@ -16,13 +16,15 @@ def data_user_response(user):
     return user
 
 
-def parse_activity(activity):
-    current_user = request.user
+def parse_activity(activity, user=None):
+    if not user:
+        user = User.query.get(activity.user_id)
+
     response = {
         "id": activity.id,
         "description": activity.description,
         "action": activity.action,
-        "user": data_user_response(current_user),
+        "user": data_user_response(user),
         "created_at": activity.created_at,
         "updated_at": activity.updated_at,
         "is_edited": activity.is_edited,
@@ -53,7 +55,7 @@ def create(issue_id, description, action):
 
     db.session.add(activity)
     db.session.commit()
-    response = parse_activity(activity)
+    response = parse_activity(activity, current_user)
     return _response(200, "Bình luận thành công", response)
 
 
@@ -72,7 +74,7 @@ def edit(activity_id, description):
     activity.updated_at = datetime.now(timezone.utc)
     db.session.commit()
 
-    response = parse_activity(activity)
+    response = parse_activity(activity, current_user)
     return _response(200, "Sửa hoạt động thành công", response)
 
 
