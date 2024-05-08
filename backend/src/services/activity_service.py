@@ -7,6 +7,20 @@ from src.services.issue_service import data_user_response
 from src.utils import _response
 
 
+def parse_activity(activity):
+    current_user = request.user
+    response = {
+        "id": activity.id,
+        "description": activity.description,
+        "action": activity.action,
+        "user": data_user_response(current_user),
+        "created_at": activity.created_at,
+        "updated_at": activity.updated_at,
+        "is_edited": activity.is_edited,
+    }
+    return response
+
+
 def create(issue_id, description, action):
     issue = Issue.query.get(issue_id)
     if not issue:
@@ -24,13 +38,24 @@ def create(issue_id, description, action):
 
     db.session.add(activity)
     db.session.commit()
-    response = {
-        "id": activity.id,
-        "description": activity.description,
-        "action": activity.action,
-        "user": data_user_response(current_user),
-        "created_at": activity.created_at,
-        "updated_at": activity.updated_at,
-        "is_edited": activity.is_edited,
-    }
+    response = parse_activity(activity)
     return _response(200, "Bình luận thành công", response)
+
+
+def edit(activity_id, description):
+    activity = Activity.query.get(activity_id)
+    if not activity:
+        return _response(404, "Hoạt động không tồn tại")
+
+    current_user = request.user
+
+    if activity.user_id != current_user.id:
+        return _response(403, "Không có quyền sửa hoạt động của người khác")
+
+    activity.description = description
+    activity.is_edited = True
+    activity.updated_at = datetime.now(timezone.utc)
+    db.session.commit()
+
+    response = parse_activity(activity)
+    return _response(200, "Sửa hoạt động thành công", response)
