@@ -1,8 +1,10 @@
 import MDEditor from '@uiw/react-md-editor'
 import {
+  AntennaIcon,
   Avatar,
   Badge,
   Button,
+  EditIcon,
   Icon,
   IconButton,
   Label,
@@ -10,12 +12,14 @@ import {
   Pane,
   PaneProps,
   Popover,
+  PowerIcon,
+  RefreshIcon,
   TagIcon,
+  UserIcon,
   majorScale
 } from 'evergreen-ui'
 import { useEffect, useState } from 'react'
 import { useAppSelector } from '~/app/hook'
-import { AntennaBars1Icon } from '~/assets/icons'
 import { selectUser } from '~/hooks/auth/auth.slice'
 import { ActivityResponse, IssueResponse } from '~/models/issue'
 import { User } from '~/models/user'
@@ -37,9 +41,20 @@ export const IssueActivityComp = (props: IssueActivityCompProps) => {
 
   const icons = {
     label: <TagIcon />,
-    assignee: <Avatar />,
-    status: <Icon icon={AntennaBars1Icon} />,
-    priority: <Icon icon={AntennaBars1Icon} />
+    assignee: <UserIcon />,
+    status: RefreshIcon,
+    priority: AntennaIcon,
+    name: <EditIcon />,
+    create: PowerIcon
+  }
+
+  const getIcon = (message: string) => {
+    if (message.includes('nhãn')) return icons.label
+    if (message.includes('phụ trách')) return icons.assignee
+    if (message.includes('trạng thái')) return icons.status
+    if (message.includes('ưu tiên')) return icons.priority
+    if (message.includes('tên')) return icons.name
+    return icons.create
   }
 
   const handleComment = () => {
@@ -197,7 +212,7 @@ export const IssueActivityComp = (props: IssueActivityCompProps) => {
                 width={2}
               />
               <Icon
-                icon={TagIcon}
+                icon={getIcon(activity.description || '')}
                 display='flex'
                 alignItems='center'
                 justifyContent='center'
@@ -210,16 +225,22 @@ export const IssueActivityComp = (props: IssueActivityCompProps) => {
               />
               <Pane display='flex' alignItems='center'>
                 <UserAvatarComp {...activity.user} />{' '}
-                {activity.action === 'create'
-                  ? 'đã tạo công việc vào lúc'
-                  : `đã ${activity.description?.toLocaleLowerCase()}`}{' '}
+                {activity.action === 'create' ? 'đã tạo công việc' : `đã ${activity.description?.toLocaleLowerCase()}`}{' '}
                 {convertTimestamp(activity.created_at)}
               </Pane>
             </Pane>
           )
         }
       })}
-      <Pane borderTop='1px solid #ccc' display='flex' paddingTop={majorScale(4)}>
+      <Pane borderTop='1px solid #ccc' display='flex' paddingTop={majorScale(4)} position='relative'>
+        <Pane
+          position='absolute'
+          left={majorScale(10)}
+          top={-majorScale(4)}
+          backgroundColor='#ddd'
+          height={majorScale(4)}
+          width={2}
+        />
         <Avatar
           src={currentUser?.avatar || ''}
           width={majorScale(6)}
@@ -227,7 +248,7 @@ export const IssueActivityComp = (props: IssueActivityCompProps) => {
           marginRight={majorScale(2)}
         />
         <Pane flex={1} display='flex' flexDirection='column'>
-          <Label>Thêm bình luận</Label>
+          <Label marginBottom={majorScale(1)}>Thêm bình luận</Label>
           <MDEditor data-color-mode='light' height={200} value={comment} onChange={(e) => setComment(e || '')} />
           <Button
             appearance='primary'

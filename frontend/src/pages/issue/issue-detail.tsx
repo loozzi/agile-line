@@ -139,38 +139,47 @@ export const IssueDetailPage = () => {
             {issue?.activities?.filter((activity) => activity.action === 'comment').length || 0} bình luận
           </span>
         </Pane>
-        <div data-color-mode='light'>
-          <Label>Mô tả</Label>
+        <Pane>
           <MDEditor
+            data-color-mode='light'
             height={200}
-            value={description}
+            value={
+              editDescription
+                ? description
+                : issue?.description?.length === 0
+                  ? 'Không có thông tin mô tả'
+                  : issue?.description || ''
+            }
             onChange={(value) => {
               setDescription(value || '')
             }}
             preview={editDescription ? 'live' : 'preview'}
+            hideToolbar={!editDescription}
           />
-          {editDescription ? (
-            <Pane marginTop={majorScale(1)}>
-              <Button
-                marginRight={majorScale(1)}
-                onClick={() => {
-                  setEditDescription(false)
-                  setDescription(issue?.description || '')
-                }}
-                intent='danger'
-              >
-                Hủy
+          <Pane display='flex' justifyContent='flex-end'>
+            {editDescription ? (
+              <Pane marginTop={majorScale(1)}>
+                <Button
+                  marginRight={majorScale(1)}
+                  onClick={() => {
+                    setEditDescription(false)
+                    setDescription(issue?.description || '')
+                  }}
+                  intent='danger'
+                >
+                  Hủy
+                </Button>
+                <Button intent='success' onClick={handleChangeDescription}>
+                  Lưu
+                </Button>
+              </Pane>
+            ) : (
+              <Button marginTop={majorScale(1)} onClick={() => setEditDescription(true)}>
+                Chỉnh sửa
               </Button>
-              <Button intent='success' onClick={handleChangeDescription}>
-                Lưu
-              </Button>
-            </Pane>
-          ) : (
-            <Button marginTop={majorScale(1)} onClick={() => setEditDescription(true)}>
-              Chỉnh sửa
-            </Button>
-          )}
-        </div>
+            )}
+          </Pane>
+        </Pane>
         {!!issue && <IssueActivityComp issue={issue} />}
       </Pane>
       <Pane width={majorScale(32)}>
