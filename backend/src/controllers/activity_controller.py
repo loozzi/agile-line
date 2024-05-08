@@ -6,6 +6,16 @@ from src.utils import _response
 activity = Blueprint("activity", __name__)
 
 
+@activity.route("", methods=["GET"])
+@token_required
+def get():
+    issue_id = request.args.get("issue_id", "")
+    if not issue_id:
+        return _response(400, "Vui lòng chọn issue")
+
+    return activity_service.get(issue_id)
+
+
 @activity.route("", methods=["POST"])
 @token_required
 def create():

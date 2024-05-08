@@ -21,6 +21,12 @@ def parse_activity(activity):
     return response
 
 
+def get(issue_id):
+    activities = Activity.query.filter_by(issue_id=issue_id).all()
+    response = [parse_activity(activity) for activity in activities]
+    return _response(200, "Lấy dữ liệu thành công", response)
+
+
 def create(issue_id, description, action):
     issue = Issue.query.get(issue_id)
     if not issue:
