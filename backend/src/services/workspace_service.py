@@ -170,6 +170,15 @@ def get_workspace_info(permalink):
 
     labels = Label.query.filter_by(workspace_id=workspace.id).all()
     label_list = [to_dict(label) for label in labels]
+    for lb in label_list:
+        lb["count"] = 0
+
+    for issue in issues:
+        issue_labels = IssueLabel.query.filter_by(issue_id=issue.id).all()
+        for issue_label in issue_labels:
+            for lb in label_list:
+                if lb["id"] == issue_label.label_id:
+                    lb["count"] += 1
 
     total_member = WorkspaceUser.query.filter_by(workspace_id=workspace.id).count()
     admin_obj = (

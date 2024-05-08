@@ -1,3 +1,4 @@
+import MDEditor from '@uiw/react-md-editor'
 import { Avatar, Badge, Image, Label, Pane, majorScale } from 'evergreen-ui'
 import { useEffect, useState } from 'react'
 import { useAppSelector } from '~/app/hook'
@@ -27,7 +28,7 @@ export const WorkspaceDetailPage = () => {
 
   return (
     <Pane>
-      <Pane>
+      <Pane display='flex'>
         <Image
           src={currentWorkspace?.logo || ''}
           width={majorScale(20)}
@@ -35,7 +36,17 @@ export const WorkspaceDetailPage = () => {
           borderRadius={majorScale(1)}
           marginRight={majorScale(2)}
         />
-        <Label fontSize={majorScale(6)}>{currentWorkspace?.title}</Label>
+        <Pane flex={1}>
+          <Pane fontSize={majorScale(5)}>{currentWorkspace?.title}</Pane>
+          <MDEditor
+            height={100}
+            data-color-mode='light'
+            value={currentWorkspace?.description || ''}
+            preview='preview'
+            hideToolbar={true}
+            style={{ border: 'none' }}
+          />
+        </Pane>
       </Pane>
       <Pane
         marginTop={majorScale(4)}
@@ -144,7 +155,7 @@ export const WorkspaceDetailPage = () => {
                   padding={majorScale(2)}
                   lineHeight={0}
                 >
-                  {label.title}
+                  {label.title} <b>({label.count})</b>
                 </Badge>
                 {label.description}
               </Pane>
