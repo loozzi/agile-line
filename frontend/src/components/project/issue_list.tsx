@@ -63,7 +63,7 @@ export const ListIssueComp = (props: ListIssueCompProps) => {
     { label: 'low', icon: <AntennaBars2Icon /> },
     { label: 'medium', icon: <AntennaBars3Icon /> },
     { label: 'high', icon: <AntennaBars4Icon /> },
-    { label: 'urgent', icon: <AntennaBars5Icon /> }
+    { label: 'urgen', icon: <AntennaBars5Icon /> }
   ]
 
   useEffect(() => {

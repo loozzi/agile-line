@@ -23,7 +23,7 @@ class IssuePriority(enum.Enum):
     HIGH = "high"
     MEDIUM = "medium"
     LOW = "low"
-    URGEN = "urgent"
+    URGEN = "urgen"
     NOPRIORITY = "nopriority"
 
 

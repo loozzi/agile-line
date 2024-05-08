@@ -50,11 +50,19 @@ const issue = {
   delete: '/issue/:permalink'
 }
 
+const activity = {
+  get: '/activity',
+  create: '/activity',
+  update: '/activity',
+  delete: '/activity'
+}
+
 export default {
   auth,
   workspace,
   user,
   project,
   label,
-  issue
+  issue,
+  activity
 }
