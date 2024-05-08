@@ -8,6 +8,7 @@ const auth = {
 
 const workspace = {
   getWorkspaces: '/workspace/',
+  getInfo: '/workspace/:permalink/info',
   createWorkspace: '/workspace/',
   editWorkspace: '/workspace/',
   members: '/workspace/:permalink/members',

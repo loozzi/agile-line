@@ -1,10 +1,10 @@
 from datetime import datetime, timedelta, timezone
+
 from flask import request
 from sqlalchemy import and_, or_
-from src import db, bcrypt
+from src import bcrypt, db
 from src.enums import ProjectDefaultRole, ProjectStatus, WorkspaceRole
-from src.models import (Issue, Project, Role, User,
-                        UserRole, Workspace, WorkspaceUser)
+from src.models import Issue, Project, Role, User, UserRole, Workspace, WorkspaceUser
 from src.utils import (
     _response,
     gen_permalink,
@@ -14,9 +14,9 @@ from src.utils import (
 )
 
 
-def show_project_in_workspace(permalink, issue_kw,
-                              leader_kw, member_kw, status):
+def show_project_in_workspace(permalink, issue_kw, leader_kw, member_kw, status):
     curr_workspace = Workspace.query.filter_by(permalink=permalink).first()
+    currentUser = request.user
     project_list = (
         Project.query.join(Role, Project.id == Role.project_id)
         .join(UserRole, UserRole.role_id == Role.id)
@@ -40,24 +40,21 @@ def show_project_in_workspace(permalink, issue_kw,
         )
         .filter(User.username.like(f"%{member_kw}%") if member_kw else True)
         .filter(Project.status == status if status else True)
+        .filter(UserRole.user_id == currentUser.id)
         .all()
     )
     project_list_dict = [to_dict(row) for row in project_list]
     for project in project_list_dict:
         project["status"] = project["status"].value
     project_list_pagination = make_data_to_response_page(project_list_dict)
-    return _response(200,
-                     message="Retrieve Success",
-                     data=project_list_pagination)
+    return _response(200, message="Retrieve Success", data=project_list_pagination)
 
 
 def display_project(permalink):
     curr_project = Project.query.filter_by(permalink=permalink).first()
     if curr_project is None:
         return _response(404, "Không tìm thấy dữ liệu")
-    return _response(200,
-                     "Truy vấn thành công",
-                     make_data_to_respone(curr_project))
+    return _response(200, "Truy vấn thành công", make_data_to_respone(curr_project))
 
 
 def create_project(
@@ -77,8 +74,7 @@ def create_project(
         return _response(404, "Không tìm thấy workspace")
     if not is_workspace_user(curr_user, workspace):
         return _response(403, "Bạn không nằm trong workspace này")
-    user_workspace_role = WorkspaceUser.query.filter_by(
-                            user_id=curr_user.id).first()
+    user_workspace_role = WorkspaceUser.query.filter_by(user_id=curr_user.id).first()
     if not (
         user_workspace_role.role == WorkspaceRole.ADMIN
         or user_workspace_role.role == WorkspaceRole.MODERATOR
@@ -210,9 +206,7 @@ def create_project(
     del return_project["remove_date"]
     del return_project["created_at"]
     db.session.commit()
-    return _response(200,
-                     message="Tạo project thành công",
-                     data=return_project)
+    return _response(200, message="Tạo project thành công", data=return_project)
 
 
 def show_role_in_project(permalink):
@@ -253,8 +247,7 @@ def create_role_in_project(permalink, name, description):
         or description == ProjectDefaultRole.MEMBER.value
     ):
         return _response(403, "Không được tạo role trùng với role gốc")
-    if Role.query.filter_by(project_id=project.id
-                            ).filter_by(name=name).first():
+    if Role.query.filter_by(project_id=project.id).filter_by(name=name).first():
         return _response(400, "Role đã tồn tại")
     new_role = Role(
         name=name,
@@ -287,11 +280,9 @@ def edit_role_in_project(permalink, id, name, description):
         for p_user in project_user
     ] is None:
         return _response(403, "Không có quyền chỉnh sửa role")
-    if not Role.query.filter_by(project_id=project.id
-                                ).filter_by(id=id).first():
+    if not Role.query.filter_by(project_id=project.id).filter_by(id=id).first():
         return _response(404, "Không tìm thấy role")
-    if Role.query.filter_by(project_id=project.id
-                            ).filter_by(name=name).first():
+    if Role.query.filter_by(project_id=project.id).filter_by(name=name).first():
         return _response(400, "Trùng tên với role khác")
     if (
         Role.query.filter_by(project_id=project.id)
@@ -418,8 +409,7 @@ def edit_status(status, permalink):
 
 
 def edit_leader(leader_id, permalink):
-    curr_project = Project.query.filter_by(
-                        permalink=permalink).first()
+    curr_project = Project.query.filter_by(permalink=permalink).first()
     if curr_project is None:
         return _response(404, "Không tìm thấy dữ liệu")
     user = request.user
@@ -447,8 +437,7 @@ def edit_leader(leader_id, permalink):
     current_leader = (
         db.session.query(UserRole)
         .join(Role)
-        .filter(Role.description == "ROLE_LEADER",
-                Role.project_id == curr_project.id)
+        .filter(Role.description == "ROLE_LEADER", Role.project_id == curr_project.id)
         .first()
     )
     if current_leader:
@@ -458,8 +447,7 @@ def edit_leader(leader_id, permalink):
     leader_user = UserRole(
         user_id=leader_id,
         role_id=db.session.query(Role.id)
-        .filter(Role.description == "ROLE_LEADER",
-                Role.project_id == curr_project.id)
+        .filter(Role.description == "ROLE_LEADER", Role.project_id == curr_project.id)
         .scalar(),
         created_at=datetime.now(timezone.utc),
         updated_at=datetime.now(timezone.utc),
@@ -511,8 +499,7 @@ def edit_members(members_id, permalink):
         db.session.query(Project, Role, UserRole)
         .join(Role, Role.project_id == Project.id)
         .join(UserRole, UserRole.role_id == Role.id)
-        .filter(Role.description == "ROLE_LEADER",
-                Project.id == curr_project.id)
+        .filter(Role.description == "ROLE_LEADER", Project.id == curr_project.id)
         .first()
     )
     leader_id = leader_join.UserRole.user_id
@@ -528,8 +515,7 @@ def edit_members(members_id, permalink):
             set_issue_to_leader(issue, remove_id, leader_id)
 
     # Kiểm tra nếu leader_id không nằm trong members_id thì báo lỗi
-    if any(is_user_leader(user_id, curr_project.id)
-           for user_id in members_id) is False:
+    if any(is_user_leader(user_id, curr_project.id) for user_id in members_id) is False:
         return _response(400, "Không thể xóa leader khỏi project")
 
     # Cập nhật thông tin project nếu người dùng có quyền
@@ -537,13 +523,11 @@ def edit_members(members_id, permalink):
     current_leader = (
         db.session.query(UserRole)
         .join(Role)
-        .filter(Role.description == "ROLE_LEADER",
-                Role.project_id == curr_project.id)
+        .filter(Role.description == "ROLE_LEADER", Role.project_id == curr_project.id)
         .first()
     )
     all_members_role = UserRole.query.join(Role).filter(
-        UserRole.user_id != current_leader.user_id,
-        Role.project_id == curr_project.id
+        UserRole.user_id != current_leader.user_id, Role.project_id == curr_project.id
     )
     # Xóa các role của tất cả các thành viên trừ leader hiện tại
     for userrole in all_members_role:
@@ -582,14 +566,12 @@ def delete_project(password, permalink):
         return _response(400, "Sai mật khẩu")
 
     # Kiểm tra người dùng có quyền không
-    '''Kiểm tra người dùng có phải ADMIN của workspace
-    hoặc có là leader của project không'''
-    user_workspace_role = WorkspaceUser.query.filter_by(
-                            user_id=user.id).first()
-    if (not user_workspace_role.role == WorkspaceRole.ADMIN and
-            not is_user_leader(
-                user.id, curr_project.id
-                )):
+    """Kiểm tra người dùng có phải ADMIN của workspace
+    hoặc có là leader của project không"""
+    user_workspace_role = WorkspaceUser.query.filter_by(user_id=user.id).first()
+    if not user_workspace_role.role == WorkspaceRole.ADMIN and not is_user_leader(
+        user.id, curr_project.id
+    ):
         return _response(403, "Không có quyền xóa project")
 
     # Xóa Project khỏi Workspace

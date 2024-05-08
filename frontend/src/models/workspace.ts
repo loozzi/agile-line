@@ -1,3 +1,5 @@
+import { IssuePriority, IssueStatus } from './issue'
+import { LabelResponse } from './label'
 import { PaginationParams } from './utils'
 
 export interface Workspace {
@@ -28,6 +30,33 @@ export interface WorkspaceCreatePayload {
 
 export interface WorkspaceUpdatePayload extends WorkspaceCreatePayload {
   permalink: string
+}
+
+export interface WorkspaceInfoResponse {
+  workspace: Workspace
+  members: {
+    total: number
+    admins: any[]
+  }
+  projects: {
+    total: number
+    items: any[]
+  }
+  labels: {
+    total: number
+    items: LabelResponse[]
+  }
+  issues: {
+    total: number
+    items: {
+      id: number
+      name: string
+      permalink: string
+      priority: IssuePriority
+      status: IssueStatus
+      [key: string]: any
+    }[]
+  }
 }
 
 export type WorkspaceRole = 'admin' | 'member' | 'moderator'

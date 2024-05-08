@@ -120,6 +120,94 @@ def create_workspace(new_title, logo, description, is_private):
     return _response(200, "Tạo thành công", data=return_workspace)
 
 
+def get_workspace_info(permalink):
+    workspace = Workspace.query.filter_by(permalink=permalink).first()
+    if workspace is None:
+        return _response(404, "Không tìm thấy workspace")
+
+    currentUser = request.user
+
+    if workspace.is_private and not is_workspace_user(currentUser, workspace):
+        return _response(403, "Không có quyền truy cập")
+
+    dataResponse = {}
+    dataResponse["workspace"] = to_dict(workspace)
+    total_projects = Project.query.filter_by(workspace_id=workspace.id).count()
+    projects = (
+        Project.query.join(Role, Role.project_id == Project.id)
+        .join(UserRole, UserRole.role_id == Role.id)
+        .filter(Project.workspace_id == workspace.id)
+        .filter(UserRole.user_id == currentUser.id)
+        .all()
+    )
+    projects.sort(key=lambda x: x.updated_at, reverse=True)
+
+    project_list = []
+    for project in projects:
+        project_dict = to_dict(project)
+        project_dict["status"] = project.status.value
+        project_list.append(project_dict)
+
+    # project_list = [to_dict(project) for project in projects]
+
+    issues = []
+    for project in projects:
+        issues.extend(Issue.query.filter_by(project_id=project.id).all())
+
+    def parse_issue(issue):
+        resp = {}
+        resp["id"] = issue.id
+        resp["permalink"] = issue.permalink
+        resp["name"] = issue.name
+        resp["status"] = issue.status.value
+        resp["priority"] = issue.priority.value
+        resp["created_at"] = issue.created_at
+        resp["updated_at"] = issue.updated_at
+        return resp
+
+    issues.sort(key=lambda x: x.updated_at, reverse=True)
+    issue_list = [parse_issue(issue) for issue in issues]
+
+    labels = Label.query.filter_by(workspace_id=workspace.id).all()
+    label_list = [to_dict(label) for label in labels]
+    for lb in label_list:
+        lb["count"] = 0
+
+    for issue in issues:
+        issue_labels = IssueLabel.query.filter_by(issue_id=issue.id).all()
+        for issue_label in issue_labels:
+            for lb in label_list:
+                if lb["id"] == issue_label.label_id:
+                    lb["count"] += 1
+
+    total_member = WorkspaceUser.query.filter_by(workspace_id=workspace.id).count()
+    admin_obj = (
+        WorkspaceUser.query.filter_by(workspace_id=workspace.id)
+        .filter_by(role=WorkspaceRole.ADMIN)
+        .all()
+    )
+
+    admin_list = []
+    for admin in admin_obj:
+        admin_raw = to_dict(User.query.get(admin.user_id))
+        admin_list.append(
+            {
+                "id": admin_raw["id"],
+                "username": admin_raw["username"],
+                "avatar": admin_raw["avatar"],
+                "email": admin_raw["email"],
+                "first_name": admin_raw["first_name"],
+                "last_name": admin_raw["last_name"],
+            }
+        )
+
+    dataResponse["projects"] = {"total": total_projects, "items": project_list[:2]}
+    dataResponse["issues"] = {"total": len(issues), "items": issue_list[:5]}
+    dataResponse["labels"] = {"total": len(labels), "items": label_list}
+    dataResponse["members"] = {"total": total_member, "admins": admin_list}
+    return _response(200, "Tìm kiếm thành công", data=dataResponse)
+
+
 def access_workspace(permalink):
     if Workspace.query.filter_by(permalink=permalink).first():
         curr_workspace = Workspace.query.filter_by(permalink=permalink).first()
