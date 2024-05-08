@@ -42,6 +42,12 @@ def access_workspace(permalink):
     return workspace_service.access_workspace(permalink)
 
 
+@workspace.route("/<string:permalink>/info", methods=["GET"])
+@token_required
+def get_workspace_info(permalink):
+    return workspace_service.get_workspace_info(permalink)
+
+
 @workspace.route("/<string:permalink>", methods=["PUT"])
 @token_required
 def edit_workspace(permalink):
