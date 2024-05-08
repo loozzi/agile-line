@@ -3,7 +3,7 @@ import client from './axios.service'
 import { ActivityResponse } from '~/models/issue'
 import routeApi from '~/configs/route.api'
 
-const get = async (issue_id: number): Promise<IResponse<ActivityResponse>> => {
+const get = async (issue_id: number): Promise<IResponse<ActivityResponse[]>> => {
   return client.get(routeApi.activity.get, { params: { issue_id } })
 }
 

@@ -171,7 +171,7 @@ export const IssueDetailPage = () => {
             </Button>
           )}
         </div>
-        {!!issue && <IssueActivityComp issue_id={issue.id} />}
+        {!!issue && <IssueActivityComp issue={issue} />}
       </Pane>
       <Pane width={majorScale(32)}>
         <Pane display='flex' justifyContent='space-between' alignItems='center'>

@@ -92,7 +92,7 @@ export function transLabel(label: string) {
       return 'Trung bình'
     case 'high':
       return 'Cao'
-    case 'urgent':
+    case 'urgen':
       return 'Khẩn cấp'
     case 'critical':
       return 'Quan trọng'
