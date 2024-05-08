@@ -192,7 +192,7 @@ def get_workspace_info(permalink):
             }
         )
 
-    dataResponse["projects"] = {"total": total_projects, "items": project_list}
+    dataResponse["projects"] = {"total": total_projects, "items": project_list[:2]}
     dataResponse["issues"] = {"total": len(issues), "items": issue_list[:5]}
     dataResponse["labels"] = {"total": len(labels), "items": label_list}
     dataResponse["members"] = {"total": total_member, "admins": admin_list}

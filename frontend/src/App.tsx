@@ -18,6 +18,7 @@ import { WorkspaceMemberPage } from './pages/workspace/members'
 import { WorkspaceSettingPage } from './pages/workspace/setting'
 import { WorkspaceTemplate } from './pages/workspace/template'
 import { WorkspacePage } from './pages/workspace/workspace'
+import { WorkspaceDetailPage } from './pages/workspace/workspace-detail'
 
 function App() {
   const location = useLocation()
@@ -34,6 +35,7 @@ function App() {
         <Route path={routes.auth.logout} element={<LogoutPage />} />
         <Route path={routes.workspace.root} element={<WorkspacePage />} />
         <Route path={routes.workspace.permalink} element={<WorkspaceTemplate />}>
+          <Route path={routes.workspace.permalink} element={<WorkspaceDetailPage />} />
           <Route path={routes.workspace.setting.page} element={<WorkspaceSettingPage />} />
           <Route path={routes.workspace.members.page} element={<WorkspaceMemberPage />} />
           <Route path={routes.workspace.projects.page} element={<ProjectPage />} />

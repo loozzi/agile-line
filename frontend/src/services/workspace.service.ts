@@ -6,6 +6,7 @@ import { PaginationResponse } from '~/models/utils'
 import {
   Workspace,
   WorkspaceCreatePayload,
+  WorkspaceInfoResponse,
   WorkspaceParams,
   WorkspaceSearchParams,
   WorkspaceUpdatePayload
@@ -17,6 +18,10 @@ const getWorkspaces = async (params: WorkspaceSearchParams): Promise<IResponse<P
   return await client.get(routeApi.workspace.getWorkspaces, {
     params: params
   })
+}
+
+const getInfo = async (permalink: string): Promise<IResponse<WorkspaceInfoResponse>> => {
+  return await client.get(routeApi.workspace.getInfo.replace(':permalink', permalink))
 }
 
 const createWorkspace = async (payload: WorkspaceCreatePayload): Promise<IResponse<Workspace>> => {
@@ -78,6 +83,7 @@ const allProjects = async (params: WorkspaceParams): Promise<IResponse<Paginatio
 export default {
   getWorkspaces,
   getWorkspace,
+  getInfo,
   createWorkspace,
   editWorkspace,
   getMembers,
