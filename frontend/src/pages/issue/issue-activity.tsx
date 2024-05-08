@@ -1,5 +1,18 @@
 import MDEditor from '@uiw/react-md-editor'
-import { Avatar, Button, Icon, Label, Pane, PaneProps, TagIcon, majorScale } from 'evergreen-ui'
+import {
+  Avatar,
+  Badge,
+  Button,
+  Icon,
+  IconButton,
+  Label,
+  MoreIcon,
+  Pane,
+  PaneProps,
+  Popover,
+  TagIcon,
+  majorScale
+} from 'evergreen-ui'
 import { useEffect, useState } from 'react'
 import { useAppSelector } from '~/app/hook'
 import { AntennaBars1Icon } from '~/assets/icons'
@@ -19,6 +32,8 @@ export const IssueActivityComp = (props: IssueActivityCompProps) => {
 
   const [activities, setActivities] = useState<ActivityResponse[]>([])
   const [comment, setComment] = useState<string>('')
+  const [idEdit, setIdEdit] = useState<number | null>(null)
+  const [editComment, setEditComment] = useState<string>('')
 
   const icons = {
     label: <TagIcon />,
@@ -35,6 +50,24 @@ export const IssueActivityComp = (props: IssueActivityCompProps) => {
         setActivities([...activities, data.data!])
         setComment('')
       }
+    })
+  }
+
+  const handleUpdateComment = () => {
+    if (editComment.length === 0) return
+
+    activityService.update(idEdit!, editComment).then((data) => {
+      if (data.status === 200) {
+        setActivities(activities.map((activity) => (activity.id === idEdit ? data.data! : activity)))
+        setIdEdit(null)
+        setEditComment('')
+      }
+    })
+  }
+
+  const handleDeleteComment = (activity_id: number) => {
+    activityService.remove(activity_id).then((data) => {
+      if (data.status === 200) setActivities(activities.filter((activity) => activity.id !== activity_id))
     })
   }
 
@@ -72,11 +105,76 @@ export const IssueActivityComp = (props: IssueActivityCompProps) => {
                 marginRight={majorScale(2)}
               />
               <Pane border='1px solid #97D7BF' borderRadius={majorScale(1)} flex={1}>
-                <Pane backgroundColor='#DCF2EA' padding={majorScale(2)}>
-                  <b>{activity.user.username}</b> đã bình luận {convertTimestamp(activity.created_at)}
+                <Pane
+                  backgroundColor='#DCF2EA'
+                  paddingX={majorScale(2)}
+                  paddingY={majorScale(1)}
+                  display='flex'
+                  justifyContent='space-between'
+                  alignItems='center'
+                >
+                  <Pane>
+                    <b>{activity.user.username}</b> đã bình luận {convertTimestamp(activity.created_at)}
+                    {activity.is_edited && (
+                      <Badge color='orange' marginLeft={majorScale(2)}>
+                        Đã chỉnh sửa
+                      </Badge>
+                    )}
+                  </Pane>
+                  <Popover
+                    content={
+                      <Pane
+                        backgroundColor='#fff'
+                        zIndex={1}
+                        border='1px solid #ccc'
+                        borderRadius={majorScale(1)}
+                        overflow='hidden'
+                        display='flex'
+                        flexDirection='column'
+                      >
+                        <Button
+                          appearance='minimal'
+                          onClick={() => {
+                            setIdEdit(activity.id)
+                            setEditComment(activity.description || '')
+                          }}
+                        >
+                          Sửa
+                        </Button>
+                        <Button appearance='minimal' intent='danger' onClick={() => handleDeleteComment(activity.id)}>
+                          Xóa
+                        </Button>
+                      </Pane>
+                    }
+                  >
+                    <IconButton icon={MoreIcon} appearance='minimal' />
+                  </Popover>
                 </Pane>
-                <Pane>
-                  <MDEditor data-color-mode='light' value={activity.description} preview='preview' hideToolbar={true} />
+                <Pane padding={idEdit !== activity.id ? 0 : majorScale(2)}>
+                  <MDEditor
+                    data-color-mode='light'
+                    value={idEdit !== activity.id ? activity.description : editComment}
+                    onChange={(e) => setEditComment(e || '')}
+                    preview={idEdit !== activity.id ? 'preview' : 'live'}
+                    hideToolbar={idEdit !== activity.id}
+                  />
+                  {idEdit === activity.id && (
+                    <Pane marginTop={majorScale(2)} display='flex' justifyContent='flex-end'>
+                      <Button
+                        marginRight={majorScale(1)}
+                        intent='danger'
+                        onClick={() => {
+                          setIdEdit(null)
+                          setEditComment('')
+                        }}
+                      >
+                        Hủy
+                      </Button>
+                      <Button intent='success' appearance='primary' onClick={handleUpdateComment}>
+                        Cập nhật
+                      </Button>
+                    </Pane>
+                  )}
                 </Pane>
               </Pane>
             </Pane>
