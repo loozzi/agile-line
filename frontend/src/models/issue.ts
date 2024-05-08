@@ -4,7 +4,7 @@ import { PaginationParams } from './utils'
 
 export type IssueStatus = 'backlog' | 'todo' | 'inprogress' | 'done' | 'duplicate' | 'cancelled'
 
-export type IssuePriority = 'low' | 'medium' | 'high' | 'urgent' | 'nopriority'
+export type IssuePriority = 'low' | 'medium' | 'high' | 'urgen' | 'nopriority'
 
 export interface IssueCreatePayload {
   project_id: number

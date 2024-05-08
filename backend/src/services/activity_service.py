@@ -3,8 +3,17 @@ from datetime import datetime, timezone
 from flask import request
 from src import db
 from src.models import Activity, Issue
-from src.services.issue_service import data_user_response
-from src.utils import _response
+from src.utils import _response, to_dict
+
+
+def data_user_response(user):
+    user = to_dict(user)
+    del user["password"]
+    del user["phone_number"]
+    del user["description"]
+    del user["created_at"]
+    del user["updated_at"]
+    return user
 
 
 def parse_activity(activity):

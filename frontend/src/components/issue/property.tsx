@@ -51,6 +51,7 @@ export const IssuePropertyComp = (props: IssuePropertyCompProps) => {
 
   const [assignee, setAssignee] = useState<User>(issue.assignee)
   const [selectedLabels, setSelectedLabels] = useState<LabelResponse[]>(issue.label)
+  const [firstCall, setFirstCall] = useState<boolean>(true)
 
   const issueStatus = [
     { label: 'backlog', icon: <BacklogIcon /> },
@@ -66,7 +67,7 @@ export const IssuePropertyComp = (props: IssuePropertyCompProps) => {
     { label: 'low', icon: <AntennaBars2Icon /> },
     { label: 'medium', icon: <AntennaBars3Icon /> },
     { label: 'high', icon: <AntennaBars4Icon /> },
-    { label: 'urgent', icon: <AntennaBars5Icon /> }
+    { label: 'urgen', icon: <AntennaBars5Icon /> }
   ]
 
   const onChooseMember = (member: User) => {
@@ -103,6 +104,11 @@ export const IssuePropertyComp = (props: IssuePropertyCompProps) => {
   }
 
   useEffect(() => {
+    if (firstCall) {
+      setFirstCall(false)
+      return
+    }
+
     issueService
       .updateLabel(
         issue.permalink,

@@ -16,6 +16,7 @@ from src.models import (
     Workspace,
     WorkspaceUser,
 )
+from src.services.activity_service import create as create_activity
 from src.services.workspace_service import make_data_to_response_page
 from src.utils import _response, gen_permalink, to_dict
 
@@ -218,16 +219,7 @@ def create_issue(
         db.session.add(issue_label)
         db.session.flush()
     db.session.commit()
-    new_activity = Activity(
-        user_id=current_user.id,
-        issue_id=new_issue.id,
-        action="create",
-        is_edited=False,
-        created_at=datetime.now(timezone.utc),
-        updated_at=datetime.now(timezone.utc),
-    )
-    db.session.add(new_activity)
-    db.session.commit()
+    create_activity(new_issue.id, "", "create")
     data_response = make_data_response_issue(new_issue, list_resource)
     db.session.commit()
     return _response(status=200, message="Tạo công việc thành công", data=data_response)
@@ -497,7 +489,7 @@ def edit_label_issue(list_label, permalink):  # label
     resources = Resources.query.filter(Resources.issue_id == issue.id).all()
     list_resource = [i.link for i in resources]
     data_response = make_data_response_issue(issue, list_resource)
-    data_response["activity"] = create_response_activity(issue, current_user)
+    create_activity(issue.id, "Cập nhật nhãn", "edit")
     return _response(
         status=200, message="Chỉnh sửa nhãn thành công", data=data_response
     )
@@ -512,7 +504,7 @@ def edit_priority_issue(priority, permalink):  # priority
     resources = Resources.query.filter(Resources.issue_id == issue.id).all()
     list_resource = [i.link for i in resources]
     data_response = make_data_response_issue(issue, list_resource)
-    data_response["activity"] = create_response_activity(issue, current_user)
+    create_activity(issue.id, "Cập nhật mức độ ưu tiên", "edit")
     return _response(
         status=200, message="Chỉnh sửa mức độ ưu tiên thành công", data=data_response
     )
@@ -527,7 +519,7 @@ def edit_assignee_issue(assignee_id, permalink):  # assignee
     resources = Resources.query.filter(Resources.issue_id == issue.id).all()
     list_resource = [i.link for i in resources]
     data_response = make_data_response_issue(issue, list_resource)
-    data_response["activity"] = create_response_activity(issue, current_user)
+    create_activity(issue.id, "Cập nhật người phụ trách", "edit")
     return _response(
         status=200, message="Chỉnh sửa người phụ trách thành công", data=data_response
     )
@@ -546,7 +538,7 @@ def edit_name_description_issue(
     resources = Resources.query.filter(Resources.issue_id == issue.id).all()
     list_resource = [i.link for i in resources]
     data_response = make_data_response_issue(issue, list_resource)
-    data_response["activity"] = create_response_activity(issue, current_user)
+    create_activity(issue.id, "Cập nhật tên và mô tả", "edit")
     return _response(
         status=200,
         message="Chỉnh sửa thông tin công việc thành công",
@@ -566,7 +558,7 @@ def edit_status_issue(status, permalink):  # status
     resources = Resources.query.filter(Resources.issue_id == current_issue.id).all()
     list_resource = [i.link for i in resources]
     data_response = make_data_response_issue(current_issue, list_resource)
-    data_response["activity"] = create_response_activity(current_issue, current_user)
+    create_activity(current_issue.id, "Cập nhật trạng thái", "edit")
     return _response(
         status=200, message="Chỉnh sửa trạng thái thành công", data=data_response
     )
