@@ -6,7 +6,7 @@ from src.utils import _response
 activity = Blueprint("activity", __name__)
 
 
-@activity.route("/create", methods=["POST"])
+@activity.route("", methods=["POST"])
 @token_required
 def create():
     issue_id = request.form.get("issue_id", "")
@@ -18,7 +18,7 @@ def create():
     return activity_service.create(issue_id, description, "comment")
 
 
-@activity.route("/edit", methods=["PUT"])
+@activity.route("", methods=["PUT"])
 @token_required
 def edit():
     activity_id = request.form.get("activity_id", "")
@@ -28,3 +28,14 @@ def edit():
         return _response(400, "Vui lòng chọn activity")
 
     return activity_service.edit(activity_id, description)
+
+
+@activity.route("", methods=["DELETE"])
+@token_required
+def delete():
+    activity_id = request.args.get("activity_id", "")
+
+    if not activity_id:
+        return _response(400, "Vui lòng chọn activity")
+
+    return activity_service.delete(activity_id)

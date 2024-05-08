@@ -59,3 +59,17 @@ def edit(activity_id, description):
 
     response = parse_activity(activity)
     return _response(200, "Sửa hoạt động thành công", response)
+
+
+def delete(activity_id):
+    activity = Activity.query.get(activity_id)
+    if not activity:
+        return _response(404, "Hoạt động không tồn tại")
+
+    current_user = request.user
+    if activity.user_id != current_user.id:
+        return _response(403, "Không có quyền xóa hoạt động của người khác")
+
+    db.session.delete(activity)
+    db.session.commit()
+    return _response(200, "Xóa hoạt động thành công")
