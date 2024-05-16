@@ -1,5 +1,5 @@
 import MDEditor from '@uiw/react-md-editor'
-import { Avatar, Badge, Button, Pane, majorScale } from 'evergreen-ui'
+import { Avatar, Badge, Pane, majorScale } from 'evergreen-ui'
 import { useEffect, useState } from 'react'
 import { useParams } from 'react-router'
 import { Link } from 'react-router-dom'
