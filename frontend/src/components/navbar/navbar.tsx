@@ -4,9 +4,9 @@ import {
   Dialog,
   ExpandAllIcon,
   IconButton,
+  InboxIcon,
   LayersIcon,
   LogOutIcon,
-  MapIcon,
   Pane,
   PaneProps,
   ProjectsIcon,
@@ -14,8 +14,7 @@ import {
   StyleIcon,
   TagIcon,
   UserIcon,
-  majorScale,
-  toaster
+  majorScale
 } from 'evergreen-ui'
 import { useEffect, useState } from 'react'
 import { useParams } from 'react-router'
@@ -74,14 +73,14 @@ export const NavbarComp = (props: NavbarCompProps) => {
       label: 'Workspace',
       children: [
         {
+          label: 'Cập nhật mới',
+          beforeIcon: <InboxIcon />,
+          onClick: () => handleRedirect(routes.workspace.activity.replace(':permalink', params.permalink!))
+        },
+        {
           label: 'Tổng quan',
           beforeIcon: <LayersIcon />,
           onClick: () => handleRedirect(`/${params.permalink}`)
-        },
-        {
-          label: 'Lộ trình phát triển',
-          beforeIcon: <MapIcon />,
-          onClick: () => toaster.warning('Chức năng đang phát triển')
         },
         {
           label: 'Danh sách dự án',

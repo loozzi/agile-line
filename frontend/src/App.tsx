@@ -19,6 +19,7 @@ import { WorkspaceSettingPage } from './pages/workspace/setting'
 import { WorkspaceTemplate } from './pages/workspace/template'
 import { WorkspacePage } from './pages/workspace/workspace'
 import { WorkspaceDetailPage } from './pages/workspace/workspace-detail'
+import { ActivityPage } from './pages/activity-page'
 
 function App() {
   const location = useLocation()
@@ -43,6 +44,7 @@ function App() {
           <Route path={routes.workspace.labels.page} element={<ManageLabelPage />} />
           <Route path={routes.workspace.issues.page} element={<IssuePage />} />
           <Route path={routes.workspace.issues.detail} element={<IssueDetailPage />} />
+          <Route path={routes.workspace.activity} element={<ActivityPage />} />
         </Route>
         <Route path='/' element={<PrivateLayout />}>
           <Route path={routes.profile.page} element={<UserProfilePage />} />
