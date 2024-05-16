@@ -19,7 +19,8 @@ def get():
 @activity.route("/new", methods=["GET"])
 @token_required
 def get_new():
-    return activity_service.get_new()
+    permalink = request.args.get("permalink", "")
+    return activity_service.get_new(permalink)
 
 
 @activity.route("", methods=["POST"])

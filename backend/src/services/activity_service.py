@@ -2,7 +2,7 @@ from datetime import datetime, timezone
 
 from flask import request
 from src import db
-from src.models import Activity, Issue, User
+from src.models import Activity, Issue, Project, User, UserRole, Workspace
 from src.utils import _response, to_dict
 
 
@@ -28,6 +28,7 @@ def parse_activity(activity, user=None):
         "created_at": activity.created_at,
         "updated_at": activity.updated_at,
         "is_edited": activity.is_edited,
+        "issue_id": activity.issue_id,
     }
     return response
 
@@ -38,14 +39,24 @@ def get(issue_id):
     return _response(200, "Lấy dữ liệu thành công", response)
 
 
-def get_new():
+def get_new(permalink):
+    workspace = Workspace.query.filter_by(permalink=permalink).first()
+    projects = Project.query.filter_by(workspace_id=workspace.id).all()
+    issues = Issue.query.filter(
+        Issue.project_id.in_([project.id for project in projects])
+    ).all()
     activities = (
-        Activity.query.order_by(Activity.created_at.desc())
+        Activity.query.filter(Activity.issue_id.in_([issue.id for issue in issues]))
+        .order_by(Activity.created_at.desc())
         .filter_by(action="comment")
         .limit(20)
         .all()
     )
     response = [parse_activity(activity) for activity in activities]
+    for resp in response:
+        issue = Issue.query.get(resp["issue_id"])
+        resp["issue"] = issue.permalink
+
     return _response(200, "Lấy dữ liệu thành công", response)
 
 
