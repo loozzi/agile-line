@@ -38,6 +38,17 @@ def get(issue_id):
     return _response(200, "Lấy dữ liệu thành công", response)
 
 
+def get_new():
+    activities = (
+        Activity.query.order_by(Activity.created_at.desc())
+        .filter_by(action="comment")
+        .limit(20)
+        .all()
+    )
+    response = [parse_activity(activity) for activity in activities]
+    return _response(200, "Lấy dữ liệu thành công", response)
+
+
 def create(issue_id, description, action):
     issue = Issue.query.get(issue_id)
     if not issue:

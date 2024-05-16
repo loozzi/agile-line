@@ -16,6 +16,12 @@ def get():
     return activity_service.get(issue_id)
 
 
+@activity.route("/new", methods=["GET"])
+@token_required
+def get_new():
+    return activity_service.get_new()
+
+
 @activity.route("", methods=["POST"])
 @token_required
 def create():
