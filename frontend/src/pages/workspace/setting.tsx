@@ -27,6 +27,7 @@ interface SettingPaneProps extends PaneProps {
 }
 
 export const SettingPane = (props: SettingPaneProps) => {
+  document.title = 'Chỉnh sửa workspace'
   const { heading, children } = props
 
   return (

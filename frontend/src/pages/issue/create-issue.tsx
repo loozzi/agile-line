@@ -52,6 +52,7 @@ interface CreateIssueDialogProps {
 }
 
 export const CreateIssueDialog = (props: CreateIssueDialogProps) => {
+  document.title = 'Tạo công việc mới'
   const { closeDialog, onCreateSuccess } = props
   const params = useParams()
   const currentUser = useAppSelector(selectUser)

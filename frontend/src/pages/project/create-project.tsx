@@ -37,6 +37,7 @@ export interface Leader {
 }
 
 export const CreateProjectDialog = (props: CreateProjectDialogProps) => {
+  document.title = 'Tạo dự án'
   const { closeDialog } = props
   const projectStatus = [
     { label: 'backlog', icon: <BacklogIcon /> },

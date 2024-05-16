@@ -14,6 +14,7 @@ import { convertTimestamp } from '~/utils'
 import { IssueActivityComp } from './issue-activity'
 
 export const IssueDetailPage = () => {
+  document.title = 'Chi tiết công việc'
   const params = useParams()
 
   const [issue, setIssue] = useState<IssueResponse | undefined>(undefined)

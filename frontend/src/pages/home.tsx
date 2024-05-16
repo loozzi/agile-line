@@ -20,6 +20,8 @@ export const HomePage = () => {
     }
   })
 
+  document.title = 'AgileLine - Home'
+
   return (
     <Pane>
       <HeaderComp />

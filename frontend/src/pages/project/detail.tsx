@@ -33,6 +33,7 @@ const ProjectDetailPage = () => {
   useEffect(() => {
     projectService.get(params.projectPermalink || '').then((data) => {
       setProject(data.data)
+      document.title = data.data?.name || 'Dự án'
     })
   }, [params])
 

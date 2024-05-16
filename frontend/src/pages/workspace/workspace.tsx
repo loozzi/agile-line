@@ -9,6 +9,7 @@ import workspaceService from '~/services/workspace.service'
 import { ForbiddenPage } from '../403'
 
 export const WorkspacePage = () => {
+  document.title = 'Chọn Workspace'
   const isAuth = useAppSelector(selectIsAuthenticated)
   const [params, setParams] = useState<WorkspaceSearchParams>({ keyword: '', page: 1, limit: 10 })
   const [workspaces, setWorkspaces] = useState<Workspace[]>([])

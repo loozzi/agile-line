@@ -31,6 +31,7 @@ import { EditProjectSideSheet } from './edit-project'
 import { history } from '~/configs/history'
 
 export const ProjectPage = () => {
+  document.title = 'Danh sách dự án'
   const currentWorkspace = useAppSelector(selectCurrentWorkspace)
 
   const [showCreateProjectDialog, setShowCreateProjectDialog] = useState(false)

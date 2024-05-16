@@ -9,6 +9,7 @@ import { AUTH_REGISTER } from '~/hooks/auth/auth.slice'
 import { RegisterPayload } from '~/models/auth'
 
 export const RegisterPage = () => {
+  document.title = 'Đăng ký'
   const dispatch = useAppDispatch()
 
   const initialValues: RegisterPayload = useMemo(

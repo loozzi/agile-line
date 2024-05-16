@@ -9,6 +9,7 @@ import { VerifyPayload } from '~/models/auth'
 import authService from '~/services/auth.service'
 
 export const VerifyPage = () => {
+  document.title = 'Xác thực OTP'
   const [secondsRemaining, setSecondsRemaining] = useState(60)
   const [isSent, setSent] = useState(false)
 

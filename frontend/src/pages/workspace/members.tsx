@@ -10,6 +10,7 @@ import workspaceService from '~/services/workspace.service'
 import { SettingPane } from './setting'
 
 export const WorkspaceMemberPage = () => {
+  document.title = 'Quản lý thành viên'
   const params = useParams()
   const [members, setMembers] = useState<PaginationResponse<Member> | undefined>(undefined)
   const [getParams, setGetParams] = useState<WorkspaceGetMembersParams>({ permalink: params.permalink! })
