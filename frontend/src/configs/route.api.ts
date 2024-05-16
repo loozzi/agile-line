@@ -53,6 +53,7 @@ const issue = {
 
 const activity = {
   get: '/activity',
+  getNew: '/activity/new',
   create: '/activity',
   update: '/activity',
   delete: '/activity'

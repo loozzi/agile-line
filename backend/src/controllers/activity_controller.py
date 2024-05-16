@@ -16,6 +16,13 @@ def get():
     return activity_service.get(issue_id)
 
 
+@activity.route("/new", methods=["GET"])
+@token_required
+def get_new():
+    permalink = request.args.get("permalink", "")
+    return activity_service.get_new(permalink)
+
+
 @activity.route("", methods=["POST"])
 @token_required
 def create():

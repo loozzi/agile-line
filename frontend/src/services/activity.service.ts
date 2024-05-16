@@ -7,6 +7,10 @@ const get = async (issue_id: number): Promise<IResponse<ActivityResponse[]>> => 
   return client.get(routeApi.activity.get, { params: { issue_id } })
 }
 
+const getNew = async (permalink: string): Promise<IResponse<ActivityResponse[]>> => {
+  return client.get(routeApi.activity.getNew, { params: { permalink } })
+}
+
 const create = async (issue_id: number, description: string): Promise<IResponse<ActivityResponse>> => {
   return client.post(routeApi.activity.create, { issue_id, description })
 }
@@ -21,6 +25,7 @@ const remove = async (activity_id: number): Promise<IResponse<any>> => {
 
 export default {
   get,
+  getNew,
   create,
   update,
   remove

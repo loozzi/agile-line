@@ -11,6 +11,7 @@ export default {
     create: '/workspace/create',
     list: '/workspace/list',
     permalink: '/:permalink',
+    activity: '/:permalink/activity',
     setting: {
       page: '/:permalink/settings',
       slug: 'settings'

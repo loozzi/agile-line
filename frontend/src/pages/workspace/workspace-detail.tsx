@@ -66,8 +66,21 @@ export const WorkspaceDetailPage = () => {
           flexBasis='49%'
           marginBottom={majorScale(2)}
         >
-          <Pane fontSize={majorScale(3)} marginBottom={majorScale(2)}>
-            Số lượng thành viên: <b>{details?.members.total}</b>
+          <Pane
+            fontSize={majorScale(3)}
+            marginBottom={majorScale(2)}
+            display='flex'
+            alignItems='center'
+            gap={majorScale(2)}
+          >
+            Số lượng thành viên:{' '}
+            <b
+              style={{
+                fontSize: majorScale(6)
+              }}
+            >
+              {details?.members.total}
+            </b>
           </Pane>
           <Pane>
             <p>Quản trị viên</p>
@@ -89,8 +102,21 @@ export const WorkspaceDetailPage = () => {
           flexBasis='49%'
           marginBottom={majorScale(2)}
         >
-          <Pane fontSize={majorScale(3)} marginBottom={majorScale(2)}>
-            Số lượng dự án: <b>{details?.projects.total}</b>
+          <Pane
+            fontSize={majorScale(3)}
+            marginBottom={majorScale(2)}
+            display='flex'
+            alignItems='center'
+            gap={majorScale(2)}
+          >
+            Số lượng dự án:{' '}
+            <b
+              style={{
+                fontSize: majorScale(6)
+              }}
+            >
+              {details?.projects.total}
+            </b>
           </Pane>
           <Pane>
             <p>{details?.projects.items.length} dự án mới cập nhật</p>
@@ -103,8 +129,21 @@ export const WorkspaceDetailPage = () => {
           </Pane>
         </Pane>
         <Pane borderRadius={majorScale(1)} border='1px solid #ccc' padding={majorScale(2)} flexBasis='49%'>
-          <Pane fontSize={majorScale(3)} marginBottom={majorScale(2)}>
-            Số lượng công việc: <b>{details?.issues.total}</b>
+          <Pane
+            fontSize={majorScale(3)}
+            marginBottom={majorScale(2)}
+            display='flex'
+            alignItems='center'
+            gap={majorScale(2)}
+          >
+            Số lượng công việc:{' '}
+            <b
+              style={{
+                fontSize: majorScale(6)
+              }}
+            >
+              {details?.issues.total}
+            </b>
           </Pane>
           <Pane>
             <p>{details?.issues.items.length} công việc mới cập nhật</p>
@@ -142,8 +181,21 @@ export const WorkspaceDetailPage = () => {
           flexBasis='49%'
           marginBottom={majorScale(2)}
         >
-          <Pane fontSize={majorScale(3)} marginBottom={majorScale(2)}>
-            Số lượng nhãn: <b>{details?.labels.total}</b>
+          <Pane
+            fontSize={majorScale(3)}
+            marginBottom={majorScale(2)}
+            display='flex'
+            alignItems='center'
+            gap={majorScale(2)}
+          >
+            Số lượng nhãn:{' '}
+            <b
+              style={{
+                fontSize: majorScale(6)
+              }}
+            >
+              {details?.labels.total}
+            </b>
           </Pane>
           <Pane>
             <p>Danh sách nhãn</p>
