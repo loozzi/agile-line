@@ -144,7 +144,58 @@ or
 ```
 npm run dev
 ```
+## Persona
 
+- Tên: Nguyễn Văn A
+
+- Tuổi: 30
+
+- Nghề nghiệp: Scrum Master
+
+- Công ty: Công ty phần mềm nhỏ - Start-up
+
+- Mục tiêu: Giúp đội phát triển phần mềm hoàn thành sản phẩm được giao một cách hiệu quả và đúng hạn.
+
+- Khó khăn:
+	- Quản lý tiến độ và công việc của nhiều dự án cùng lúc.
+
+	- Thiếu khả năng nắm bắt toàn cảnh các vấn đề và tiến độ của dự án.
+
+	- Giao tiếp khó khăn giữa các thành viên trong đội.
+
+	- Khó khăn trong việc theo dõi và phân bổ tài nguyên cho các dự án.
+
+- Cần giải pháp:
+
+	- Công cụ quản lý dự án trực quan, dễ sử dụng, giúp A theo dõi tiến độ và công việc của các dự án.
+
+	- Công cụ có khả năng tạo và quản lý từng workspace cho từng công việc , từng dự án của workspace và từng issue của dự án một cách linh hoạt và riêng biệt.
+
+	- Khả năng phân công nhiệm vụ và theo dõi tiến độ của từng thành viên trong đội.
+
+- Sử dụng agile-line
+
+	- A sử dụng agile-line để:
+
+		- Tạo và quản lý các workspace cho các dự án khác nhau.
+
+		- Tạo các issue cho các vấn đề, yêu cầu và nhiệm vụ cần thực hiện.
+
+		- Phân công nhiệm vụ cho các thành viên trong đội và theo dõi tiến độ của họ.
+
+	- Lợi ích:
+
+		- Giúp A quản lý dự án một cách hiệu quả và dễ dàng.
+
+		- Giảm thiểu rủi ro chậm trễ và thất bại của dự án.
+
+		- Tăng cường sự minh bạch và phối hợp giữa các thành viên trong đội.
+
+		- Nâng cao năng suất và hiệu quả của đội phát triển phần mềm.
+
+- Kết luận:
+
+	- A là một người sử dụng điển hình của agile-line bằng issue, project và workspace. Ứng dụng giúp A quản lý công việc hiệu quả và giải quyết các vấn đề liên quan đến quản lý dự án một cách dễ dàng.
 ## Contributors
 
 <center>
