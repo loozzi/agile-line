@@ -107,6 +107,8 @@ function* watchAuthFlow() {
         yield put(authActions.loginSuccess(resp.data?.user))
         yield call(saveToLocalStorage, resp.data!)
         isLogin = true
+      } else {
+        yield call(handleLogout)
       }
     }
 
