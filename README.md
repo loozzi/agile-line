@@ -146,56 +146,57 @@ npm run dev
 ```
 ## Persona
 
-- Tên: Nguyễn Văn A
+- Name: Nguyen Van B
 
-- Tuổi: 30
+- Age: 30
 
-- Nghề nghiệp: Scrum Master
+- Occupation: Scrum Master
 
-- Công ty: Công ty phần mềm nhỏ - Start-up
+- Company: Small software company - start-up
 
-- Mục tiêu: Giúp đội phát triển phần mềm hoàn thành sản phẩm được giao một cách hiệu quả và đúng hạn.
+- Goal:
 
-- Khó khăn:
-	- Quản lý tiến độ và công việc của nhiều dự án cùng lúc.
+	- Help the software development team complete assigned products efficiently and on time.
 
-	- Thiếu khả năng nắm bắt toàn cảnh các vấn đề và tiến độ của dự án.
+- Challenges:
+	- Managing the progress and workload of multiple projects simultaneously.
 
-	- Giao tiếp khó khăn giữa các thành viên trong đội.
+	- Lacking the ability to grasp the overall picture of project issues and progress.
 
-	- Khó khăn trong việc theo dõi và phân bổ tài nguyên cho các dự án.
+	- Communication difficulties between team members.
 
-- Cần giải pháp:
+	- Difficulties in tracking and allocating resources for projects.
+- Solutions Needed:
 
-	- Công cụ quản lý dự án trực quan, dễ sử dụng, giúp A theo dõi tiến độ và công việc của các dự án.
+	- A visual and user-friendly project management tool that helps B track the progress and work of projects.
 
-	- Công cụ có khả năng tạo và quản lý từng workspace cho từng công việc , từng dự án của workspace và từng issue của dự án một cách linh hoạt và riêng biệt.
+	- A tool capable of creating and managing separate workspaces for each task, project within a workspace, and issue within a project in a flexible and distinct way.
 
-	- Khả năng phân công nhiệm vụ và theo dõi tiến độ của từng thành viên trong đội.
+	- Ability to assign tasks and monitor the progress of each team member.
 
-- Sử dụng agile-line
+- Using agile-line:
 
-	- A sử dụng agile-line để:
+	- B uses agile-line to:
 
-		- Tạo và quản lý các workspace cho các dự án khác nhau.
+		- Create and manage workspaces for different projects.
 
-		- Tạo các issue cho các vấn đề, yêu cầu và nhiệm vụ cần thực hiện.
+		- Create issues for problems, requests, and tasks to be completed.
 
-		- Phân công nhiệm vụ cho các thành viên trong đội và theo dõi tiến độ của họ.
+		- Assign tasks to team members and track their progress.
 
-	- Lợi ích:
+	- Benefits:
 
-		- Giúp A quản lý dự án một cách hiệu quả và dễ dàng.
+		- Helps B manage projects efficiently and easily.
 
-		- Giảm thiểu rủi ro chậm trễ và thất bại của dự án.
+		- Minimizes risks of project delays and failures.
 
-		- Tăng cường sự minh bạch và phối hợp giữa các thành viên trong đội.
+		- Enhances transparency and collaboration among team members.
 
-		- Nâng cao năng suất và hiệu quả của đội phát triển phần mềm.
+		- Improves productivity and efficiency of the software development team.
 
-- Kết luận:
+- Conclusion:
 
-	- A là một người sử dụng điển hình của agile-line bằng issue, project và workspace. Ứng dụng giúp A quản lý công việc hiệu quả và giải quyết các vấn đề liên quan đến quản lý dự án một cách dễ dàng.
+	- B is a typical user of agile-line using issues, projects, and workspaces. The application helps B manage work effectively and resolve project management issues easily.
 ## Contributors
 
 <center>
