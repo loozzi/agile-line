@@ -5,6 +5,7 @@ import routes from '~/configs/routes'
 import { AUTH_LOGOUT } from '~/hooks/auth/auth.slice'
 
 export const LogoutPage = () => {
+  document.title = 'Đăng xuất'
   const dispatch = useAppDispatch()
   useEffect(() => {
     dispatch({ type: AUTH_LOGOUT })

@@ -38,6 +38,7 @@ interface EditProjectProps {
 }
 
 export const EditProjectSideSheet = (props: EditProjectProps) => {
+  document.title = 'Chỉnh sửa dự án'
   let { project, editMember } = props
   const [projectDetail, setProjectDetail] = useState<ProjectResponse | undefined>(undefined)
   const [enableEdit, setEnableEdit] = useState<boolean>(false)

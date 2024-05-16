@@ -1,4 +1,5 @@
 export const ForbiddenPage = () => {
+  document.title = '403 - Forbidden'
   return (
     <div
       style={{

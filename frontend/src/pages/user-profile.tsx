@@ -21,6 +21,7 @@ import tokenService from '~/services/token.service'
 import userService from '~/services/user.service'
 
 export const UserProfilePage = () => {
+  document.title = 'Thông tin cá nhân'
   const [currentUser, setCurrentUser] = useState<UserDetail | undefined>(undefined)
   const [isShowDialog, setIsShowDialog] = useState(false)
   const [typeDialog, setTypeDialog] = useState<'info' | 'email' | 'password' | undefined>(undefined)

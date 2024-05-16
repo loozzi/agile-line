@@ -3,6 +3,7 @@ import imgs from '~/assets/imgs'
 import { history } from '~/configs/history'
 
 const NotFound = () => {
+  document.title = '404 - Page not found'
   const backToHome = () => {
     history.push('/')
   }

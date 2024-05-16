@@ -9,6 +9,7 @@ import { AUTH_LOGIN } from '~/hooks/auth/auth.slice'
 import { LoginPayload } from '~/models/auth'
 
 export const LoginPage = () => {
+  document.title = 'Đăng nhập'
   const dispatch = useAppDispatch()
 
   const initialValues: LoginPayload = useMemo(

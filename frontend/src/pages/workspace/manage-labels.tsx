@@ -21,6 +21,7 @@ import labelService from '~/services/label.service'
 import { getContrastColor } from '~/utils'
 
 export const ManageLabelPage = () => {
+  document.title = 'Quản lý nhãn'
   const [isShowDialog, setIsShowDialog] = useState(false)
   const [dataCreateOrEdit, setDataCreateOrEdit] = useState<LabelResponse | undefined>(undefined)
   const [labels, setLabels] = useState<LabelResponse[]>([]) // [LabelResponse]

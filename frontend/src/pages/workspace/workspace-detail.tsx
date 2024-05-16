@@ -24,6 +24,7 @@ export const WorkspaceDetailPage = () => {
 
   useEffect(() => {
     getDetail()
+    document.title = `${currentWorkspace?.title} - Chi tiết`
   }, [currentWorkspace])
 
   return (
