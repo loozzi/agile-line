@@ -192,7 +192,9 @@ export const CreateProjectDialog = (props: CreateProjectDialogProps) => {
           />
         </Pane>
         <div data-color-mode='light'>
-          <Label>Thêm mô tả</Label>
+          <Label marginBottom={majorScale(1)} display='block'>
+            Thêm mô tả
+          </Label>
           <MDEditor height={200} value={payloadFormik.values.description} onChange={onChangeDescription} />
         </div>
       </Pane>
@@ -285,7 +287,7 @@ export const CreateProjectDialog = (props: CreateProjectDialogProps) => {
         </Popover>
       </Pane>
       <Pane marginY={majorScale(2)} display='flex' justifyContent='flex-end'>
-        <Button type='button' marginRight={majorScale(2)} onClick={closeDialog}>
+        <Button type='button' marginRight={majorScale(1)} onClick={closeDialog}>
           Đóng
         </Button>
         <Button type='submit' appearance='primary'>

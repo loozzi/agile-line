@@ -80,9 +80,16 @@ export const WorkspaceCreate = (props: WorkspaceCreateProps) => {
         label='Thêm tiêu đề'
       />
 
-      <div data-color-mode='light'>
-        <Label>Thêm mô tả</Label>
-        <MDEditor height={200} value={formik.values.description} onChange={onChangeDescription} />
+      <div>
+        <Label marginBottom={majorScale(1)} display='block'>
+          Thêm mô tả
+        </Label>
+        <MDEditor
+          data-color-mode='light'
+          height={200}
+          value={formik.values.description}
+          onChange={onChangeDescription}
+        />
       </div>
       <ImageUploaderComp
         label='Biểu tượng / Icon'
@@ -94,7 +101,9 @@ export const WorkspaceCreate = (props: WorkspaceCreateProps) => {
 
       <Pane display='flex' alignItems='flex-end' justifyContent='space-between'>
         <Pane>
-          <Label>Quyền riêng tư</Label>
+          <Label marginBottom={majorScale(1)} display='block'>
+            Quyền riêng tư
+          </Label>
           <Combobox
             initialSelectedItem={formik.values.is_private ? 'Riêng tư' : 'Công khai'}
             openOnFocus

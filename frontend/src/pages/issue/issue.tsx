@@ -1,4 +1,4 @@
-import { Button, Label, Pane, SearchInput, SelectField, majorScale } from 'evergreen-ui'
+import { Button, Label, Pane, SearchInput, SelectField, majorScale, PlusIcon, Dialog } from 'evergreen-ui'
 import { useEffect, useState } from 'react'
 import { useParams } from 'react-router'
 import { ListIssueComp } from '~/components/project/issue_list'
@@ -6,6 +6,7 @@ import { IssueStatus } from '~/models/issue'
 import { ProjectResponse } from '~/models/project'
 import workspaceService from '~/services/workspace.service'
 import { transLabel } from '~/utils'
+import { CreateIssueDialog } from './create-issue'
 
 export const IssuePage = () => {
   const params = useParams()
@@ -20,6 +21,8 @@ export const IssuePage = () => {
 
   const [selectedStatus, setSelectedStatus] = useState<string>('all')
   const [searchKeyword, setSearchKeyword] = useState<string>('')
+
+  const [isShownCreate, setShownCreate] = useState<boolean>(false)
 
   const statusOptions = [
     { label: 'Tất cả', value: 'all' },
@@ -80,7 +83,9 @@ export const IssuePage = () => {
           </Pane>
         </Pane>
         <Pane>
-          <Button intent='success'>Tạo mới</Button>
+          <Button intent='success' iconBefore={<PlusIcon />} onClick={() => setShownCreate(true)}>
+            Tạo công việc
+          </Button>
         </Pane>
       </Pane>
       <ListIssueComp
@@ -88,7 +93,14 @@ export const IssuePage = () => {
         status={selectedStatus !== 'all' ? (selectedStatus as IssueStatus) : undefined}
         keyword={searchKeyword}
       />
-      <Pane></Pane>
+      <Dialog
+        isShown={isShownCreate}
+        title='Tạo công việc'
+        onCloseComplete={() => setShownCreate(false)}
+        hasFooter={false}
+      >
+        <CreateIssueDialog onCreateSuccess={() => {}} closeDialog={() => setShownCreate(false)} />
+      </Dialog>
     </Pane>
   )
 }

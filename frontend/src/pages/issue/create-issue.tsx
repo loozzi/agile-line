@@ -178,7 +178,9 @@ export const CreateIssueDialog = (props: CreateIssueDialogProps) => {
           onBlur={payload.handleBlur}
         />
         <div data-color-mode='light'>
-          <Label>Thêm mô tả</Label>
+          <Label marginBottom={majorScale(1)} display='block'>
+            Thêm mô tả
+          </Label>
           <MDEditor height={200} value={payload.values.description} onChange={onChangeDescription} />
         </div>
       </Pane>

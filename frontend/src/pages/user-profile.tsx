@@ -305,7 +305,9 @@ export const UserProfilePage = () => {
               />
             </Pane>
             <div data-color-mode='light'>
-              <Label>Thêm mô tả</Label>
+              <Label marginBottom={majorScale(1)} display='block'>
+                Thêm mô tả
+              </Label>
               <MDEditor height={200} value={updateInfoFormik.values.description} onChange={onChangeDescription} />
             </div>
             <Pane marginTop={majorScale(4)}>
