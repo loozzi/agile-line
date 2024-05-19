@@ -25,6 +25,8 @@
 <h4>
 	<a href="https://agile-line-client.vercel.app/" target="_blank">View Demo</a>
 <span> · </span>
+	<a href="https://judicial-clovis-loozzi-3e24b8b7.koyeb.app/api" target="_blank">API Demo</a>
+<span> · </span>
 	<a href="https://github.com/loozzi/agile-line/issues/">Report Bug</a>
 <span> · </span>
 	<a href="https://github.com/loozzi/agile-line/issues/">Request Feature</a>
@@ -144,7 +146,59 @@ or
 ```
 npm run dev
 ```
+## Persona
 
+- Name: Nguyen Van B
+
+- Age: 30
+
+- Occupation: Scrum Master
+
+- Company: Small software company - start-up
+
+- Goal:
+
+	- Help the software development team complete assigned products efficiently and on time.
+
+- Challenges:
+	- Managing the progress and workload of multiple projects simultaneously.
+
+	- Lacking the ability to grasp the overall picture of project issues and progress.
+
+	- Communication difficulties between team members.
+
+	- Difficulties in tracking and allocating resources for projects.
+- Solutions Needed:
+
+	- A visual and user-friendly project management tool that helps B track the progress and work of projects.
+
+	- A tool capable of creating and managing separate workspaces for each task, project within a workspace, and issue within a project in a flexible and distinct way.
+
+	- Ability to assign tasks and monitor the progress of each team member.
+
+- Using agile-line:
+
+	- B uses agile-line to:
+
+		- Create and manage workspaces for different projects.
+
+		- Create issues for problems, requests, and tasks to be completed.
+
+		- Assign tasks to team members and track their progress.
+
+	- Benefits:
+
+		- Helps B manage projects efficiently and easily.
+
+		- Minimizes risks of project delays and failures.
+
+		- Enhances transparency and collaboration among team members.
+
+		- Improves productivity and efficiency of the software development team.
+
+- Conclusion:
+
+	- B is a typical user of agile-line using issues, projects, and workspaces. The application helps B manage work effectively and resolve project management issues easily.
 ## Contributors
 
 <center>
